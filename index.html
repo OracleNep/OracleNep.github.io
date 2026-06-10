@@ -236,7 +236,6 @@
       font-size: 14px;
     }
 
-    .proof-grid,
     .project-grid,
     .boundary-grid {
       display: grid;
@@ -419,7 +418,6 @@
       }
 
       .metrics,
-      .proof-grid,
       .project-grid,
       .link-grid,
       .vuln-layout,
@@ -457,7 +455,7 @@
       }
 
       h1 {
-        font-size: 36px;
+        font-size: 32px;
       }
 
       .hero-subtitle {
@@ -480,11 +478,10 @@
     <nav class="nav" aria-label="主导航">
       <a class="brand" href="#top">OracleNep</a>
       <div class="nav-links">
-        <a href="#proof">证明方式</a>
         <a href="#links">公开入口</a>
         <a href="#vulns">漏洞编号</a>
         <a href="#projects">项目</a>
-        <a href="#boundary">公开边界</a>
+        <a href="#boundary">披露边界</a>
       </div>
     </nav>
   </header>
@@ -496,7 +493,7 @@
           <span class="eyebrow">AppSec / SRC / Java White-box Audit / Security Tooling</span>
           <h1>OracleNep 安全作品集</h1>
           <p class="hero-subtitle">
-            公开版作品集，仅展示可公开核验的漏洞平台主页、漏洞编号、开源项目和上游贡献。不包含身份字段、联系方式或未公开漏洞细节。
+            聚焦应用安全、SRC 漏洞挖掘、Java 白盒审计与安全工具开发。这里整理漏洞平台主页、代表编号、开源项目和上游贡献，方便快速了解公开成果。
           </p>
           <div class="actions">
             <a class="button primary" href="https://src.sjtu.edu.cn/profile/20160/" target="_blank" rel="noreferrer">漏洞平台主页</a>
@@ -530,37 +527,11 @@
       </div>
     </section>
 
-    <section class="section" id="proof">
-      <div class="inner">
-        <div class="section-title">
-          <h2>证明方式</h2>
-          <p>公开页面不依赖账号登录，不放后台截图。核心思路是用公开主页、编号页、PR 链接和项目仓库作为证据入口。</p>
-        </div>
-        <div class="proof-grid">
-          <article class="card">
-            <span class="label">公开核验</span>
-            <h3>漏洞平台主页</h3>
-            <p>使用 EDUSRC 公开主页作为漏洞提交经历的入口，招聘方可以直接访问，不需要现场登录账号。</p>
-          </article>
-          <article class="card">
-            <span class="label green">编号索引</span>
-            <h3>CVE / CNVD 编号</h3>
-            <p>公开展示代表性编号与官方编号页链接，不展示目标资产、复现请求、利用细节或未公开报告。</p>
-          </article>
-          <article class="card">
-            <span class="label amber">工程证据</span>
-            <h3>开源项目与上游 PR</h3>
-            <p>通过 GitHub 仓库、Release 和 php-src PR 证明安全工具开发、测试补充和上游协作能力。</p>
-          </article>
-        </div>
-      </div>
-    </section>
-
     <section class="section alt" id="links">
       <div class="inner">
         <div class="section-title">
           <h2>公开入口</h2>
-          <p>以下链接只用于展示公开可访问的作品与证明材料，不承载身份字段。</p>
+          <p>把可直接查验的材料集中放在这里：漏洞平台主页、编号索引、开源仓库、Release 和上游 PR。</p>
         </div>
         <div class="link-grid">
           <a class="link-card" href="https://src.sjtu.edu.cn/profile/20160/" target="_blank" rel="noreferrer">
@@ -595,7 +566,7 @@
       <div class="inner">
         <div class="section-title">
           <h2>漏洞编号</h2>
-          <p>这里只做编号索引和能力概述。编号页能证明申报记录，公开页面不包含可复现攻击链和目标系统信息。</p>
+          <p>代表性编号用于快速定位公开记录。具体报告内容遵循平台披露规则，只保留必要的索引信息和能力概述。</p>
         </div>
         <div class="vuln-layout">
           <article class="project">
@@ -607,14 +578,14 @@
               <a class="id-link" href="https://www.cnvd.org.cn/flaw/show/CNVD-2026-10837" target="_blank" rel="noreferrer">CNVD-2026-10837</a>
               <a class="id-link" href="https://www.cnvd.org.cn/flaw/show/CNVD-2025-17734" target="_blank" rel="noreferrer">CNVD-2025-17734</a>
             </div>
-            <p>CNVD 官方站点有时会因网络或防护策略导致访问不稳定；编号本身仍可作为简历和面试中的索引信息。</p>
+            <p>CNVD 官方站点有时会因网络或防护策略导致访问不稳定，编号本身可作为后续沟通和材料核验的索引。</p>
           </article>
           <article class="project">
             <h3>SRC 报告能力</h3>
             <ul>
               <li>能够完成漏洞发现、请求构造、复现验证、风险评级、影响范围说明和修复建议输出。</li>
               <li>具备通用型 / 事件型漏洞提交经验，能围绕影响版本、漏洞类型、利用条件和披露边界整理标准化报告。</li>
-              <li>公开作品集只保留编号、平台主页和脱敏结论，不公开未修复漏洞与敏感资产信息。</li>
+              <li>公开材料以编号、平台主页、风险描述和修复建议为主，细节按授权范围和披露要求处理。</li>
             </ul>
           </article>
         </div>
@@ -625,7 +596,7 @@
       <div class="inner">
         <div class="section-title">
           <h2>项目与贡献</h2>
-          <p>项目部分保留公开可访问链接和参与方向，不使用身份信息包装经历。</p>
+          <p>开源项目和上游 PR 更适合展示工程能力：能运行、能复盘、能追踪提交和 review 过程。</p>
         </div>
         <div class="project-grid">
           <article class="project">
@@ -667,7 +638,7 @@
             <ul>
               <li>支持基础扫描、深度递归扫描、批量 API 测试、结果导出和自定义正则配置。</li>
               <li>可用于前端接口梳理、敏感信息发现、JS 资源分析和授权测试前期资产整理。</li>
-              <li>公开页按团队项目表述，不把团队仓库数据包装为个人单独成果。</li>
+              <li>作为团队工具生态的一部分，为 SRC / Web 资产分析流程提供辅助能力。</li>
             </ul>
           </article>
         </div>
@@ -677,21 +648,21 @@
     <section class="section" id="boundary">
       <div class="inner">
         <div class="section-title">
-          <h2>公开边界</h2>
-          <p>这个页面是公开版，不是完整简历。身份信息和敏感技术细节默认不进入公网页面。</p>
+          <h2>披露边界</h2>
+          <p>SRC、CNVD 和授权测试材料以公开编号、脱敏复盘和修复建议为主，避免把可复现细节直接放到开放页面。</p>
         </div>
         <div class="boundary-grid">
           <article class="notice">
-            <h3>不写身份信息</h3>
-            <p>不写任何能直接定位个人身份的字段、联系方式、证件信息或证书编号。</p>
+            <h3>编号与主页</h3>
+            <p>使用平台主页、CVE / CNVD 编号和公开仓库作为索引，便于快速定位公开记录和项目交付物。</p>
           </article>
           <article class="notice">
-            <h3>不放敏感漏洞细节</h3>
-            <p>不公开目标系统、URL、请求包、Cookie、Token、后台路径、未修复漏洞和可直接复现的利用步骤。</p>
+            <h3>脱敏复盘</h3>
+            <p>面试或沟通时围绕漏洞类型、影响判断、根因分析、修复建议和复测结论展开，不展示目标资产细节。</p>
           </article>
           <article class="notice">
-            <h3>只保留可核验材料</h3>
-            <p>保留公开平台主页、编号页、项目仓库、Release、PR 记录和脱敏后的能力说明，便于招聘方快速验证。</p>
+            <h3>授权范围</h3>
+            <p>所有 SRC、护网和审计经历均按授权范围描述，未公开报告和攻击复现链路不作为网页内容发布。</p>
           </article>
         </div>
       </div>
@@ -700,7 +671,7 @@
 
   <footer class="footer">
     <div class="inner">
-      <span>公开版作品集，不含个人身份字段。</span>
+      <span>OracleNep Security Portfolio</span>
       <span><a href="https://github.com/OracleNep" target="_blank" rel="noreferrer">github.com/OracleNep</a></span>
     </div>
   </footer>
