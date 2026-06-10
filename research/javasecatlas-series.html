@@ -1,0 +1,522 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="robots" content="noindex, noarchive" />
+  <meta name="description" content="JavaSecAtlas 研究文章集：从 Java / Spring 白盒审计工作台、SARIF 导入，到 finding 关联和 Agent 复核的项目复盘。" />
+  <meta property="og:title" content="JavaSecAtlas 研究文章集｜OracleNep" />
+  <meta property="og:description" content="JavaSecAtlas V1.2 项目复盘与后续迭代笔记" />
+  <title>JavaSecAtlas 研究文章集｜OracleNep</title>
+  <style>
+    :root {
+      --ink: #17202f;
+      --muted: #5c6879;
+      --line: #d8dee8;
+      --paper: #f7f9fc;
+      --surface: #ffffff;
+      --teal: #087f8c;
+      --cyan: #48d6c4;
+      --green: #126b4e;
+      --amber: #9b6508;
+      --shadow: 0 18px 46px rgba(23, 32, 47, .10);
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--paper);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", Arial, sans-serif;
+      line-height: 1.78;
+    }
+    a { color: var(--teal); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    code, pre {
+      font-family: "Cascadia Mono", Consolas, Menlo, Monaco, monospace;
+    }
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      border-bottom: 1px solid rgba(216, 222, 232, .92);
+      background: rgba(247, 249, 252, .93);
+      backdrop-filter: blur(12px);
+    }
+    .nav {
+      width: min(1120px, calc(100% - 48px));
+      min-height: 62px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+    }
+    .brand { color: var(--ink); font-weight: 850; white-space: nowrap; }
+    .nav-links { display: flex; align-items: center; gap: 18px; font-size: 14px; }
+    .nav-links a { color: #334155; }
+    .hero {
+      color: #fff;
+      background:
+        radial-gradient(circle at 20% 10%, rgba(72, 214, 196, .18), transparent 32%),
+        linear-gradient(115deg, #08111f 0%, #172033 58%, #0f3a43 100%);
+    }
+    .inner {
+      width: min(1120px, calc(100% - 48px));
+      margin: 0 auto;
+    }
+    .hero-copy {
+      max-width: 850px;
+      padding: 86px 0 78px;
+    }
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      min-height: 28px;
+      padding: 2px 10px;
+      border: 1px solid rgba(255, 255, 255, .30);
+      border-radius: 4px;
+      color: #b8f2e6;
+      background: rgba(255, 255, 255, .08);
+      font-size: 13px;
+      font-weight: 800;
+    }
+    h1, h2, h3 { margin: 0; line-height: 1.25; }
+    h1 { margin-top: 18px; font-size: 48px; }
+    .subtitle {
+      max-width: 760px;
+      margin: 18px 0 0;
+      color: rgba(255, 255, 255, .86);
+      font-size: 18px;
+    }
+    .actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 28px; }
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 42px;
+      padding: 9px 14px;
+      border: 1px solid rgba(255, 255, 255, .32);
+      border-radius: 6px;
+      color: #fff;
+      background: rgba(255, 255, 255, .12);
+      font-weight: 800;
+    }
+    .button.primary { border-color: var(--cyan); color: #062d33; background: var(--cyan); }
+    .button:hover { text-decoration: none; filter: brightness(1.04); }
+    .layout {
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      gap: 24px;
+      padding: 42px 0 74px;
+    }
+    .toc {
+      position: sticky;
+      top: 84px;
+      align-self: start;
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--surface);
+      box-shadow: var(--shadow);
+    }
+    .toc strong { display: block; margin-bottom: 10px; }
+    .toc a {
+      display: block;
+      padding: 7px 0;
+      color: #334155;
+      font-size: 14px;
+    }
+    .toc .small { margin-top: 12px; color: var(--muted); font-size: 13px; }
+    .article-list { display: grid; gap: 22px; }
+    .article {
+      padding: 28px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--surface);
+      box-shadow: var(--shadow);
+    }
+    .article + .article { margin-top: 0; }
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .tag {
+      min-height: 26px;
+      display: inline-flex;
+      align-items: center;
+      padding: 2px 8px;
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      color: #425064;
+      background: #f7f9fc;
+      font-size: 12px;
+      font-weight: 750;
+    }
+    .article h2 { font-size: 28px; }
+    .article h3 { margin-top: 24px; font-size: 20px; }
+    .article p { margin: 12px 0 0; color: #334155; }
+    .article ul, .article ol { margin: 12px 0 0; padding-left: 22px; color: #334155; }
+    .article li + li { margin-top: 6px; }
+    .lead {
+      margin-top: 14px;
+      color: var(--muted);
+      font-size: 16px;
+    }
+    blockquote {
+      margin: 18px 0;
+      padding: 14px 18px;
+      border-left: 4px solid var(--teal);
+      background: #eef8f7;
+      color: #24424a;
+    }
+    pre {
+      margin: 16px 0 0;
+      padding: 16px;
+      overflow-x: auto;
+      border: 1px solid #dbe5ee;
+      border-radius: 8px;
+      color: #dbeafe;
+      background: #111827;
+      font-size: 13px;
+      line-height: 1.65;
+    }
+    code {
+      padding: 1px 5px;
+      border-radius: 4px;
+      background: #edf2f7;
+      color: #17324d;
+      font-size: .94em;
+    }
+    pre code { padding: 0; background: transparent; color: inherit; }
+    table {
+      width: 100%;
+      margin-top: 16px;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+    th, td {
+      padding: 10px 12px;
+      border: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+    }
+    th { background: #eef2f6; }
+    .note {
+      margin-top: 18px;
+      padding: 14px 16px;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      background: #f8fafc;
+      color: #475569;
+    }
+    .footer {
+      padding: 34px 0;
+      color: #cbd5e1;
+      background: #152033;
+      font-size: 14px;
+    }
+    .footer .inner { display: flex; justify-content: space-between; gap: 20px; }
+    .footer a { color: #78e4d4; }
+    @media (max-width: 920px) {
+      .nav { min-height: auto; padding: 14px 0; align-items: start; flex-direction: column; gap: 10px; }
+      .nav-links { flex-wrap: wrap; gap: 12px; }
+      h1 { font-size: 38px; }
+      .layout { grid-template-columns: 1fr; }
+      .toc { position: static; }
+      .footer .inner { flex-direction: column; }
+    }
+    @media (max-width: 560px) {
+      .inner, .nav { width: min(100% - 32px, 1120px); }
+      h1 { font-size: 31px; }
+      .hero-copy { padding: 58px 0 64px; }
+      .article { padding: 20px; }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <nav class="nav" aria-label="主导航">
+      <a class="brand" href="../index.html">OracleNep</a>
+      <div class="nav-links">
+        <a href="#article-1">V1.2 复盘</a>
+        <a href="#article-2">SARIF 编排</a>
+        <a href="#article-3">路由关联</a>
+        <a href="#article-4">Agent 复核</a>
+      </div>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="inner">
+        <div class="hero-copy">
+          <span class="eyebrow">Research Notes / JavaSecAtlas Series</span>
+          <h1>JavaSecAtlas 研究文章集</h1>
+          <p class="subtitle">
+            这里放的是我围绕 JavaSecAtlas 做的一组项目复盘：为什么不继续造一个低配 SAST，为什么要接 SARIF，后面又该怎么把 finding 关联到 Spring 路由、权限上下文和 Agent 复核流程里。
+          </p>
+          <div class="actions">
+            <a class="button primary" href="https://github.com/Team-intN18-SoybeanSeclab/JavaSecAtlas" target="_blank" rel="noreferrer">JavaSecAtlas 仓库</a>
+            <a class="button" href="../index.html">返回作品集</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="inner layout">
+      <aside class="toc" aria-label="文章目录">
+        <strong>文章目录</strong>
+        <a href="#article-1">01. V1.2：我没有继续造一个低配 SAST</a>
+        <a href="#article-2">02. SARIF 导入：把外部扫描结果接进来</a>
+        <a href="#article-3">03. 下一步：把 finding 绑到 Spring 路由上</a>
+        <a href="#article-4">04. Agent 复核：让 AI 干适合它干的活</a>
+        <p class="small">这组文章偏项目复盘，不展示未授权目标、未公开漏洞细节或可直接复用的攻击载荷。</p>
+      </aside>
+
+      <section class="article-list">
+        <article class="article" id="article-1">
+          <div class="meta">
+            <span class="tag">JavaSecAtlas</span>
+            <span class="tag">V1.2</span>
+            <span class="tag">SAST 编排</span>
+            <span class="tag">项目复盘</span>
+          </div>
+          <h2>01. JavaSecAtlas V1.2：我没有继续造一个低配 SAST</h2>
+          <p class="lead">JavaSecAtlas 一开始的想法很简单：做一个面向 Java / Spring 项目的白盒审计辅助工具，把项目识别、路由提取、权限注解提取、启发式规则扫描和报告生成这些事情串起来。</p>
+
+          <p>但做到 V1.2 的时候，我重新想了一下这个项目到底应该往哪走。如果继续沿着“自己写更多扫描规则”的方向堆下去，最后大概率会变成一个低配版 SAST。这就很尴尬了。</p>
+          <p>因为安全圈已经有很多成熟工具了。Semgrep 规则好写，适合快速做模式匹配和工程化落地；CodeQL 更适合做深度数据流、调用链和变体分析；Fortify 这类商业 SAST 更偏企业级治理、规则库和合规流程。我一个个人 / 团队实验项目，没必要也不现实去碰瓷这些东西。</p>
+
+          <blockquote>V1.2 这版，我没有继续试图“打败” Semgrep 或 CodeQL，而是换了一个方向：JavaSecAtlas 不替代成熟 SAST，而是把它们的结果接进来，作为 Java / Spring 审计工作流的一部分。</blockquote>
+
+          <h3>为什么这个转向比较重要</h3>
+          <p>扫描器输出的是 finding，但代码审计最后需要的是可以复核、可以解释、可以写进报告的线索。两者之间差了一段很实际的工作：</p>
+          <ul>
+            <li>这个点属于哪个 Controller？</li>
+            <li>对应哪个路由？</li>
+            <li>有没有权限注解？</li>
+            <li>参数是不是用户可控？</li>
+            <li>这个 finding 是真实风险还是误报？</li>
+            <li>修复建议怎么写才不空？</li>
+          </ul>
+          <p>JavaSecAtlas 后续要补的就是这段中间层。它不是“再造一个扫描器”，而是想把扫描结果放进 Java 项目的上下文里，再往审计线索、人工复核和报告交付方向推进。</p>
+
+          <h3>V1.2 做了什么</h3>
+          <p>V1.2 新增了外部 SARIF 导入能力。现在可以这样使用：</p>
+          <pre><code>python -m javasecatlas scan \
+  -t examples/spring-vuln-demo \
+  -o reports \
+  -f all \
+  --import-sarif semgrep.sarif \
+  --import-sarif codeql.sarif</code></pre>
+          <p>这个流程里，JavaSecAtlas 会先执行自己的扫描逻辑，然后导入外部 SARIF findings，最后统一进入 JSON、Markdown、HTML、SARIF 报告输出流程。</p>
+
+          <h3>我想保留的边界感</h3>
+          <p>我不会说 JavaSecAtlas 比 Semgrep、CodeQL、Fortify 更强。这种说法既不准确，也很容易被真正做过 SAST 的人一眼看穿。更合理的说法是：</p>
+          <ul>
+            <li>Semgrep / CodeQL 负责发现候选 finding；</li>
+            <li>JavaSecAtlas 负责导入、归一化、上下文整理和报告组织；</li>
+            <li>后续 Agent 只做辅助复核和表达整理，不负责凭空判断漏洞。</li>
+          </ul>
+          <p>这样项目的定位会更稳，也更接近真实安全工程里的工作方式。</p>
+        </article>
+
+        <article class="article" id="article-2">
+          <div class="meta">
+            <span class="tag">SARIF</span>
+            <span class="tag">Semgrep</span>
+            <span class="tag">CodeQL</span>
+            <span class="tag">Finding Normalize</span>
+          </div>
+          <h2>02. SARIF 导入：把外部扫描结果接进来</h2>
+          <p class="lead">SARIF 可以理解成静态分析结果的通用交换格式。对 JavaSecAtlas 来说，支持 SARIF 的意义不是“蹭格式”，而是让它能接住 Semgrep、CodeQL 等工具已经发现的结果。</p>
+
+          <p>V1.2 里新增了一个导入模块，核心函数是：</p>
+          <pre><code>load_sarif_findings(path: Path) -&gt; list[Finding]</code></pre>
+          <p>这个函数做的事情不复杂：读取 SARIF 文件，把外部工具的 result 转成 JavaSecAtlas 自己的 <code>Finding</code> 对象。这样后面的报告、过滤、Agent 复核就可以用同一套数据结构处理。</p>
+
+          <h3>字段怎么映射</h3>
+          <table>
+            <thead>
+              <tr><th>SARIF 字段</th><th>JavaSecAtlas 字段</th><th>说明</th></tr>
+            </thead>
+            <tbody>
+              <tr><td><code>ruleId</code></td><td><code>rule_id</code></td><td>加上外部来源前缀，例如 <code>external.semgrep...</code></td></tr>
+              <tr><td><code>message.text</code></td><td><code>message</code></td><td>保留工具原始描述，方便回看</td></tr>
+              <tr><td><code>artifactLocation.uri</code></td><td><code>file</code></td><td>记录命中文件路径</td></tr>
+              <tr><td><code>region.startLine</code></td><td><code>line</code></td><td>记录起始行</td></tr>
+              <tr><td><code>region.startColumn</code></td><td><code>column</code></td><td>记录起始列</td></tr>
+              <tr><td><code>result.level</code></td><td><code>severity</code></td><td>做基础严重等级映射</td></tr>
+              <tr><td><code>rule.properties.tags</code></td><td><code>tags</code></td><td>保留 CWE、语言、规则类别等信息</td></tr>
+            </tbody>
+          </table>
+
+          <h3>一个实际例子</h3>
+          <p>比如 Semgrep 扫到一个 MD5 使用点，SARIF 里可能会有这样的信息：</p>
+          <pre><code>{
+  "ruleId": "java.lang.security.audit.crypto.use-of-md5.use-of-md5",
+  "level": "warning",
+  "message": {
+    "text": "Detected MD5 usage."
+  },
+  "locations": [
+    {
+      "physicalLocation": {
+        "artifactLocation": {
+          "uri": "src/main/java/demo/WeakCrypto.java"
+        },
+        "region": {
+          "startLine": 12,
+          "startColumn": 20
+        }
+      }
+    }
+  ]
+}</code></pre>
+          <p>导入之后，它会被转换成类似这样的 finding：</p>
+          <pre><code>rule_id: external.semgrep.java.lang.security.audit.crypto.use-of-md5.use-of-md5
+severity: medium
+file: src/main/java/demo/WeakCrypto.java
+line: 12
+column: 20
+tags: external-sarif, tool:semgrep, CWE-328</code></pre>
+
+          <h3>这一步解决了什么</h3>
+          <p>它解决的是“外部扫描结果进不来”的问题。以前 JavaSecAtlas 只能处理自己的规则结果，现在可以接收 Semgrep / CodeQL 输出，再统一进入报告流程。这个改动看起来不炫，但很关键：项目开始从一个自写规则工具，往审计工作流编排器靠近。</p>
+
+          <h3>这一步还没解决什么</h3>
+          <p>V1.2 只是先打通导入链路，还没有做强去重，也没有把每个 finding 精确绑定到 Spring 路由和权限上下文上。如果 JavaSecAtlas 自己扫到一个点，Semgrep 也扫到同一个点，现在可能会出现两条记录。这不是最终形态，但在这个阶段可以接受。</p>
+          <div class="note">我的理解是：先把数据接进来，再谈关联、去重、优先级排序和复核。顺序反了，项目很容易变成空架子。</div>
+        </article>
+
+        <article class="article" id="article-3">
+          <div class="meta">
+            <span class="tag">Spring</span>
+            <span class="tag">Route Binding</span>
+            <span class="tag">Permission Context</span>
+            <span class="tag">Audit Leads</span>
+          </div>
+          <h2>03. 下一步：把 finding 绑到 Spring 路由上</h2>
+          <p class="lead">如果只是把 Semgrep / CodeQL 的结果导进来，JavaSecAtlas 还只是一个结果聚合器。真正和普通 SARIF 查看器拉开差距的地方，是把 finding 放回 Java / Spring 项目的业务入口里。</p>
+
+          <p>真实审计里，我看到一个 sink 并不会马上下结论。更常见的流程是继续追入口：</p>
+          <ul>
+            <li>这个代码点是不是被 Controller 调到了？</li>
+            <li>对应的 URL 是什么？</li>
+            <li>是 GET、POST，还是文件上传接口？</li>
+            <li>有没有 <code>@PreAuthorize</code>、<code>@RequiresPermissions</code>、<code>@SaCheckPermission</code> 这类权限注解？</li>
+            <li>如果没有显式权限注解，是否还有全局拦截器或网关控制？</li>
+            <li>参数能不能从 HTTP 请求一路传到危险函数？</li>
+          </ul>
+
+          <h3>我希望后续生成什么样的线索</h3>
+          <p>理想状态下，一个 finding 不应该只是这样：</p>
+          <pre><code>src/main/java/demo/FileController.java:48
+Potential path traversal</code></pre>
+          <p>而应该尽量整理成这样：</p>
+          <pre><code>风险类型：路径穿越候选点
+入口路由：POST /api/file/read
+Controller：FileController#readFile
+权限情况：未发现方法级权限注解
+可控参数：filename
+命中来源：JavaSecAtlas heuristic + Semgrep SARIF
+复核建议：检查 filename 是否进入 Path.resolve / File 构造逻辑，确认是否有目录白名单、路径归一化和越权读取限制</code></pre>
+          <p>这才更接近人工审计时真正有用的东西。</p>
+
+          <h3>技术上怎么做</h3>
+          <p>我不打算一上来就做很重的数据流。更现实的做法是先做轻量关联：</p>
+          <ol>
+            <li>提取 Spring Controller、方法、路由和权限注解；</li>
+            <li>记录每个方法的大致文件路径和行号范围；</li>
+            <li>把 finding 的文件和行号落到对应方法附近；</li>
+            <li>把路由、HTTP 方法、权限注解补回 finding；</li>
+            <li>在报告里按“入口接口”而不是单纯按“规则 ID”组织结果。</li>
+          </ol>
+          <p>这个方案不完美，但足够作为第一版 correlation。先把 60 分的上下文补起来，再慢慢考虑更复杂的跨函数调用链和数据流。</p>
+
+          <h3>为什么这件事值得做</h3>
+          <p>因为这一步能把工具从“扫代码”推到“辅助审计”。扫描结果越多，人工越需要排序和上下文。一个没有入口、没有权限、没有业务场景的 finding，很难直接变成报告；但如果它已经带上路由和权限信息，审计人员就能更快判断优先级。</p>
+          <p>这也是我认为 JavaSecAtlas 后续最该做的方向：不和成熟 SAST 比谁的规则更多，而是把 Java / Spring 审计里的上下文整理好。</p>
+        </article>
+
+        <article class="article" id="article-4">
+          <div class="meta">
+            <span class="tag">LLM Agent</span>
+            <span class="tag">Triage</span>
+            <span class="tag">False Positive</span>
+            <span class="tag">Report Draft</span>
+          </div>
+          <h2>04. Agent 复核：让 AI 干适合它干的活</h2>
+          <p class="lead">我不太认同“把整份代码丢给大模型，让它自动审计”的说法。这个方向听起来很爽，但实际很容易变成幻觉生成器。AI 可以参与审计，但最好别让它当唯一裁判。</p>
+
+          <p>在 JavaSecAtlas 里，我更想让 Agent 做的是复核和表达整理，而不是替代确定性扫描。比较合理的流程是：</p>
+          <pre><code>规则扫描 / SARIF 导入
+        ↓
+路由、权限、依赖、代码片段上下文整理
+        ↓
+Agent 辅助判断：可控参数、利用条件、误报可能、修复建议
+        ↓
+人工复核
+        ↓
+报告输出</code></pre>
+
+          <h3>Agent 可以做什么</h3>
+          <ul>
+            <li>根据命中点和上下文，帮忙总结为什么这里可能有风险；</li>
+            <li>把扫描器的英文描述翻译成更像审计报告的话；</li>
+            <li>提示需要人工确认的条件，比如“参数是否可控”“是否存在白名单”；</li>
+            <li>给出修复建议草稿；</li>
+            <li>把多个工具的 findings 合并成一段更清楚的复核说明。</li>
+          </ul>
+
+          <h3>Agent 不应该做什么</h3>
+          <ul>
+            <li>不应该凭空说“这里一定能 RCE”；</li>
+            <li>不应该在没有上下文的情况下生成攻击链；</li>
+            <li>不应该替代人工做最终漏洞确认；</li>
+            <li>不应该接触未脱敏的敏感业务代码、凭据或真实资产信息。</li>
+          </ul>
+          <p>这一点很重要。AI 在安全里的价值不只是“会不会发现漏洞”，还包括能不能被安全地放进工作流里。</p>
+
+          <h3>我希望 JavaSecAtlas 怎么接 Agent</h3>
+          <p>后续更理想的输入不是单独一行代码，而是一包结构化上下文：</p>
+          <pre><code>{
+  "finding": "Potential SSRF",
+  "route": "POST /api/fetch",
+  "controller": "FetchController#fetch",
+  "auth": "no method-level annotation found",
+  "param": "url",
+  "source": ["JavaSecAtlas", "Semgrep"],
+  "code_context": "...trimmed related snippets..."
+}</code></pre>
+          <p>Agent 基于这包材料输出：</p>
+          <ul>
+            <li>风险解释；</li>
+            <li>利用条件；</li>
+            <li>可能误报点；</li>
+            <li>建议人工确认的问题；</li>
+            <li>修复建议草稿。</li>
+          </ul>
+
+          <h3>最后还是要回到人工审计</h3>
+          <p>我不想把 JavaSecAtlas 写成“AI 自动挖洞神器”。这个说法短期看起来吸引人，但很虚。更实际的定位是：把确定性扫描、外部工具结果、Java 项目上下文和 Agent 复核串起来，减少审计前期整理工作的重复劳动。</p>
+          <p>这也是我现在对这个项目的判断：成熟工具负责发现候选点，JavaSecAtlas 负责把候选点整理成人能看的审计线索，Agent 负责辅助解释和报告草稿，最后还是人工确认。</p>
+
+          <div class="note">如果后续要继续迭代，我会优先做 finding correlation，而不是先堆更多 AI 功能。上下文没有整理好，Agent 接得越深，越容易说胡话。</div>
+        </article>
+      </section>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="inner">
+      <span>OracleNep Research Notes</span>
+      <span><a href="../index.html">返回安全作品集</a></span>
+    </div>
+  </footer>
+</body>
+</html>
