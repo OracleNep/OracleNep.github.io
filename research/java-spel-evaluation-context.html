@@ -1,0 +1,342 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
+  <meta name="author" content="OracleNep" />
+  <meta name="description" content="Java 安全研究文章：从 Spring SpEL 的 EvaluationContext、StandardEvaluationContext、SimpleEvaluationContext、Type Reference 与 Method Resolver 出发，整理表达式注入的白盒审计思路与安全边界。" />
+  <meta name="keywords" content="Java 安全, Spring Security, SpEL, Spring Expression Language, EvaluationContext, StandardEvaluationContext, SimpleEvaluationContext, Java 代码审计, 表达式注入, 白盒审计" />
+  <link rel="canonical" href="https://oraclenep.github.io/research/java-spel-evaluation-context.html" />
+  <meta property="og:type" content="article" />
+  <meta property="og:title" content="SpEL 表达式执行边界：从 EvaluationContext 到白盒审计" />
+  <meta property="og:description" content="一篇 Java 安全研究笔记：不靠 payload 堆砌，从 SpEL 的执行上下文、安全边界、审计 sink 和误报压缩讲表达式注入。" />
+  <meta property="og:url" content="https://oraclenep.github.io/research/java-spel-evaluation-context.html" />
+  <meta property="og:site_name" content="OracleNep Research Notes" />
+  <meta property="article:author" content="OracleNep" />
+  <meta property="article:published_time" content="2026-06-10T00:00:00+08:00" />
+  <meta property="article:modified_time" content="2026-06-10T00:00:00+08:00" />
+  <meta property="article:tag" content="Java Security" />
+  <meta property="article:tag" content="Spring SpEL" />
+  <meta property="article:tag" content="Code Audit" />
+  <meta property="article:tag" content="Expression Injection" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="SpEL 表达式执行边界：从 EvaluationContext 到白盒审计" />
+  <meta name="twitter:description" content="围绕 Spring SpEL 的 EvaluationContext、安全边界和 Java 白盒审计方法论。" />
+  <title>SpEL 表达式执行边界：从 EvaluationContext 到白盒审计｜OracleNep</title>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": "SpEL 表达式执行边界：从 EvaluationContext 到白盒审计",
+    "description": "Java 安全研究文章：从 Spring SpEL 的 EvaluationContext、StandardEvaluationContext、SimpleEvaluationContext、Type Reference 与 Method Resolver 出发，整理表达式注入的白盒审计思路与安全边界。",
+    "url": "https://oraclenep.github.io/research/java-spel-evaluation-context.html",
+    "mainEntityOfPage": "https://oraclenep.github.io/research/java-spel-evaluation-context.html",
+    "datePublished": "2026-06-10T00:00:00+08:00",
+    "dateModified": "2026-06-10T00:00:00+08:00",
+    "inLanguage": "zh-CN",
+    "author": {"@type": "Person", "name": "OracleNep", "url": "https://github.com/OracleNep"},
+    "publisher": {"@type": "Person", "name": "OracleNep", "url": "https://oraclenep.github.io/"},
+    "keywords": ["Java 安全", "Spring SpEL", "EvaluationContext", "StandardEvaluationContext", "SimpleEvaluationContext", "表达式注入", "Java 代码审计", "白盒审计"],
+    "articleSection": ["Java 安全", "Spring 安全", "代码审计"],
+    "about": [
+      {"@type": "Thing", "name": "Spring Expression Language"},
+      {"@type": "Thing", "name": "EvaluationContext"},
+      {"@type": "Thing", "name": "Java white-box audit"}
+    ]
+  }
+  </script>
+  <style>
+    :root { --ink:#17202f; --muted:#5c6879; --line:#d8dee8; --paper:#f7f9fc; --surface:#fff; --teal:#087f8c; --cyan:#48d6c4; --shadow:0 18px 46px rgba(23,32,47,.10); }
+    * { box-sizing:border-box; }
+    html { scroll-behavior:smooth; }
+    body { margin:0; color:var(--ink); background:var(--paper); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",Arial,sans-serif; line-height:1.78; }
+    a { color:var(--teal); text-decoration:none; } a:hover { text-decoration:underline; }
+    code, pre { font-family:"Cascadia Mono",Consolas,Menlo,Monaco,monospace; }
+    .topbar { position:sticky; top:0; z-index:20; border-bottom:1px solid rgba(216,222,232,.92); background:rgba(247,249,252,.93); backdrop-filter:blur(12px); }
+    .nav { width:min(1120px,calc(100% - 48px)); min-height:62px; margin:0 auto; display:flex; align-items:center; justify-content:space-between; gap:24px; }
+    .brand { color:var(--ink); font-weight:850; white-space:nowrap; }
+    .nav-links { display:flex; align-items:center; gap:18px; font-size:14px; flex-wrap:wrap; }
+    .nav-links a { color:#334155; }
+    .hero { color:#fff; background:radial-gradient(circle at 20% 10%,rgba(72,214,196,.18),transparent 32%),linear-gradient(115deg,#08111f 0%,#172033 58%,#0f3a43 100%); }
+    .inner { width:min(1120px,calc(100% - 48px)); margin:0 auto; }
+    .hero-copy { max-width:860px; padding:86px 0 78px; }
+    .eyebrow { display:inline-flex; align-items:center; min-height:28px; padding:2px 10px; border:1px solid rgba(255,255,255,.30); border-radius:4px; color:#b8f2e6; background:rgba(255,255,255,.08); font-size:13px; font-weight:800; }
+    h1,h2,h3 { margin:0; line-height:1.25; } h1 { margin-top:18px; font-size:46px; } h2 { font-size:28px; margin-top:34px; } h3 { font-size:20px; margin-top:24px; }
+    .subtitle { max-width:820px; margin:18px 0 0; color:rgba(255,255,255,.86); font-size:18px; }
+    .actions { display:flex; flex-wrap:wrap; gap:12px; margin-top:28px; }
+    .button { display:inline-flex; align-items:center; justify-content:center; min-height:42px; padding:9px 14px; border:1px solid rgba(255,255,255,.32); border-radius:6px; color:#fff; background:rgba(255,255,255,.12); font-weight:800; }
+    .button.primary { border-color:var(--cyan); color:#062d33; background:var(--cyan); } .button:hover { text-decoration:none; filter:brightness(1.04); }
+    .layout { display:grid; grid-template-columns:280px 1fr; gap:24px; padding:42px 0 74px; }
+    .toc { position:sticky; top:84px; align-self:start; padding:18px; border:1px solid var(--line); border-radius:8px; background:var(--surface); box-shadow:var(--shadow); }
+    .toc strong { display:block; margin-bottom:10px; } .toc a { display:block; padding:7px 0; color:#334155; font-size:14px; } .toc .small { margin-top:12px; color:var(--muted); font-size:13px; }
+    article { padding:30px; border:1px solid var(--line); border-radius:8px; background:var(--surface); box-shadow:var(--shadow); }
+    article p { margin:12px 0 0; color:#334155; } article ul, article ol { margin:12px 0 0; padding-left:22px; color:#334155; } li + li { margin-top:6px; }
+    .lead { margin-top:14px; color:var(--muted); font-size:16px; }
+    .meta { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:14px; }
+    .tag { min-height:26px; display:inline-flex; align-items:center; padding:2px 8px; border:1px solid var(--line); border-radius:4px; color:#425064; background:#f7f9fc; font-size:12px; font-weight:750; }
+    blockquote { margin:18px 0; padding:14px 18px; border-left:4px solid var(--teal); background:#eef8f7; color:#24424a; }
+    pre { margin:16px 0 0; padding:16px; overflow-x:auto; border:1px solid #dbe5ee; border-radius:8px; color:#dbeafe; background:#111827; font-size:13px; line-height:1.65; }
+    code { padding:1px 5px; border-radius:4px; background:#edf2f7; color:#17324d; font-size:.94em; } pre code { padding:0; background:transparent; color:inherit; }
+    table { width:100%; margin-top:16px; border-collapse:collapse; font-size:14px; } th,td { padding:10px 12px; border:1px solid var(--line); text-align:left; vertical-align:top; } th { background:#eef2f6; }
+    .note { margin-top:18px; padding:14px 16px; border:1px solid #cbd5e1; border-radius:8px; background:#f8fafc; color:#475569; }
+    .footer { padding:34px 0; color:#cbd5e1; background:#152033; font-size:14px; } .footer .inner { display:flex; justify-content:space-between; gap:20px; } .footer a { color:#78e4d4; }
+    @media (max-width:920px){ .nav{min-height:auto;padding:14px 0;align-items:start;flex-direction:column;gap:10px;} h1{font-size:38px;} .layout{grid-template-columns:1fr;} .toc{position:static;} .footer .inner{flex-direction:column;} }
+    @media (max-width:560px){ .inner,.nav{width:min(100% - 32px,1120px);} h1{font-size:31px;} .hero-copy{padding:58px 0 64px;} article{padding:20px;} }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <nav class="nav" aria-label="主导航">
+      <a class="brand" href="../index.html">OracleNep</a>
+      <div class="nav-links">
+        <a href="./">Research</a>
+        <a href="#model">执行模型</a>
+        <a href="#audit">审计方法</a>
+        <a href="#rules">规则设计</a>
+        <a href="#fix">修复边界</a>
+      </div>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="inner">
+        <div class="hero-copy">
+          <span class="eyebrow">Java Security / Spring SpEL / Code Audit</span>
+          <h1>SpEL 表达式执行边界：从 EvaluationContext 到白盒审计</h1>
+          <p class="subtitle">这篇不打算堆 payload。SpEL 的风险点不只在某个字符串能不能打出效果，而在于表达式来源、EvaluationContext 能力边界、解析方式和业务上下文之间的组合关系。</p>
+          <div class="actions">
+            <a class="button primary" href="https://docs.spring.io/spring-framework/reference/core/expressions/evaluation.html" target="_blank" rel="noreferrer">Spring SpEL 文档</a>
+            <a class="button" href="./">返回文章列表</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="inner layout">
+      <aside class="toc" aria-label="文章目录">
+        <strong>目录</strong>
+        <a href="#intro">0. 为什么写这个方向</a>
+        <a href="#model">1. SpEL 的执行模型</a>
+        <a href="#boundary">2. EvaluationContext 是安全边界</a>
+        <a href="#audit">3. 白盒审计的 sources 与 sinks</a>
+        <a href="#rules">4. 规则设计与误报压缩</a>
+        <a href="#fix">5. 修复与加固建议</a>
+        <p class="small">文章仅讨论授权代码审计与安全加固，不提供面向真实目标的利用链或武器化载荷。</p>
+      </aside>
+
+      <article>
+        <div class="meta">
+          <span class="tag">Spring SpEL</span>
+          <span class="tag">EvaluationContext</span>
+          <span class="tag">Java 代码审计</span>
+          <span class="tag">表达式注入</span>
+        </div>
+
+        <section id="intro">
+          <h2>0. 为什么写这个方向</h2>
+          <p class="lead">Java 安全里，SpEL 表达式注入很容易被写成“某个 payload 打通了”的文章。但我觉得这个方向真正值得研究的地方，不是 payload 本身，而是框架把表达式能力暴露给业务之后，开发者到底有没有把边界收住。</p>
+          <p>SpEL 是 Spring 生态里非常常见的表达式语言。它可以访问对象属性、调用方法、做集合筛选、引用类型、调用构造器，也能作为配置、模板、权限表达式、规则引擎的一部分出现。换句话说，它本来就是一个“有能力”的表达式系统。</p>
+          <p>所以审计 SpEL 风险时，不能只问：</p>
+          <blockquote>有没有用户输入进入 <code>parseExpression()</code>？</blockquote>
+          <p>更应该问：</p>
+          <ul>
+            <li>表达式字符串是不是用户可控，还是只控制变量值？</li>
+            <li>使用的是 <code>StandardEvaluationContext</code> 还是 <code>SimpleEvaluationContext</code>？</li>
+            <li>是否开放了类型引用、构造器、Bean 引用、方法解析器、函数注册？</li>
+            <li>表达式是否以模板方式拼接，例如 <code>#{...}</code> 片段被动态拼进模板？</li>
+            <li>这个能力出现在 Controller、后台规则配置、任务调度，还是纯内部固定配置？</li>
+          </ul>
+          <p>这几个问题才决定一个 finding 是高危入口、后台配置风险，还是纯误报。</p>
+        </section>
+
+        <section id="model">
+          <h2>1. SpEL 的执行模型</h2>
+          <p>一个最小的 SpEL 使用流程大概是这样：</p>
+          <pre><code>ExpressionParser parser = new SpelExpressionParser();
+Expression expression = parser.parseExpression(expressionText);
+Object value = expression.getValue(evaluationContext, rootObject);</code></pre>
+          <p>这里至少有三个角色：</p>
+          <table>
+            <thead><tr><th>角色</th><th>作用</th><th>审计关注点</th></tr></thead>
+            <tbody>
+              <tr><td><code>expressionText</code></td><td>被解析的表达式字符串</td><td>是否来自请求、数据库、消息队列、低权限配置</td></tr>
+              <tr><td><code>rootObject</code></td><td>表达式默认操作的业务对象</td><td>是否包含敏感对象、服务类、环境配置、上下文对象</td></tr>
+              <tr><td><code>EvaluationContext</code></td><td>决定属性、方法、类型、Bean、转换器等解析方式</td><td>是否给了过宽的反射和解析能力</td></tr>
+            </tbody>
+          </table>
+          <p>很多文章会把注意力都放在 <code>expressionText</code> 上，但我更关心 <code>EvaluationContext</code>。因为同一段表达式，在不同上下文里完全不是一个风险等级。</p>
+          <p>例如，一个只允许读属性的上下文，和一个可以访问类型、调用方法、解析 Bean 的上下文，安全边界不是一个量级。前者更像受限数据绑定，后者更接近一个可扩展的表达式执行环境。</p>
+        </section>
+
+        <section id="boundary">
+          <h2>2. EvaluationContext 是安全边界</h2>
+          <p>Spring 官方文档里把 <code>EvaluationContext</code> 描述为表达式求值时解析属性、方法、字段以及类型转换的 API，并提供了两个主要实现：<code>SimpleEvaluationContext</code> 和 <code>StandardEvaluationContext</code>。</p>
+          <p><code>StandardEvaluationContext</code> 暴露完整的 SpEL 语言特性和配置选项，可以配置 root object，也可以配置各种求值策略。它适合可信表达式场景，但如果表达式字符串可控，就要非常小心。</p>
+          <p><code>SimpleEvaluationContext</code> 的设计目标是只暴露 SpEL 的必要子集，适合那些不需要完整 SpEL 语法、并且应该被限制的表达式类别。官方文档也明确提到，它会排除 Java 类型引用、构造器和 Bean 引用，并要求开发者显式选择属性和方法支持级别。</p>
+
+          <h3>2.1 为什么 StandardEvaluationContext 容易变成危险放大器</h3>
+          <p>在安全审计里，我会把 <code>StandardEvaluationContext</code> 当成能力放大器，而不是单纯的普通参数。</p>
+          <p>原因是它背后可能挂了这些东西：</p>
+          <ul>
+            <li>类型解析能力，例如表达式中引用 Java 类型；</li>
+            <li>构造器解析能力，例如创建新对象；</li>
+            <li>方法解析能力，例如调用 root object 或上下文对象上的方法；</li>
+            <li>Bean 解析能力，例如访问 Spring 容器里的 Bean；</li>
+            <li>自定义函数，例如把某些 Java 方法注册为表达式函数；</li>
+            <li>属性访问器和类型转换器，例如扩大对象访问面。</li>
+          </ul>
+          <p>这些能力本身不是漏洞，但如果表达式文本被低权限用户控制，风险就从“解析字符串”变成了“把一段用户控制的逻辑放到应用上下文里执行”。</p>
+
+          <h3>2.2 SimpleEvaluationContext 的价值</h3>
+          <p><code>SimpleEvaluationContext</code> 的价值在于，它逼你先回答一个问题：业务到底需要表达式做什么？</p>
+          <p>如果只是做数据绑定、属性读取、简单过滤，那就没有必要把完整 SpEL 能力打开。很多项目的问题不是“用了 SpEL”，而是“明明只需要读属性，却给了完整执行上下文”。</p>
+          <pre><code>EvaluationContext ctx = SimpleEvaluationContext
+    .forReadOnlyDataBinding()
+    .build();</code></pre>
+          <p>这类上下文并不是万能安全沙箱，但至少能把类型引用、构造器、Bean 引用这些高风险能力从默认面上拿掉。对审计来说，这就是一个非常重要的降级信号。</p>
+        </section>
+
+        <section id="audit">
+          <h2>3. 白盒审计的 sources 与 sinks</h2>
+          <p>做 SpEL 审计，我通常不会从 payload 出发，而是从数据流出发。</p>
+
+          <h3>3.1 重点 sources</h3>
+          <p>表达式字符串可能来自这些地方：</p>
+          <ul>
+            <li>HTTP 参数、Header、Cookie、JSON 字段；</li>
+            <li>后台配置项、规则配置、动态表单、低代码平台字段；</li>
+            <li>数据库中可由低权限用户编辑的表达式模板；</li>
+            <li>消息队列、任务调度参数、Webhook 配置；</li>
+            <li>第三方集成回调中的模板变量或条件表达式。</li>
+          </ul>
+          <p>这里有一个容易被忽略的点：不一定只有公网请求参数才算 source。很多后台系统会把“管理员可配”当成安全边界，但现实里后台账号经常分级，低权限运营、租户管理员、自动化系统账号都可能写配置。能写表达式和能写普通配置，不是一个权限级别。</p>
+
+          <h3>3.2 重点 sinks</h3>
+          <p>代码里可以优先搜这些关键词：</p>
+          <pre><code>SpelExpressionParser
+ExpressionParser
+parseExpression
+getValue
+setValue
+StandardEvaluationContext
+SimpleEvaluationContext
+TemplateParserContext
+setBeanResolver
+setTypeLocator
+registerFunction
+addMethodResolver
+addPropertyAccessor</code></pre>
+          <p>其中 <code>parseExpression()</code> 只是入口，真正决定风险等级的往往是后续的 <code>getValue()</code>、上下文类型、root object，以及有没有额外配置 BeanResolver / MethodResolver / PropertyAccessor。</p>
+
+          <h3>3.3 高风险组合</h3>
+          <table>
+            <thead><tr><th>组合</th><th>风险判断</th><th>原因</th></tr></thead>
+            <tbody>
+              <tr><td>用户可控表达式 + <code>StandardEvaluationContext</code></td><td>高</td><td>表达式能力完整，后续需要确认类型、方法、Bean 等解析面</td></tr>
+              <tr><td>用户可控模板片段 + <code>TemplateParserContext</code></td><td>中高</td><td>容易在字符串拼接中绕过开发者预期</td></tr>
+              <tr><td>数据库表达式 + 后台低权限可编辑</td><td>中高</td><td>攻击面不在公网入口，但权限边界容易被低估</td></tr>
+              <tr><td>固定表达式 + 用户只控制变量值</td><td>低到中</td><td>更像普通业务参数，重点看变量进入的业务方法</td></tr>
+              <tr><td><code>SimpleEvaluationContext</code> + 只读属性绑定</td><td>较低</td><td>能力面被明显收窄，但仍需确认 root object 是否暴露敏感属性</td></tr>
+            </tbody>
+          </table>
+        </section>
+
+        <section id="rules">
+          <h2>4. 规则设计与误报压缩</h2>
+          <p>如果把这个方向写成 SAST 规则，我不会只写一条“发现 parseExpression 就报警”。这样误报太多，也体现不出研究价值。</p>
+          <p>更合理的是分层规则：</p>
+
+          <h3>4.1 第一层：表达式解析点</h3>
+          <pre><code>new SpelExpressionParser().parseExpression(expr)</code></pre>
+          <p>这一层只标记为候选点，不直接定性。因为 <code>expr</code> 可能是常量，也可能来自可信配置。</p>
+
+          <h3>4.2 第二层：表达式来源</h3>
+          <p>继续追 <code>expr</code> 是否来自请求参数、JSON、数据库字段、后台配置、消息参数。这里可以做轻量 taint，不需要一上来就做全程序数据流。</p>
+          <pre><code>source: request.getParameter / @RequestParam / @RequestBody field / config table / task param
+sink:   parseExpression(expressionText)</code></pre>
+
+          <h3>4.3 第三层：上下文能力</h3>
+          <p>如果同时出现下面这些点，风险等级应该上调：</p>
+          <ul>
+            <li>使用 <code>StandardEvaluationContext</code>；</li>
+            <li>设置了 BeanResolver；</li>
+            <li>注册了函数；</li>
+            <li>加入了自定义 MethodResolver / PropertyAccessor；</li>
+            <li>root object 是 ApplicationContext、Environment、Service、工具类集合等强对象。</li>
+          </ul>
+
+          <h3>4.4 第四层：降噪条件</h3>
+          <p>这些情况可以降低优先级：</p>
+          <ul>
+            <li>表达式是字符串常量；</li>
+            <li>表达式来自只读内部配置且不可被低权限修改；</li>
+            <li>使用 <code>SimpleEvaluationContext.forReadOnlyDataBinding()</code>；</li>
+            <li>只允许用户控制变量值，不允许控制表达式结构；</li>
+            <li>表达式执行前有严格白名单 DSL 校验。</li>
+          </ul>
+          <p>这个规则思路也能和 JavaSecAtlas 后续结合：先通过关键词和 AST 找候选点，再把 source、context、root object、权限入口整理进报告，而不是单纯抛一个“可能 SpEL 注入”。</p>
+        </section>
+
+        <section id="fix">
+          <h2>5. 修复与加固建议</h2>
+          <p>修 SpEL 风险，不应该只靠黑名单。黑名单很容易漏，因为 SpEL 的语法面不是单一关键字能概括的。更稳的思路是先收缩能力，再限制输入。</p>
+
+          <h3>5.1 最优先：不要让用户控制表达式结构</h3>
+          <p>如果业务只是想让用户选择字段、条件、排序、过滤逻辑，尽量设计成受限 DSL 或枚举配置，而不是直接让用户写 SpEL。</p>
+          <pre><code>// 推荐方向：用户选择受限字段和操作符
+field in ["status", "owner", "level"]
+operator in ["eq", "contains", "gt"]
+value = userInput
+
+// 不推荐：用户直接提交完整表达式
+expression = userInput</code></pre>
+
+          <h3>5.2 必须用表达式时，优先使用 SimpleEvaluationContext</h3>
+          <p>如果业务只需要属性读取或简单数据绑定，优先考虑：</p>
+          <pre><code>EvaluationContext ctx = SimpleEvaluationContext
+    .forReadOnlyDataBinding()
+    .build();</code></pre>
+          <p>不要为了省事直接上 <code>StandardEvaluationContext</code>。这不是代码风格问题，而是能力边界问题。</p>
+
+          <h3>5.3 不要把强对象作为 root object 暴露出去</h3>
+          <p>表达式上下文里的 root object 应该是裁剪后的 DTO，而不是 Service、ApplicationContext、Environment、Request、Session 或一堆工具类集合。</p>
+          <pre><code>class SafeRuleContext {
+    public String status;
+    public String owner;
+    public int score;
+}</code></pre>
+          <p>root object 越像业务视图模型，风险越可控；越像应用运行时对象，风险越难收。</p>
+
+          <h3>5.4 审计报告里怎么写结论</h3>
+          <p>我一般不会直接写“存在 SpEL RCE”。更稳的报告表述应该包含边界条件：</p>
+          <blockquote>发现业务允许低权限用户提交表达式字符串，并通过 <code>SpelExpressionParser.parseExpression()</code> 使用 <code>StandardEvaluationContext</code> 进行求值。该上下文暴露完整 SpEL 能力，且表达式执行对象包含业务服务对象。建议改为受限 DSL 或 <code>SimpleEvaluationContext</code>，并禁止用户控制表达式结构。</blockquote>
+          <p>这样比直接扔 payload 更像真实审计报告，也更容易让开发理解问题在哪。</p>
+        </section>
+
+        <section>
+          <h2>6. 总结</h2>
+          <p>SpEL 表达式注入的关键，不是背几个 payload，而是理解表达式引擎的能力边界。</p>
+          <p>我会把审计重点放在四件事上：</p>
+          <ol>
+            <li>表达式字符串是否可控；</li>
+            <li>使用了什么 EvaluationContext；</li>
+            <li>上下文里暴露了哪些解析能力和对象；</li>
+            <li>这个能力处在哪个业务权限边界里。</li>
+          </ol>
+          <p>如果这四个问题能回答清楚，一个 SpEL finding 的风险等级基本也就能判断清楚了。后续如果把这套思路做进 JavaSecAtlas，可以比“命中 parseExpression 就报警”的规则更接近真实代码审计。</p>
+          <div class="note">参考资料：Spring Framework Reference 中的 SpEL Evaluation、Language Reference，以及 Spring 对 <code>SimpleEvaluationContext</code> / <code>StandardEvaluationContext</code> 的说明。</div>
+        </section>
+      </article>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="inner">
+      <span>OracleNep Research Notes</span>
+      <span><a href="./">返回研究文章</a></span>
+    </div>
+  </footer>
+</body>
+</html>
