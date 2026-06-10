@@ -3,48 +3,706 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="robots" content="noindex, nofollow, noarchive" />
-  <title>Page Removed</title>
+  <meta name="robots" content="noindex, noarchive" />
+  <meta name="description" content="OracleNep 的应用安全、漏洞挖掘、Java 白盒审计与安全工具开发作品集。" />
+  <meta property="og:title" content="OracleNep｜安全作品集" />
+  <meta property="og:description" content="AppSec / SRC / Java White-box Audit / Security Tooling" />
+  <meta property="og:image" content="assets/hero-security-portfolio.png" />
+  <title>OracleNep｜安全作品集</title>
   <style>
+    :root {
+      --ink: #17202f;
+      --muted: #5c6879;
+      --line: #d8dee8;
+      --paper: #f7f9fc;
+      --surface: #ffffff;
+      --teal: #087f8c;
+      --cyan: #48d6c4;
+      --green: #126b4e;
+      --amber: #9b6508;
+      --red: #9b3d33;
+      --shadow: 0 18px 46px rgba(23, 32, 47, .10);
+    }
+
     * {
       box-sizing: border-box;
     }
 
-    body {
-      margin: 0;
-      min-height: 100vh;
-      display: grid;
-      place-items: center;
-      color: #1f2937;
-      background: #f8fafc;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
-      line-height: 1.6;
+    html {
+      scroll-behavior: smooth;
     }
 
-    main {
-      width: min(560px, calc(100% - 40px));
-      padding: 32px;
-      border: 1px solid #d8dee8;
-      border-radius: 8px;
-      background: #fff;
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--paper);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", Arial, sans-serif;
+      line-height: 1.72;
+      letter-spacing: 0;
+    }
+
+    a {
+      color: var(--teal);
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      border-bottom: 1px solid rgba(216, 222, 232, .92);
+      background: rgba(247, 249, 252, .93);
+      backdrop-filter: blur(12px);
+    }
+
+    .nav {
+      width: min(1120px, calc(100% - 48px));
+      min-height: 62px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+    }
+
+    .brand {
+      color: var(--ink);
+      font-weight: 850;
+      white-space: nowrap;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      font-size: 14px;
+    }
+
+    .nav-links a {
+      color: #334155;
+    }
+
+    .hero {
+      min-height: 74vh;
+      display: grid;
+      align-items: center;
+      color: #fff;
+      background-image:
+        linear-gradient(90deg, rgba(9, 16, 28, .94) 0%, rgba(9, 16, 28, .74) 43%, rgba(9, 16, 28, .20) 100%),
+        url("assets/hero-security-portfolio.png");
+      background-size: cover;
+      background-position: center right;
+    }
+
+    .inner {
+      width: min(1120px, calc(100% - 48px));
+      margin: 0 auto;
+    }
+
+    .hero-copy {
+      max-width: 720px;
+      padding: 74px 0 84px;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      min-height: 28px;
+      padding: 2px 10px;
+      border: 1px solid rgba(255, 255, 255, .30);
+      border-radius: 4px;
+      color: #b8f2e6;
+      background: rgba(255, 255, 255, .08);
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    h1,
+    h2,
+    h3 {
+      margin: 0;
+      line-height: 1.22;
+      letter-spacing: 0;
     }
 
     h1 {
-      margin: 0 0 12px;
-      font-size: 28px;
-      line-height: 1.2;
+      margin-top: 18px;
+      font-size: 56px;
     }
 
-    p {
+    .hero-subtitle {
+      max-width: 660px;
+      margin: 18px 0 0;
+      color: rgba(255, 255, 255, .86);
+      font-size: 18px;
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 28px;
+    }
+
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 42px;
+      padding: 9px 14px;
+      border: 1px solid rgba(255, 255, 255, .32);
+      border-radius: 6px;
+      color: #fff;
+      background: rgba(255, 255, 255, .12);
+      font-weight: 800;
+    }
+
+    .button.primary {
+      border-color: var(--cyan);
+      color: #062d33;
+      background: var(--cyan);
+    }
+
+    .button:hover {
+      text-decoration: none;
+      filter: brightness(1.04);
+    }
+
+    .section {
+      padding: 68px 0;
+    }
+
+    .section.alt {
+      background: #eef2f6;
+    }
+
+    .section-title {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 28px;
+      margin-bottom: 26px;
+    }
+
+    .section-title h2 {
+      font-size: 30px;
+    }
+
+    .section-title p {
+      max-width: 650px;
       margin: 0;
-      color: #64748b;
+      color: var(--muted);
+    }
+
+    .metrics {
+      position: relative;
+      z-index: 3;
+      margin-top: -34px;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+    }
+
+    .card,
+    .metric,
+    .link-card,
+    .project,
+    .notice {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--surface);
+      box-shadow: var(--shadow);
+    }
+
+    .metric {
+      padding: 20px;
+    }
+
+    .metric strong {
+      display: block;
+      color: var(--ink);
+      font-size: 30px;
+      line-height: 1.1;
+    }
+
+    .metric span {
+      display: block;
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .proof-grid,
+    .project-grid,
+    .boundary-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+
+    .link-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 14px;
+    }
+
+    .card,
+    .project,
+    .notice {
+      padding: 22px;
+    }
+
+    .link-card {
+      min-height: 94px;
+      padding: 18px;
+      display: flex;
+      align-items: start;
+      justify-content: space-between;
+      gap: 18px;
+    }
+
+    .link-card strong {
+      display: block;
+      margin-bottom: 4px;
+      color: var(--ink);
+    }
+
+    .link-card span {
+      display: block;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .arrow {
+      flex: 0 0 auto;
+      color: var(--teal);
+      font-weight: 850;
+    }
+
+    .tag-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 14px;
+    }
+
+    .tag {
+      min-height: 28px;
+      display: inline-flex;
+      align-items: center;
+      padding: 2px 9px;
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      color: #425064;
+      background: #f7f9fc;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .label {
+      display: inline-flex;
+      min-height: 26px;
+      align-items: center;
+      padding: 2px 8px;
+      border-radius: 4px;
+      color: #fff;
+      background: var(--teal);
+      font-size: 12px;
+      font-weight: 850;
+    }
+
+    .label.green {
+      background: var(--green);
+    }
+
+    .label.amber {
+      background: var(--amber);
+    }
+
+    .card h3,
+    .project h3,
+    .notice h3 {
+      margin-top: 10px;
+      font-size: 18px;
+    }
+
+    .card p,
+    .project p,
+    .notice p {
+      margin: 10px 0 0;
+      color: var(--muted);
+    }
+
+    .vuln-layout {
+      display: grid;
+      grid-template-columns: 1.05fr .95fr;
+      gap: 18px;
+    }
+
+    .id-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .id-link {
+      display: block;
+      padding: 10px 12px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #f7f9fc;
+      font-family: "Cascadia Mono", Consolas, monospace;
+      font-size: 13px;
+      overflow-wrap: anywhere;
+    }
+
+    ul {
+      margin: 12px 0 0;
+      padding-left: 20px;
+      color: var(--muted);
+    }
+
+    li + li {
+      margin-top: 8px;
+    }
+
+    .boundary-grid .notice {
+      border-top: 4px solid var(--teal);
+    }
+
+    .boundary-grid .notice:nth-child(2) {
+      border-top-color: var(--amber);
+    }
+
+    .boundary-grid .notice:nth-child(3) {
+      border-top-color: var(--red);
+    }
+
+    .footer {
+      padding: 34px 0;
+      color: #cbd5e1;
+      background: #152033;
+      font-size: 14px;
+    }
+
+    .footer .inner {
+      display: flex;
+      justify-content: space-between;
+      gap: 20px;
+    }
+
+    .footer a {
+      color: #78e4d4;
+    }
+
+    @media (max-width: 920px) {
+      .nav {
+        min-height: auto;
+        padding: 14px 0;
+        align-items: start;
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .nav-links {
+        flex-wrap: wrap;
+        gap: 12px;
+      }
+
+      h1 {
+        font-size: 42px;
+      }
+
+      .metrics,
+      .proof-grid,
+      .project-grid,
+      .link-grid,
+      .vuln-layout,
+      .boundary-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .section-title {
+        align-items: start;
+        flex-direction: column;
+      }
+
+      .id-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .footer .inner {
+        flex-direction: column;
+      }
+    }
+
+    @media (max-width: 560px) {
+      .inner,
+      .nav {
+        width: min(100% - 32px, 1120px);
+      }
+
+      .hero {
+        min-height: 72vh;
+        background-position: center;
+      }
+
+      .hero-copy {
+        padding: 58px 0 68px;
+      }
+
+      h1 {
+        font-size: 36px;
+      }
+
+      .hero-subtitle {
+        font-size: 16px;
+      }
+
+      .section {
+        padding: 48px 0;
+      }
+
+      .link-card {
+        flex-direction: column;
+        gap: 8px;
+      }
     }
   </style>
 </head>
 <body>
+  <header class="topbar">
+    <nav class="nav" aria-label="主导航">
+      <a class="brand" href="#top">OracleNep</a>
+      <div class="nav-links">
+        <a href="#proof">证明方式</a>
+        <a href="#links">公开入口</a>
+        <a href="#vulns">漏洞编号</a>
+        <a href="#projects">项目</a>
+        <a href="#boundary">公开边界</a>
+      </div>
+    </nav>
+  </header>
+
   <main>
-    <h1>Page Removed</h1>
-    <p>This page has been removed and intentionally contains no personal information.</p>
+    <section class="hero" id="top">
+      <div class="inner">
+        <div class="hero-copy">
+          <span class="eyebrow">AppSec / SRC / Java White-box Audit / Security Tooling</span>
+          <h1>OracleNep 安全作品集</h1>
+          <p class="hero-subtitle">
+            公开版作品集，仅展示可公开核验的漏洞平台主页、漏洞编号、开源项目和上游贡献。不包含身份字段、联系方式或未公开漏洞细节。
+          </p>
+          <div class="actions">
+            <a class="button primary" href="https://src.sjtu.edu.cn/profile/20160/" target="_blank" rel="noreferrer">漏洞平台主页</a>
+            <a class="button" href="#vulns">漏洞编号</a>
+            <a class="button" href="https://github.com/OracleNep" target="_blank" rel="noreferrer">GitHub</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section alt" aria-label="关键数据">
+      <div class="inner">
+        <div class="metrics">
+          <div class="metric">
+            <strong>20+</strong>
+            <span>CVE / CNVD 编号申报经验</span>
+          </div>
+          <div class="metric">
+            <strong>1000+</strong>
+            <span>EDUSRC Rank / 积分积累</span>
+          </div>
+          <div class="metric">
+            <strong>10 万+</strong>
+            <span>Java 项目代码审计经验</span>
+          </div>
+          <div class="metric">
+            <strong>上游 PR</strong>
+            <span>PHP 官方源码仓库贡献记录</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="proof">
+      <div class="inner">
+        <div class="section-title">
+          <h2>证明方式</h2>
+          <p>公开页面不依赖账号登录，不放后台截图。核心思路是用公开主页、编号页、PR 链接和项目仓库作为证据入口。</p>
+        </div>
+        <div class="proof-grid">
+          <article class="card">
+            <span class="label">公开核验</span>
+            <h3>漏洞平台主页</h3>
+            <p>使用 EDUSRC 公开主页作为漏洞提交经历的入口，招聘方可以直接访问，不需要现场登录账号。</p>
+          </article>
+          <article class="card">
+            <span class="label green">编号索引</span>
+            <h3>CVE / CNVD 编号</h3>
+            <p>公开展示代表性编号与官方编号页链接，不展示目标资产、复现请求、利用细节或未公开报告。</p>
+          </article>
+          <article class="card">
+            <span class="label amber">工程证据</span>
+            <h3>开源项目与上游 PR</h3>
+            <p>通过 GitHub 仓库、Release 和 php-src PR 证明安全工具开发、测试补充和上游协作能力。</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section alt" id="links">
+      <div class="inner">
+        <div class="section-title">
+          <h2>公开入口</h2>
+          <p>以下链接只用于展示公开可访问的作品与证明材料，不承载身份字段。</p>
+        </div>
+        <div class="link-grid">
+          <a class="link-card" href="https://src.sjtu.edu.cn/profile/20160/" target="_blank" rel="noreferrer">
+            <span><strong>EDUSRC 平台主页</strong><span>授权漏洞提交经历与积分主页</span></span>
+            <span class="arrow">打开</span>
+          </a>
+          <a class="link-card" href="https://github.com/OracleNep" target="_blank" rel="noreferrer">
+            <span><strong>GitHub / OracleNep</strong><span>公开仓库、项目与开源协作记录</span></span>
+            <span class="arrow">打开</span>
+          </a>
+          <a class="link-card" href="https://github.com/Team-intN18-SoybeanSeclab/JavaSecAtlas" target="_blank" rel="noreferrer">
+            <span><strong>JavaSecAtlas</strong><span>Java / Spring 白盒审计自动化工作台</span></span>
+            <span class="arrow">打开</span>
+          </a>
+          <a class="link-card" href="https://github.com/Team-intN18-SoybeanSeclab/JavaSecAtlas/releases/tag/v0.1.0-alpha" target="_blank" rel="noreferrer">
+            <span><strong>JavaSecAtlas Release</strong><span>v0.1.0-alpha 发布页</span></span>
+            <span class="arrow">打开</span>
+          </a>
+          <a class="link-card" href="https://github.com/php/php-src/pull/22261" target="_blank" rel="noreferrer">
+            <span><strong>php-src PR #22261</strong><span>已合入的 PHP 官方源码仓库贡献</span></span>
+            <span class="arrow">打开</span>
+          </a>
+          <a class="link-card" href="https://github.com/php/php-src/pull/22223" target="_blank" rel="noreferrer">
+            <span><strong>php-src PR #22223</strong><span>request_parse_body() 参数校验一致性补丁</span></span>
+            <span class="arrow">打开</span>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="vulns">
+      <div class="inner">
+        <div class="section-title">
+          <h2>漏洞编号</h2>
+          <p>这里只做编号索引和能力概述。编号页能证明申报记录，公开页面不包含可复现攻击链和目标系统信息。</p>
+        </div>
+        <div class="vuln-layout">
+          <article class="project">
+            <h3>CVE / CNVD 代表编号</h3>
+            <p>累计申报 CVE / CNVD 编号 20+，覆盖 Web 安全、Java 生态、代码审计与授权 SRC 场景。</p>
+            <div class="id-grid">
+              <a class="id-link" href="https://www.cve.org/CVERecord?id=CVE-2025-7181" target="_blank" rel="noreferrer">CVE-2025-7181</a>
+              <a class="id-link" href="https://www.cve.org/CVERecord?id=CVE-2025-7175" target="_blank" rel="noreferrer">CVE-2025-7175</a>
+              <a class="id-link" href="https://www.cnvd.org.cn/flaw/show/CNVD-2026-10837" target="_blank" rel="noreferrer">CNVD-2026-10837</a>
+              <a class="id-link" href="https://www.cnvd.org.cn/flaw/show/CNVD-2025-17734" target="_blank" rel="noreferrer">CNVD-2025-17734</a>
+            </div>
+            <p>CNVD 官方站点有时会因网络或防护策略导致访问不稳定；编号本身仍可作为简历和面试中的索引信息。</p>
+          </article>
+          <article class="project">
+            <h3>SRC 报告能力</h3>
+            <ul>
+              <li>能够完成漏洞发现、请求构造、复现验证、风险评级、影响范围说明和修复建议输出。</li>
+              <li>具备通用型 / 事件型漏洞提交经验，能围绕影响版本、漏洞类型、利用条件和披露边界整理标准化报告。</li>
+              <li>公开作品集只保留编号、平台主页和脱敏结论，不公开未修复漏洞与敏感资产信息。</li>
+            </ul>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section alt" id="projects">
+      <div class="inner">
+        <div class="section-title">
+          <h2>项目与贡献</h2>
+          <p>项目部分保留公开可访问链接和参与方向，不使用身份信息包装经历。</p>
+        </div>
+        <div class="project-grid">
+          <article class="project">
+            <h3>JavaSecAtlas</h3>
+            <p>面向 Java / Spring 代码审计的自动化工作台，用于白盒审计准备、规则原型验证和报告整理。</p>
+            <div class="tag-row">
+              <span class="tag">Java / Spring</span>
+              <span class="tag">SAST 辅助</span>
+              <span class="tag">SARIF / HTML</span>
+            </div>
+            <ul>
+              <li>支持 Maven / Gradle 项目识别、Spring 路由和权限注解提取。</li>
+              <li>内置 SSRF、XXE、SpEL、路径穿越、文件上传五类启发式规则。</li>
+              <li>参与项目识别、路由提取、规则设计、报告生成与 Agent 复核流程设计。</li>
+            </ul>
+          </article>
+          <article class="project">
+            <h3>PHP php-src</h3>
+            <p>参与 PHP 官方源码仓库上游维护，覆盖 HTTP 请求体解析配置校验和 ext/intl 文档注释维护。</p>
+            <div class="tag-row">
+              <span class="tag">C</span>
+              <span class="tag">PHPT</span>
+              <span class="tag">Upstream</span>
+            </div>
+            <ul>
+              <li>#22261 已合入，维护 ext/intl 错误处理约定文档与测试注释。</li>
+              <li>#22223 围绕 request_parse_body() 与 max_input_vars 的输入处理一致性提交补丁。</li>
+              <li>沉淀大型开源项目 CI、Review、最小化补丁和测试补充经验。</li>
+            </ul>
+          </article>
+          <article class="project">
+            <h3>Phantom</h3>
+            <p>SoybeanSeclab 团队开源浏览器安全扩展，面向 SRC 漏洞挖掘中的页面信息收集场景。</p>
+            <div class="tag-row">
+              <span class="tag">JavaScript</span>
+              <span class="tag">Browser Extension</span>
+              <span class="tag">SRC 辅助</span>
+            </div>
+            <ul>
+              <li>支持基础扫描、深度递归扫描、批量 API 测试、结果导出和自定义正则配置。</li>
+              <li>可用于前端接口梳理、敏感信息发现、JS 资源分析和授权测试前期资产整理。</li>
+              <li>公开页按团队项目表述，不把团队仓库数据包装为个人单独成果。</li>
+            </ul>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="boundary">
+      <div class="inner">
+        <div class="section-title">
+          <h2>公开边界</h2>
+          <p>这个页面是公开版，不是完整简历。身份信息和敏感技术细节默认不进入公网页面。</p>
+        </div>
+        <div class="boundary-grid">
+          <article class="notice">
+            <h3>不写身份信息</h3>
+            <p>不写任何能直接定位个人身份的字段、联系方式、证件信息或证书编号。</p>
+          </article>
+          <article class="notice">
+            <h3>不放敏感漏洞细节</h3>
+            <p>不公开目标系统、URL、请求包、Cookie、Token、后台路径、未修复漏洞和可直接复现的利用步骤。</p>
+          </article>
+          <article class="notice">
+            <h3>只保留可核验材料</h3>
+            <p>保留公开平台主页、编号页、项目仓库、Release、PR 记录和脱敏后的能力说明，便于招聘方快速验证。</p>
+          </article>
+        </div>
+      </div>
+    </section>
   </main>
+
+  <footer class="footer">
+    <div class="inner">
+      <span>公开版作品集，不含个人身份字段。</span>
+      <span><a href="https://github.com/OracleNep" target="_blank" rel="noreferrer">github.com/OracleNep</a></span>
+    </div>
+  </footer>
 </body>
 </html>
