@@ -4,9 +4,9 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="robots" content="noindex, noarchive" />
-  <meta name="description" content="OracleNep 的应用安全、漏洞挖掘、Java 白盒审计与安全工具开发作品集。" />
+  <meta name="description" content="OracleNep 的应用安全、漏洞挖掘、Java 白盒审计、安全工具开发与研究文章作品集。" />
   <meta property="og:title" content="OracleNep｜安全作品集" />
-  <meta property="og:description" content="AppSec / SRC / Java White-box Audit / Security Tooling" />
+  <meta property="og:description" content="AppSec / SRC / Java White-box Audit / Security Tooling / Research Notes" />
   <meta property="og:image" content="assets/hero-security-portfolio.png" />
   <title>OracleNep｜安全作品集</title>
   <style>
@@ -20,36 +20,20 @@
       --cyan: #48d6c4;
       --green: #126b4e;
       --amber: #9b6508;
-      --red: #9b3d33;
       --shadow: 0 18px 46px rgba(23, 32, 47, .10);
     }
 
-    * {
-      box-sizing: border-box;
-    }
-
-    html {
-      scroll-behavior: smooth;
-    }
-
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
     body {
       margin: 0;
       color: var(--ink);
       background: var(--paper);
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", Arial, sans-serif;
       line-height: 1.72;
-      letter-spacing: 0;
     }
-
-    a {
-      color: var(--teal);
-      text-decoration: none;
-    }
-
-    a:hover {
-      text-decoration: underline;
-    }
-
+    a { color: var(--teal); text-decoration: none; }
+    a:hover { text-decoration: underline; }
     .topbar {
       position: sticky;
       top: 0;
@@ -58,7 +42,6 @@
       background: rgba(247, 249, 252, .93);
       backdrop-filter: blur(12px);
     }
-
     .nav {
       width: min(1120px, calc(100% - 48px));
       min-height: 62px;
@@ -68,24 +51,9 @@
       justify-content: space-between;
       gap: 24px;
     }
-
-    .brand {
-      color: var(--ink);
-      font-weight: 850;
-      white-space: nowrap;
-    }
-
-    .nav-links {
-      display: flex;
-      align-items: center;
-      gap: 18px;
-      font-size: 14px;
-    }
-
-    .nav-links a {
-      color: #334155;
-    }
-
+    .brand { color: var(--ink); font-weight: 850; white-space: nowrap; }
+    .nav-links { display: flex; align-items: center; gap: 18px; font-size: 14px; }
+    .nav-links a { color: #334155; }
     .hero {
       min-height: 74vh;
       display: grid;
@@ -97,17 +65,11 @@
       background-size: cover;
       background-position: center right;
     }
-
     .inner {
       width: min(1120px, calc(100% - 48px));
       margin: 0 auto;
     }
-
-    .hero-copy {
-      max-width: 720px;
-      padding: 74px 0 84px;
-    }
-
+    .hero-copy { max-width: 740px; padding: 74px 0 84px; }
     .eyebrow {
       display: inline-flex;
       align-items: center;
@@ -120,34 +82,15 @@
       font-size: 13px;
       font-weight: 800;
     }
-
-    h1,
-    h2,
-    h3 {
-      margin: 0;
-      line-height: 1.22;
-      letter-spacing: 0;
-    }
-
-    h1 {
-      margin-top: 18px;
-      font-size: 56px;
-    }
-
+    h1, h2, h3 { margin: 0; line-height: 1.22; }
+    h1 { margin-top: 18px; font-size: 56px; }
     .hero-subtitle {
-      max-width: 660px;
+      max-width: 680px;
       margin: 18px 0 0;
       color: rgba(255, 255, 255, .86);
       font-size: 18px;
     }
-
-    .actions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 12px;
-      margin-top: 28px;
-    }
-
+    .actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 28px; }
     .button {
       display: inline-flex;
       align-items: center;
@@ -160,26 +103,10 @@
       background: rgba(255, 255, 255, .12);
       font-weight: 800;
     }
-
-    .button.primary {
-      border-color: var(--cyan);
-      color: #062d33;
-      background: var(--cyan);
-    }
-
-    .button:hover {
-      text-decoration: none;
-      filter: brightness(1.04);
-    }
-
-    .section {
-      padding: 68px 0;
-    }
-
-    .section.alt {
-      background: #eef2f6;
-    }
-
+    .button.primary { border-color: var(--cyan); color: #062d33; background: var(--cyan); }
+    .button:hover { text-decoration: none; filter: brightness(1.04); }
+    .section { padding: 68px 0; }
+    .section.alt { background: #eef2f6; }
     .section-title {
       display: flex;
       align-items: end;
@@ -187,17 +114,8 @@
       gap: 28px;
       margin-bottom: 26px;
     }
-
-    .section-title h2 {
-      font-size: 30px;
-    }
-
-    .section-title p {
-      max-width: 650px;
-      margin: 0;
-      color: var(--muted);
-    }
-
+    .section-title h2 { font-size: 30px; }
+    .section-title p { max-width: 650px; margin: 0; color: var(--muted); }
     .metrics {
       position: relative;
       z-index: 3;
@@ -206,52 +124,18 @@
       grid-template-columns: repeat(4, 1fr);
       gap: 14px;
     }
-
-    .card,
-    .metric,
-    .link-card,
-    .project {
+    .card, .metric, .link-card, .project {
       border: 1px solid var(--line);
       border-radius: 8px;
       background: var(--surface);
       box-shadow: var(--shadow);
     }
-
-    .metric {
-      padding: 20px;
-    }
-
-    .metric strong {
-      display: block;
-      color: var(--ink);
-      font-size: 30px;
-      line-height: 1.1;
-    }
-
-    .metric span {
-      display: block;
-      margin-top: 8px;
-      color: var(--muted);
-      font-size: 14px;
-    }
-
-    .project-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 16px;
-    }
-
-    .link-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 14px;
-    }
-
-    .card,
-    .project {
-      padding: 22px;
-    }
-
+    .metric { padding: 20px; }
+    .metric strong { display: block; color: var(--ink); font-size: 30px; line-height: 1.1; }
+    .metric span { display: block; margin-top: 8px; color: var(--muted); font-size: 14px; }
+    .project-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+    .link-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
+    .card, .project { padding: 22px; }
     .link-card {
       min-height: 94px;
       padding: 18px;
@@ -260,32 +144,10 @@
       justify-content: space-between;
       gap: 18px;
     }
-
-    .link-card strong {
-      display: block;
-      margin-bottom: 4px;
-      color: var(--ink);
-    }
-
-    .link-card span {
-      display: block;
-      color: var(--muted);
-      font-size: 14px;
-    }
-
-    .arrow {
-      flex: 0 0 auto;
-      color: var(--teal);
-      font-weight: 850;
-    }
-
-    .tag-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-top: 14px;
-    }
-
+    .link-card strong { display: block; margin-bottom: 4px; color: var(--ink); }
+    .link-card span { display: block; color: var(--muted); font-size: 14px; }
+    .arrow { flex: 0 0 auto; color: var(--teal); font-weight: 850; }
+    .tag-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
     .tag {
       min-height: 28px;
       display: inline-flex;
@@ -298,7 +160,6 @@
       font-size: 13px;
       font-weight: 700;
     }
-
     .label {
       display: inline-flex;
       min-height: 26px;
@@ -310,40 +171,12 @@
       font-size: 12px;
       font-weight: 850;
     }
-
-    .label.green {
-      background: var(--green);
-    }
-
-    .label.amber {
-      background: var(--amber);
-    }
-
-    .card h3,
-    .project h3 {
-      margin-top: 10px;
-      font-size: 18px;
-    }
-
-    .card p,
-    .project p {
-      margin: 10px 0 0;
-      color: var(--muted);
-    }
-
-    .vuln-layout {
-      display: grid;
-      grid-template-columns: 1.05fr .95fr;
-      gap: 18px;
-    }
-
-    .id-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 10px;
-      margin-top: 14px;
-    }
-
+    .label.green { background: var(--green); }
+    .label.amber { background: var(--amber); }
+    .card h3, .project h3 { margin-top: 10px; font-size: 18px; }
+    .card p, .project p { margin: 10px 0 0; color: var(--muted); }
+    .vuln-layout { display: grid; grid-template-columns: 1.05fr .95fr; gap: 18px; }
+    .id-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 14px; }
     .id-link {
       display: block;
       padding: 10px 12px;
@@ -354,104 +187,28 @@
       font-size: 13px;
       overflow-wrap: anywhere;
     }
-
-    ul {
-      margin: 12px 0 0;
-      padding-left: 20px;
-      color: var(--muted);
-    }
-
-    li + li {
-      margin-top: 8px;
-    }
-
-    .footer {
-      padding: 34px 0;
-      color: #cbd5e1;
-      background: #152033;
-      font-size: 14px;
-    }
-
-    .footer .inner {
-      display: flex;
-      justify-content: space-between;
-      gap: 20px;
-    }
-
-    .footer a {
-      color: #78e4d4;
-    }
-
+    ul { margin: 12px 0 0; padding-left: 20px; color: var(--muted); }
+    li + li { margin-top: 8px; }
+    .footer { padding: 34px 0; color: #cbd5e1; background: #152033; font-size: 14px; }
+    .footer .inner { display: flex; justify-content: space-between; gap: 20px; }
+    .footer a { color: #78e4d4; }
     @media (max-width: 920px) {
-      .nav {
-        min-height: auto;
-        padding: 14px 0;
-        align-items: start;
-        flex-direction: column;
-        gap: 10px;
-      }
-
-      .nav-links {
-        flex-wrap: wrap;
-        gap: 12px;
-      }
-
-      h1 {
-        font-size: 42px;
-      }
-
-      .metrics,
-      .project-grid,
-      .link-grid,
-      .vuln-layout {
-        grid-template-columns: 1fr;
-      }
-
-      .section-title {
-        align-items: start;
-        flex-direction: column;
-      }
-
-      .id-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .footer .inner {
-        flex-direction: column;
-      }
+      .nav { min-height: auto; padding: 14px 0; align-items: start; flex-direction: column; gap: 10px; }
+      .nav-links { flex-wrap: wrap; gap: 12px; }
+      h1 { font-size: 42px; }
+      .metrics, .project-grid, .link-grid, .vuln-layout { grid-template-columns: 1fr; }
+      .section-title { align-items: start; flex-direction: column; }
+      .id-grid { grid-template-columns: 1fr; }
+      .footer .inner { flex-direction: column; }
     }
-
     @media (max-width: 560px) {
-      .inner,
-      .nav {
-        width: min(100% - 32px, 1120px);
-      }
-
-      .hero {
-        min-height: 72vh;
-        background-position: center;
-      }
-
-      .hero-copy {
-        padding: 58px 0 68px;
-      }
-
-      h1 {
-        font-size: 32px;
-      }
-
-      .hero-subtitle {
-        font-size: 16px;
-      }
-
-      .section {
-        padding: 48px 0;
-      }
-
-      .link-card {
-        flex-direction: column;
-        gap: 8px;
-      }
+      .inner, .nav { width: min(100% - 32px, 1120px); }
+      .hero { min-height: 72vh; background-position: center; }
+      .hero-copy { padding: 58px 0 68px; }
+      h1 { font-size: 32px; }
+      .hero-subtitle { font-size: 16px; }
+      .section { padding: 48px 0; }
+      .link-card { flex-direction: column; gap: 8px; }
     }
   </style>
 </head>
@@ -461,6 +218,7 @@
       <a class="brand" href="#top">OracleNep</a>
       <div class="nav-links">
         <a href="#links">公开入口</a>
+        <a href="#research">研究文章</a>
         <a href="#vulns">漏洞编号</a>
         <a href="#projects">项目</a>
       </div>
@@ -474,10 +232,11 @@
           <span class="eyebrow">AppSec / SRC / Java White-box Audit / Security Tooling</span>
           <h1>OracleNep 安全作品集</h1>
           <p class="hero-subtitle">
-            聚焦应用安全、SRC 漏洞挖掘、Java 白盒审计与安全工具开发。这里整理漏洞平台主页、代表编号、开源项目和上游贡献，方便快速了解公开成果。
+            聚焦应用安全、SRC 漏洞挖掘、Java 白盒审计与安全工具开发。这里整理漏洞平台主页、代表编号、开源项目、上游贡献和研究文章，方便快速了解公开成果。
           </p>
           <div class="actions">
             <a class="button primary" href="https://src.sjtu.edu.cn/profile/20160/" target="_blank" rel="noreferrer">漏洞平台主页</a>
+            <a class="button" href="research/">研究文章</a>
             <a class="button" href="#vulns">漏洞编号</a>
             <a class="button" href="https://github.com/OracleNep" target="_blank" rel="noreferrer">GitHub</a>
           </div>
@@ -512,11 +271,15 @@
       <div class="inner">
         <div class="section-title">
           <h2>公开入口</h2>
-          <p>把可直接查验的材料集中放在这里：漏洞平台主页、编号索引、开源仓库、Release 和上游 PR。</p>
+          <p>把可直接查验的材料集中放在这里：漏洞平台主页、研究文章、编号索引、开源仓库、Release 和上游 PR。</p>
         </div>
         <div class="link-grid">
           <a class="link-card" href="https://src.sjtu.edu.cn/profile/20160/" target="_blank" rel="noreferrer">
             <span><strong>EDUSRC 平台主页</strong><span>授权漏洞提交经历与积分主页</span></span>
+            <span class="arrow">打开</span>
+          </a>
+          <a class="link-card" href="research/">
+            <span><strong>Research Notes</strong><span>JavaSecAtlas 系列文章与项目复盘</span></span>
             <span class="arrow">打开</span>
           </a>
           <a class="link-card" href="https://github.com/OracleNep" target="_blank" rel="noreferrer">
@@ -540,6 +303,33 @@
             <span class="arrow">打开</span>
           </a>
         </div>
+      </div>
+    </section>
+
+    <section class="section" id="research">
+      <div class="inner">
+        <div class="section-title">
+          <h2>研究文章</h2>
+          <p>把项目迭代背后的设计取舍和安全工程思路写下来。这里先整理 JavaSecAtlas 系列，后续会继续补 Java 代码审计、CTF WP 和漏洞复现类文章。</p>
+        </div>
+        <article class="project">
+          <span class="label green">Research Notes</span>
+          <h3>JavaSecAtlas 研究文章集</h3>
+          <p>围绕 JavaSecAtlas V1.2 的一次项目复盘：为什么不继续造一个低配 SAST，为什么要支持 Semgrep / CodeQL SARIF 导入，以及后续如何做 Spring 路由关联和 Agent 复核。</p>
+          <div class="tag-row">
+            <span class="tag">Java Security</span>
+            <span class="tag">SARIF</span>
+            <span class="tag">Semgrep / CodeQL</span>
+            <span class="tag">LLM Agent</span>
+          </div>
+          <ul>
+            <li>JavaSecAtlas V1.2：我没有继续造一个低配 SAST。</li>
+            <li>SARIF 导入：把外部扫描结果接进来。</li>
+            <li>下一步：把 finding 绑到 Spring 路由上。</li>
+            <li>Agent 复核：让 AI 干适合它干的活。</li>
+          </ul>
+          <p><a href="research/javasecatlas-series.html">打开文章集 →</a></p>
+        </article>
       </div>
     </section>
 
@@ -625,7 +415,6 @@
         </div>
       </div>
     </section>
-
   </main>
 
   <footer class="footer">
