@@ -1,15 +1,19 @@
 # OracleNep Research Notes
 
-> Security research notes by OracleNep, focused on Java security, Java/Spring white-box audit, SARIF, Semgrep, CodeQL, SAST orchestration, LLM-assisted triage, and security tooling.
+> Security research notes by OracleNep, focused on Java security, Java/Spring white-box audit, Spring SpEL, SARIF, Semgrep, CodeQL, SAST orchestration, LLM-assisted triage, and security tooling.
 
 ## Main pages
 
 - Portfolio: https://oraclenep.github.io/
 - Research index: https://oraclenep.github.io/research/
+- SpEL EvaluationContext research: https://oraclenep.github.io/research/java-spel-evaluation-context.html
 - JavaSecAtlas research series: https://oraclenep.github.io/research/javasecatlas-series.html
 
 ## Current research topics
 
+- Spring SpEL expression execution boundary and EvaluationContext security model
+- StandardEvaluationContext vs SimpleEvaluationContext in Java white-box audit
+- Java expression injection audit sources and sinks
 - JavaSecAtlas V1.2 project review
 - Java / Spring white-box audit workflow
 - SARIF import and normalization
