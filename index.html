@@ -210,8 +210,7 @@
     .card,
     .metric,
     .link-card,
-    .project,
-    .notice {
+    .project {
       border: 1px solid var(--line);
       border-radius: 8px;
       background: var(--surface);
@@ -236,8 +235,7 @@
       font-size: 14px;
     }
 
-    .project-grid,
-    .boundary-grid {
+    .project-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       gap: 16px;
@@ -250,8 +248,7 @@
     }
 
     .card,
-    .project,
-    .notice {
+    .project {
       padding: 22px;
     }
 
@@ -323,15 +320,13 @@
     }
 
     .card h3,
-    .project h3,
-    .notice h3 {
+    .project h3 {
       margin-top: 10px;
       font-size: 18px;
     }
 
     .card p,
-    .project p,
-    .notice p {
+    .project p {
       margin: 10px 0 0;
       color: var(--muted);
     }
@@ -368,18 +363,6 @@
 
     li + li {
       margin-top: 8px;
-    }
-
-    .boundary-grid .notice {
-      border-top: 4px solid var(--teal);
-    }
-
-    .boundary-grid .notice:nth-child(2) {
-      border-top-color: var(--amber);
-    }
-
-    .boundary-grid .notice:nth-child(3) {
-      border-top-color: var(--red);
     }
 
     .footer {
@@ -420,8 +403,7 @@
       .metrics,
       .project-grid,
       .link-grid,
-      .vuln-layout,
-      .boundary-grid {
+      .vuln-layout {
         grid-template-columns: 1fr;
       }
 
@@ -481,7 +463,6 @@
         <a href="#links">公开入口</a>
         <a href="#vulns">漏洞编号</a>
         <a href="#projects">项目</a>
-        <a href="#boundary">披露边界</a>
       </div>
     </nav>
   </header>
@@ -584,7 +565,7 @@
             <h3>SRC 报告能力</h3>
             <ul>
               <li>能够完成漏洞发现、请求构造、复现验证、风险评级、影响范围说明和修复建议输出。</li>
-              <li>具备通用型 / 事件型漏洞提交经验，能围绕影响版本、漏洞类型、利用条件和披露边界整理标准化报告。</li>
+              <li>具备通用型 / 事件型漏洞提交经验，能围绕影响版本、漏洞类型、利用条件和修复建议整理标准化报告。</li>
               <li>公开材料以编号、平台主页、风险描述和修复建议为主，细节按授权范围和披露要求处理。</li>
             </ul>
           </article>
@@ -645,28 +626,6 @@
       </div>
     </section>
 
-    <section class="section" id="boundary">
-      <div class="inner">
-        <div class="section-title">
-          <h2>披露边界</h2>
-          <p>SRC、CNVD 和授权测试材料以公开编号、脱敏复盘和修复建议为主，避免把可复现细节直接放到开放页面。</p>
-        </div>
-        <div class="boundary-grid">
-          <article class="notice">
-            <h3>编号与主页</h3>
-            <p>使用平台主页、CVE / CNVD 编号和公开仓库作为索引，便于快速定位公开记录和项目交付物。</p>
-          </article>
-          <article class="notice">
-            <h3>脱敏复盘</h3>
-            <p>面试或沟通时围绕漏洞类型、影响判断、根因分析、修复建议和复测结论展开，不展示目标资产细节。</p>
-          </article>
-          <article class="notice">
-            <h3>授权范围</h3>
-            <p>所有 SRC、护网和审计经历均按授权范围描述，未公开报告和攻击复现链路不作为网页内容发布。</p>
-          </article>
-        </div>
-      </div>
-    </section>
   </main>
 
   <footer class="footer">
