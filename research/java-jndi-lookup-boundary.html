@@ -1,0 +1,459 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
+  <meta name="author" content="OracleNep" />
+  <meta name="description" content="Java 安全深度研究：从 InitialContext.lookup、URL Context、NamingManager.getObjectInstance、Reference/ObjectFactory 到 Log4Shell 之后的 JNDI 注入白盒审计边界，系统分析 Java JNDI 注入漏洞原理、代码审计规则、检测方法和修复策略。" />
+  <meta name="keywords" content="Java 安全, Java JNDI, JNDI 注入, InitialContext.lookup, NamingManager, ObjectFactory, Reference, Java 代码审计, Log4Shell, CVE-2021-44228, LDAP, RMI, JVM 安全, 白盒审计" />
+  <link rel="canonical" href="https://oraclenep.github.io/research/java-jndi-lookup-boundary.html" />
+  <meta property="og:type" content="article" />
+  <meta property="og:title" content="JNDI 注入的执行边界：从 InitialContext.lookup 到 NamingManager 的白盒审计" />
+  <meta property="og:description" content="聚焦 Java JNDI 注入的执行边界：不堆利用载荷，从 JNDI URL 解析、Reference 工厂、上下文能力和代码审计规则拆解真实风险。" />
+  <meta property="og:url" content="https://oraclenep.github.io/research/java-jndi-lookup-boundary.html" />
+  <meta property="og:site_name" content="OracleNep Research Notes" />
+  <meta property="article:author" content="OracleNep" />
+  <meta property="article:published_time" content="2026-06-12T00:00:00+08:00" />
+  <meta property="article:modified_time" content="2026-06-12T00:00:00+08:00" />
+  <meta property="article:tag" content="Java Security" />
+  <meta property="article:tag" content="JNDI Injection" />
+  <meta property="article:tag" content="Code Audit" />
+  <meta property="article:tag" content="JVM Security" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="JNDI 注入的执行边界：从 InitialContext.lookup 到 NamingManager 的白盒审计" />
+  <meta name="twitter:description" content="Java 安全研究：JNDI 注入漏洞原理、JVM/JNDI 机制、源码级调用链、白盒审计规则和修复策略。" />
+  <title>JNDI 注入的执行边界：从 InitialContext.lookup 到 NamingManager 的白盒审计｜OracleNep</title>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": "JNDI 注入的执行边界：从 InitialContext.lookup 到 NamingManager 的白盒审计",
+    "description": "Java 安全深度研究：从 InitialContext.lookup、URL Context、NamingManager.getObjectInstance、Reference/ObjectFactory 到 Log4Shell 之后的 JNDI 注入白盒审计边界，系统分析 Java JNDI 注入漏洞原理、代码审计规则、检测方法和修复策略。",
+    "url": "https://oraclenep.github.io/research/java-jndi-lookup-boundary.html",
+    "mainEntityOfPage": "https://oraclenep.github.io/research/java-jndi-lookup-boundary.html",
+    "datePublished": "2026-06-12T00:00:00+08:00",
+    "dateModified": "2026-06-12T00:00:00+08:00",
+    "inLanguage": "zh-CN",
+    "author": {"@type": "Person", "name": "OracleNep", "url": "https://github.com/OracleNep"},
+    "publisher": {"@type": "Person", "name": "OracleNep", "url": "https://oraclenep.github.io/"},
+    "keywords": ["Java 安全", "JNDI 注入", "InitialContext.lookup", "NamingManager", "ObjectFactory", "Reference", "Log4Shell", "Java 代码审计", "JVM 安全", "白盒审计"],
+    "articleSection": ["Java 安全", "JNDI 注入", "代码审计", "JVM 安全"],
+    "about": [
+      {"@type": "Thing", "name": "Java Naming and Directory Interface"},
+      {"@type": "Thing", "name": "InitialContext.lookup"},
+      {"@type": "Thing", "name": "NamingManager.getObjectInstance"},
+      {"@type": "Thing", "name": "Java white-box audit"}
+    ]
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {"@type":"Question","name":"JNDI 注入审计时最关键的 sink 是什么？","acceptedAnswer":{"@type":"Answer","text":"优先关注 InitialContext.lookup、Context.lookup、lookupLink、Spring JndiTemplate.lookup、JndiObjectFactoryBean、JMSAppender 等会把字符串解析成 JNDI 名称或 URL Context 的入口。真正定级时还要结合输入来源、协议白名单、JDK 版本、网络出口和返回对象处理方式。"}},
+      {"@type":"Question","name":"升级 JDK 后 JNDI 注入是否就没有风险？","acceptedAnswer":{"@type":"Answer","text":"不是。JDK 对远程 class loading 做过默认收紧，但 JNDI 风险不只等于远程加载 class。已有 classpath 中的 ObjectFactory、BeanFactory、JMS、LDAP/RMI 出口、信息泄露、SSRF 与拒绝服务仍然需要按上下文评估。"}},
+      {"@type":"Question","name":"修复 JNDI 注入最稳的方式是什么？","acceptedAnswer":{"@type":"Answer","text":"不要让低权限用户控制 JNDI 名称结构。必须动态查找时，应使用固定命名空间、协议 allowlist、名称 canonicalization、网络出口限制和最小化的返回对象类型校验，而不是依赖黑名单过滤特殊字符。"}}
+    ]
+  }
+  </script>
+  <style>
+    :root { --ink:#17202f; --muted:#5c6879; --line:#d8dee8; --paper:#f7f9fc; --surface:#fff; --teal:#087f8c; --cyan:#48d6c4; --shadow:0 18px 46px rgba(23,32,47,.10); }
+    * { box-sizing:border-box; }
+    html { scroll-behavior:smooth; }
+    body { margin:0; color:var(--ink); background:var(--paper); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",Arial,sans-serif; line-height:1.78; }
+    a { color:var(--teal); text-decoration:none; } a:hover { text-decoration:underline; }
+    code, pre { font-family:"Cascadia Mono",Consolas,Menlo,Monaco,monospace; }
+    .topbar { position:sticky; top:0; z-index:20; border-bottom:1px solid rgba(216,222,232,.92); background:rgba(247,249,252,.93); backdrop-filter:blur(12px); }
+    .nav { width:min(1120px,calc(100% - 48px)); min-height:62px; margin:0 auto; display:flex; align-items:center; justify-content:space-between; gap:24px; }
+    .brand { color:var(--ink); font-weight:850; white-space:nowrap; }
+    .nav-links { display:flex; align-items:center; gap:18px; font-size:14px; flex-wrap:wrap; }
+    .nav-links a { color:#334155; }
+    .hero { color:#fff; background:radial-gradient(circle at 20% 10%,rgba(72,214,196,.18),transparent 32%),linear-gradient(115deg,#08111f 0%,#172033 58%,#0f3a43 100%); }
+    .inner { width:min(1120px,calc(100% - 48px)); margin:0 auto; }
+    .hero-copy { max-width:900px; padding:86px 0 78px; }
+    .eyebrow { display:inline-flex; align-items:center; min-height:28px; padding:2px 10px; border:1px solid rgba(255,255,255,.30); border-radius:4px; color:#b8f2e6; background:rgba(255,255,255,.08); font-size:13px; font-weight:800; }
+    h1,h2,h3 { margin:0; line-height:1.25; } h1 { margin-top:18px; font-size:46px; } h2 { font-size:28px; margin-top:34px; } h3 { font-size:20px; margin-top:24px; }
+    .subtitle { max-width:840px; margin:18px 0 0; color:rgba(255,255,255,.86); font-size:18px; }
+    .actions { display:flex; flex-wrap:wrap; gap:12px; margin-top:28px; }
+    .button { display:inline-flex; align-items:center; justify-content:center; min-height:42px; padding:9px 14px; border:1px solid rgba(255,255,255,.32); border-radius:6px; color:#fff; background:rgba(255,255,255,.12); font-weight:800; }
+    .button.primary { border-color:var(--cyan); color:#062d33; background:var(--cyan); } .button:hover { text-decoration:none; filter:brightness(1.04); }
+    .layout { display:grid; grid-template-columns:280px 1fr; gap:24px; padding:42px 0 74px; }
+    .toc { position:sticky; top:84px; align-self:start; padding:18px; border:1px solid var(--line); border-radius:8px; background:var(--surface); box-shadow:var(--shadow); }
+    .toc strong { display:block; margin-bottom:10px; } .toc a { display:block; padding:7px 0; color:#334155; font-size:14px; } .toc .small { margin-top:12px; color:var(--muted); font-size:13px; }
+    article { padding:30px; border:1px solid var(--line); border-radius:8px; background:var(--surface); box-shadow:var(--shadow); }
+    article p { margin:12px 0 0; color:#334155; } article ul, article ol { margin:12px 0 0; padding-left:22px; color:#334155; } li + li { margin-top:6px; }
+    .lead { margin-top:14px; color:var(--muted); font-size:16px; }
+    .meta { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:14px; }
+    .tag { min-height:26px; display:inline-flex; align-items:center; padding:2px 8px; border:1px solid var(--line); border-radius:4px; color:#425064; background:#f7f9fc; font-size:12px; font-weight:750; }
+    blockquote { margin:18px 0; padding:14px 18px; border-left:4px solid var(--teal); background:#eef8f7; color:#24424a; }
+    pre { margin:16px 0 0; padding:16px; overflow-x:auto; border:1px solid #dbe5ee; border-radius:8px; color:#dbeafe; background:#111827; font-size:13px; line-height:1.65; }
+    code { padding:1px 5px; border-radius:4px; background:#edf2f7; color:#17324d; font-size:.94em; } pre code { padding:0; background:transparent; color:inherit; }
+    table { width:100%; margin-top:16px; border-collapse:collapse; font-size:14px; } th,td { padding:10px 12px; border:1px solid var(--line); text-align:left; vertical-align:top; } th { background:#eef2f6; }
+    .note { margin-top:18px; padding:14px 16px; border:1px solid #cbd5e1; border-radius:8px; background:#f8fafc; color:#475569; }
+    .footer { padding:34px 0; color:#cbd5e1; background:#152033; font-size:14px; } .footer .inner { display:flex; justify-content:space-between; gap:20px; } .footer a { color:#78e4d4; }
+    @media (max-width:920px){ .nav{min-height:auto;padding:14px 0;align-items:start;flex-direction:column;gap:10px;} h1{font-size:38px;} .layout{grid-template-columns:1fr;} .toc{position:static;} .footer .inner{flex-direction:column;} }
+    @media (max-width:560px){ .inner,.nav{width:min(100% - 32px,1120px);} h1{font-size:31px;} .hero-copy{padding:58px 0 64px;} article{padding:20px;} }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <nav class="nav" aria-label="主导航">
+      <a class="brand" href="../index.html">OracleNep</a>
+      <div class="nav-links">
+        <a href="./">Research</a>
+        <a href="#model">执行模型</a>
+        <a href="#audit">审计方法</a>
+        <a href="#rules">规则设计</a>
+        <a href="#fix">修复边界</a>
+      </div>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="inner">
+        <div class="hero-copy">
+          <span class="eyebrow">Java Security / JNDI Injection / Code Audit</span>
+          <h1>JNDI 注入的执行边界：从 InitialContext.lookup 到 NamingManager 的白盒审计</h1>
+          <p class="subtitle">这篇不从 payload 出发，而是把 JNDI 当成一个“命名解析 + 对象工厂 + URL Context”的执行模型来拆。重点回答：什么样的 lookup 真正危险、JDK 收紧之后还剩哪些风险、白盒审计应该如何降噪和定级。</p>
+          <div class="actions">
+            <a class="button primary" href="https://docs.oracle.com/javase/8/docs/api/javax/naming/InitialContext.html" target="_blank" rel="noreferrer">InitialContext 文档</a>
+            <a class="button" href="https://docs.oracle.com/javase/8/docs/api/javax/naming/spi/NamingManager.html" target="_blank" rel="noreferrer">NamingManager 文档</a>
+            <a class="button" href="./">返回文章列表</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="inner layout">
+      <aside class="toc" aria-label="文章目录">
+        <strong>目录</strong>
+        <a href="#intro">0. 研究问题与边界</a>
+        <a href="#model">1. JNDI 的执行模型</a>
+        <a href="#history">2. 从远程 class 到本地工厂</a>
+        <a href="#case">3. Log4Shell 给审计带来的启发</a>
+        <a href="#code">4. 代码级风险拆解</a>
+        <a href="#audit">5. 白盒审计 sources / sinks</a>
+        <a href="#rules">6. 规则设计与误报压缩</a>
+        <a href="#fix">7. 修复与工程化防护</a>
+        <a href="#refs">8. 参考资料</a>
+        <p class="small">文章仅用于授权代码审计、安全研究和防御建设；不提供可直接用于攻击真实目标的利用链、恶意服务端或武器化载荷。</p>
+      </aside>
+
+      <article>
+        <div class="meta">
+          <span class="tag">Java JNDI</span>
+          <span class="tag">JNDI 注入</span>
+          <span class="tag">InitialContext.lookup</span>
+          <span class="tag">Java 代码审计</span>
+          <span class="tag">JVM 安全</span>
+        </div>
+
+        <section id="intro">
+          <h2>0. 研究问题与边界</h2>
+          <p class="lead">JNDI 注入最容易被讲成“某个字符串触发远程加载”的故事，但对真实 Java 代码审计来说，这个描述既不够精确，也不利于修复。更稳的研究问题应该是：当一段不可信数据进入 JNDI lookup 时，JVM、JNDI provider、URL Context、对象工厂和业务代码共同暴露了哪些执行能力？</p>
+          <p>本文聚焦 Java 安全中的一个细分领域：<strong>JNDI lookup 边界与白盒审计</strong>。我不会堆叠利用载荷，而是从 JNDI 机制本身拆解风险，把一个 finding 拆成可审计、可定级、可修复的工程问题。</p>
+          <blockquote>核心结论：JNDI 注入不是一个单点漏洞，而是一类“把用户可控名称交给命名服务解析”的能力泄露。风险等级取决于名称是否可控、协议是否可控、JDK 与依赖版本、对象工厂是否可达、网络出口是否开放、返回对象如何被业务使用。</blockquote>
+          <p>因此，一个成熟的 Java JNDI 注入审计报告不应该只写“参数进入 <code>lookup()</code>，可能 RCE”。更好的报告需要说明：</p>
+          <ul>
+            <li>用户是否能控制完整 JNDI 名称，还是只能控制受限片段；</li>
+            <li>名称是否可能被解析为 <code>ldap:</code>、<code>rmi:</code>、<code>iiop:</code> 等 URL Context；</li>
+            <li>运行时是否允许远程 codebase，或者 classpath 内是否存在可被对象工厂利用的本地类；</li>
+            <li>应用是否有对外 LDAP/RMI/DNS 访问能力，是否会造成 SSRF、信息泄露或资产探测；</li>
+            <li>返回对象是否继续被强转、反射调用、反序列化、表达式求值或写入 Spring 容器。</li>
+          </ul>
+        </section>
+
+        <section id="model">
+          <h2>1. JNDI 的执行模型</h2>
+          <p>JNDI，全称 Java Naming and Directory Interface，本质上是 Java 为命名服务和目录服务提供的一层统一 API。对开发者来说，它常见于数据源、JMS、LDAP、EJB、RMI、应用服务器资源查找等场景。危险点在于：<code>lookup(String name)</code> 接收的是“名称”，但这个名称不一定只是普通 key，它可能触发 provider 选择、URL Context 构造、远程目录访问和对象工厂实例化。</p>
+
+          <h3>1.1 最小调用路径</h3>
+          <pre><code>Context ctx = new InitialContext();
+Object object = ctx.lookup(name);</code></pre>
+          <p>在白盒审计里，这两行代码可以拆成三个问题：</p>
+          <table>
+            <thead><tr><th>阶段</th><th>安全问题</th><th>审计关注点</th></tr></thead>
+            <tbody>
+              <tr><td>名称构造</td><td><code>name</code> 是否可控</td><td>HTTP 参数、Header、JSON、数据库配置、消息队列、任务配置是否进入 lookup</td></tr>
+              <tr><td>上下文选择</td><td>是否触发 URL Context</td><td>名称是否以可解析 scheme 开头，是否绕过业务前缀拼接和黑名单</td></tr>
+              <tr><td>对象解析</td><td>返回对象如何生成</td><td>是否涉及 <code>Reference</code>、<code>ObjectFactory</code>、本地 classpath 工厂或远程目录返回对象</td></tr>
+            </tbody>
+          </table>
+
+          <h3>1.2 InitialContext.lookup 不是普通 Map 查询</h3>
+          <p>从 API 语义看，<code>InitialContext.lookup(String)</code> 是“检索命名对象”。这和 <code>Map.get(key)</code> 的直觉不同：JNDI 名称会进入 provider 解析流程，且某些名称形式会被当作 URL 处理。Oracle 的 <code>InitialContext</code> 文档明确把 <code>lookup(String name)</code> 定义为检索指定名称绑定的对象，这意味着调用者拿到的是 provider 解析后的对象，而不是静态字符串映射。</p>
+          <p>简化成伪代码，大致可以这样理解：</p>
+          <pre><code>Object lookup(String name) {
+    Context context = resolveInitialOrURLContext(name);
+    Object raw = context.lookup(name);
+    return maybeDecodeReference(raw, environment);
+}</code></pre>
+          <p>这里的 <code>resolveInitialOrURLContext</code> 和 <code>maybeDecodeReference</code> 才是安全边界。审计时如果只看 <code>lookup</code> 这一行，很容易把真实风险低估或高估。</p>
+
+          <h3>1.3 NamingManager.getObjectInstance 是对象化边界</h3>
+          <p><code>NamingManager.getObjectInstance()</code> 是 JNDI 中非常关键的对象工厂入口。根据 Java API 文档，它会根据 <code>Reference</code> / <code>Referenceable</code>、URL 地址、<code>Context.OBJECT_FACTORIES</code> 等策略尝试创建对象。换句话说，JNDI 不只是“查名字”，还可能把目录服务返回的引用信息转成 Java 对象。</p>
+          <pre><code>// 伪代码：表达审计模型，不是 JDK 源码逐字复制
+Object getObjectInstance(Object refInfo, Name name, Context ctx, Hashtable env) {
+    if (refInfo contains factoryClassName) {
+        ObjectFactory factory = loadFactory(factoryClassName, env);
+        return factory.getObjectInstance(refInfo, name, ctx, env);
+    }
+    if (refInfo contains URL address) {
+        Context urlCtx = getURLContext(scheme, env);
+        return urlCtx.lookup(url);
+    }
+    for (factoryName : env.get(Context.OBJECT_FACTORIES)) {
+        try factoryName as ObjectFactory;
+    }
+    return refInfo;
+}</code></pre>
+          <p>这段模型带来的审计启发是：即使现代 JDK 默认收紧了远程 class loading，JNDI 仍然可能通过<strong>本地 classpath 中已有的 ObjectFactory</strong>、应用服务器内置工厂、JMS/LDAP 客户端行为、URL Context 访问等路径产生风险。升级 JDK 是必要条件，但不是完整修复。</p>
+        </section>
+
+        <section id="history">
+          <h2>2. 从远程 class 到本地工厂：JNDI 风险的历史演进</h2>
+          <p>早期 JNDI 风险经常和“远程 codebase 加载类”绑定在一起。JDK 后续逐步收紧了相关默认行为，例如 Oracle JDK 8u121 的 release notes 明确提到，RMI Registry 与 COS Naming service provider 通过 JNDI object factory 进行远程 class loading 默认被禁用，需要显式设置 <code>com.sun.jndi.rmi.object.trustURLCodebase</code> 或 <code>com.sun.jndi.cosnaming.object.trustURLCodebase</code> 才能启用。</p>
+          <p>但从审计角度看，JNDI 风险并没有因为默认远程加载收紧而消失，而是从“远程拉 class”转向了更依赖运行时上下文的组合风险：</p>
+          <table>
+            <thead><tr><th>阶段</th><th>典型风险</th><th>审计重点</th></tr></thead>
+            <tbody>
+              <tr><td>远程 codebase 阶段</td><td>目录服务返回远程类位置，客户端加载并实例化</td><td>JDK 版本、trustURLCodebase、SecurityManager 历史配置</td></tr>
+              <tr><td>本地工厂阶段</td><td>返回对象触发 classpath 中已有 ObjectFactory 或容器工厂</td><td>依赖树、应用服务器、Spring/Tomcat/BeanFactory 等可达类</td></tr>
+              <tr><td>出口与探测阶段</td><td>lookup 导致 LDAP/RMI/DNS 等外连</td><td>SSRF、内网探测、DNS log、认证信息泄露、超时 DoS</td></tr>
+              <tr><td>业务对象阶段</td><td>返回对象被强转、反射调用或进入配置流程</td><td>返回对象后续使用链、类型校验、异常处理和日志泄露</td></tr>
+            </tbody>
+          </table>
+          <p>所以，“JDK 已升级”只能作为降低风险的证据之一。真正的修复是阻断低权限用户控制 JNDI 名称结构，并把动态 lookup 限定在可信命名空间里。</p>
+        </section>
+
+        <section id="case">
+          <h2>3. Log4Shell 给 JNDI 审计带来的启发</h2>
+          <p>Log4Shell 并不只是 Log4j 的一个历史事件，它把 JNDI 风险从“框架内部能力”暴露成了供应链层面的系统性问题。Apache Logging Services 的安全页面对 CVE-2021-44228 的描述非常直接：Log4j 中用于配置、日志消息和参数的 JNDI 特性没有防护攻击者控制的 LDAP 和其他 JNDI 相关端点，攻击者控制日志消息或参数时可能执行从 LDAP 服务加载的代码。该漏洞影响 <code>log4j-core</code> 的特定版本区间，CVSS 3.x 评分为 10.0。</p>
+          <p>这件事对 Java 代码审计有三个启发：</p>
+          <ol>
+            <li><strong>不可信输入不一定来自 Controller。</strong> 日志消息、MDC、线程上下文、配置插值、异常消息、第三方回调都可能成为 source。</li>
+            <li><strong>危险 sink 不一定在业务代码里显式出现。</strong> 业务只是在记录日志，但框架内部可能执行 lookup、插值、解析器和插件逻辑。</li>
+            <li><strong>修复不应该只靠过滤 payload。</strong> Log4j 后续的修复方向是禁用/限制危险 lookup 能力、调整默认行为和升级版本，而不是要求所有业务代码做字符串黑名单。</li>
+          </ol>
+          <blockquote>从方法论上看，Log4Shell 之后的 JNDI 审计应该从“找字符串模式”升级为“找解析能力暴露点”：谁把不可信数据交给了一个能访问命名服务、能对象化返回值、能触发网络出口的组件？</blockquote>
+        </section>
+
+        <section id="code">
+          <h2>4. 代码级风险拆解：一个可复核的最小模型</h2>
+          <p>下面的代码不是攻击示例，而是审计中常见的“危险模式最小化”。它模拟后台系统允许租户配置资源名称，服务端根据这个名称做 JNDI lookup。</p>
+          <pre><code>public final class TenantResourceResolver {
+    public Object resolve(String tenantId, String configuredName) throws NamingException {
+        // configuredName 来自数据库，低权限租户管理员可修改
+        Context ctx = new InitialContext();
+        return ctx.lookup(configuredName);
+    }
+}</code></pre>
+          <p>这段代码的漏洞点不在于 <code>InitialContext</code> 本身，而在于 <code>configuredName</code> 的权限边界被误判了。很多系统把“后台可配置”当成可信输入，但多租户后台、运营后台、插件配置、Webhook 配置都可能被低权限用户控制。</p>
+
+          <h3>4.1 风险不是二元判断，而是能力矩阵</h3>
+          <table>
+            <thead><tr><th>审计问题</th><th>低风险答案</th><th>高风险答案</th></tr></thead>
+            <tbody>
+              <tr><td>用户能控制什么</td><td>只能选择枚举 ID</td><td>能写完整 JNDI 名称或 URL</td></tr>
+              <tr><td>命名空间</td><td>固定 <code>java:comp/env/</code> 前缀并 canonicalize</td><td>允许任意 scheme 或拼接后可绕过</td></tr>
+              <tr><td>网络出口</td><td>容器层禁止访问外部 LDAP/RMI/DNS</td><td>应用可访问互联网或敏感内网</td></tr>
+              <tr><td>返回对象</td><td>只允许固定接口类型，失败即拒绝</td><td>返回对象进入反射、表达式、Bean 注册或脚本执行</td></tr>
+              <tr><td>依赖环境</td><td>依赖裁剪，无危险 ObjectFactory</td><td>classpath 有可被 Reference 触达的工厂类</td></tr>
+            </tbody>
+          </table>
+
+          <h3>4.2 常见的伪修复</h3>
+          <pre><code>// 不推荐：看似限制了 ldap，但没有建立可信命名空间
+if (configuredName.toLowerCase(Locale.ROOT).contains("ldap")) {
+    throw new IllegalArgumentException("blocked");
+}
+return new InitialContext().lookup(configuredName);</code></pre>
+          <p>黑名单的问题是：它只是在和输入形态对抗，而不是在限制能力。JNDI provider、URL scheme、大小写、编码、前缀拼接、容器内置命名空间和后续对象处理都会让黑名单变得脆弱。</p>
+
+          <h3>4.3 更稳的修复模型</h3>
+          <pre><code>public final class SafeJndiResolver {
+    private static final String SAFE_PREFIX = "java:comp/env/app/resources/";
+    private static final Pattern SAFE_NAME = Pattern.compile("[a-zA-Z0-9_.-]{1,64}");
+
+    public DataSource resolveDataSource(String logicalName) throws NamingException {
+        if (!SAFE_NAME.matcher(logicalName).matches()) {
+            throw new IllegalArgumentException("invalid resource name");
+        }
+
+        String jndiName = SAFE_PREFIX + logicalName;
+        Object value = new InitialContext().lookup(jndiName);
+
+        if (!(value instanceof DataSource ds)) {
+            throw new NamingException("unexpected JNDI object type: " + value.getClass().getName());
+        }
+        return ds;
+    }
+}</code></pre>
+          <p>这段修复代码的核心不是正则，而是<strong>能力收缩</strong>：</p>
+          <ul>
+            <li>用户只能控制逻辑名，不能控制完整 JNDI URL；</li>
+            <li>服务端强制固定命名空间；</li>
+            <li>返回对象必须是预期类型；</li>
+            <li>失败时拒绝，而不是 fallback 到另一个 lookup；</li>
+            <li>资源命名和权限边界一致，租户只能访问自己的资源配置。</li>
+          </ul>
+
+          <h3>4.4 对 Spring 代码的同类审计</h3>
+          <p>Spring 项目里不一定直接出现 <code>new InitialContext()</code>，还可能包在 <code>JndiTemplate</code>、<code>JndiObjectFactoryBean</code> 或框架配置里。</p>
+          <pre><code>// 候选风险：name 来自配置中心或数据库，且低权限用户可改
+JndiTemplate template = new JndiTemplate();
+Object value = template.lookup(name);</code></pre>
+          <p>这类 finding 的审计重点是配置来源。只要 <code>name</code> 是固定部署配置，并且配置文件只能由可信运维修改，风险通常低很多；如果配置来自租户后台、动态规则表、插件市场或灰度平台，就要按不可信输入继续追。</p>
+        </section>
+
+        <section id="audit">
+          <h2>5. 白盒审计的 sources 与 sinks</h2>
+          <p>做 JNDI 注入审计时，我会先建立 source / sink / context 三层模型，而不是直接报高危。</p>
+
+          <h3>5.1 高价值 sources</h3>
+          <ul>
+            <li>HTTP 参数、Header、Cookie、JSON 字段、GraphQL 参数；</li>
+            <li>数据库中的租户配置、规则配置、连接器配置、Webhook 配置；</li>
+            <li>配置中心、Nacos、Apollo、Consul、Spring Cloud Config 中可由非核心运维修改的 key；</li>
+            <li>消息队列、任务调度参数、CI/CD 变量、插件 manifest；</li>
+            <li>日志消息、MDC / ThreadContext、异常 message、模板变量；</li>
+            <li>上传文件中的 XML/YAML/Properties 配置片段。</li>
+          </ul>
+
+          <h3>5.2 重点 sinks</h3>
+          <pre><code>InitialContext.lookup
+Context.lookup
+Context.lookupLink
+InitialDirContext.search
+NamingManager.getObjectInstance
+DirectoryManager.getObjectInstance
+JndiTemplate.lookup
+JndiObjectFactoryBean.setJndiName
+JmsAppender / JMSAppender configuration
+DataSourceLookup / JndiDataSourceLookup</code></pre>
+          <p>其中 <code>search</code> 类 API 不一定等价于对象工厂实例化，但仍然可能造成 LDAP 注入、信息泄露、认证绕过或目录探测。审计时要区分“JNDI 名称注入”和“LDAP filter 注入”，不要混成一个结论。</p>
+
+          <h3>5.3 影响定级的上下文</h3>
+          <table>
+            <thead><tr><th>上下文证据</th><th>风险影响</th></tr></thead>
+            <tbody>
+              <tr><td>JDK 版本较新且默认禁用远程 codebase</td><td>降低远程加载类的可能性，但不排除本地工厂、SSRF 和信息泄露</td></tr>
+              <tr><td>容器网络禁止外连 LDAP/RMI/DNS</td><td>明显降低远程交互风险，但仍要看本地命名空间是否越权</td></tr>
+              <tr><td>lookup 名称固定为 <code>java:comp/env/...</code></td><td>通常降级，但要确认用户不能逃逸前缀或控制完整名称</td></tr>
+              <tr><td>返回对象被用于反射、脚本、表达式或 Bean 注册</td><td>上调风险，因为对象化结果进入更强执行上下文</td></tr>
+              <tr><td>异常信息完整回显给用户</td><td>可能形成探测 oracle，帮助枚举 provider、内部地址和依赖版本</td></tr>
+            </tbody>
+          </table>
+        </section>
+
+        <section id="rules">
+          <h2>6. 规则设计与误报压缩</h2>
+          <p>如果把 JNDI 注入做成 SAST 规则，最差的写法是“发现 lookup 就报警”。企业代码里合法 JNDI lookup 很多，这样会制造大量噪音。更合理的是分层打分。</p>
+
+          <h3>6.1 Semgrep 风格的候选规则</h3>
+          <pre><code>rules:
+  - id: java-jndi-lookup-candidate
+    languages: [java]
+    message: "JNDI lookup candidate: confirm whether the name is user-controlled and whether URL Context is allowed."
+    severity: WARNING
+    patterns:
+      - pattern-either:
+          - pattern: new InitialContext().lookup($NAME)
+          - pattern: $CTX.lookup($NAME)
+          - pattern: $TEMPLATE.lookup($NAME)
+      - metavariable-pattern:
+          metavariable: $NAME
+          pattern-not: "java:comp/env/..."</code></pre>
+          <p>这条规则只适合找候选点，不应该直接输出高危。下一步要结合 taint source 和上下文证据。</p>
+
+          <h3>6.2 JavaSecAtlas 可以怎么组织 finding</h3>
+          <pre><code>Finding {
+  rule_id: "java.jndi.lookup.user-controlled-name",
+  sink: "InitialContext.lookup(configuredName)",
+  source: "tenant_config.resourceName",
+  route: "POST /api/tenant/resource/update",
+  permission: "TENANT_ADMIN",
+  jndi_namespace: "unrestricted",
+  outbound_network: "unknown",
+  object_factory_surface: "classpath-dependent",
+  severity: "high if full name is controllable; medium if only internal namespace"
+}</code></pre>
+          <p>这种结构比“可能 JNDI 注入”更有复核价值：它把入口、权限、sink、命名空间、网络出口和依赖上下文放在一起，方便人工判断。</p>
+
+          <h3>6.3 降噪规则</h3>
+          <ul>
+            <li><code>lookup("java:comp/env/jdbc/app")</code> 这类字符串常量默认低优先级；</li>
+            <li>名称来自只读部署配置，且配置仓库只有核心维护者可写，可以降级；</li>
+            <li>用户只控制逻辑 ID，服务端拼接固定安全前缀并校验类型，可以降级；</li>
+            <li>出现 <code>ldap://</code>、<code>rmi://</code>、<code>iiop://</code> 等协议常量不等于漏洞，但应该检查是否和不可信输入拼接；</li>
+            <li>出现 <code>Context.OBJECT_FACTORIES</code>、自定义 <code>ObjectFactory</code>、自定义 <code>InitialContextFactory</code> 时，上调复核优先级。</li>
+          </ul>
+        </section>
+
+        <section id="fix">
+          <h2>7. 修复与工程化防护</h2>
+          <p>JNDI 注入的防御不要停留在字符串过滤。更稳的顺序是：先收缩能力，再限制输入，最后用运行时策略兜底。</p>
+
+          <h3>7.1 设计层：不要让用户控制 JNDI 名称结构</h3>
+          <p>如果业务只是想让用户选择数据源、消息队列或目录资源，应该暴露逻辑 ID，而不是暴露 JNDI 名称。</p>
+          <pre><code>// 推荐：用户提交 resourceId，服务端映射到固定 JNDI 名称
+Map&lt;String, String&gt; resourceMap = Map.of(
+    "main", "java:comp/env/app/resources/mainDataSource",
+    "audit", "java:comp/env/app/resources/auditDataSource"
+);
+String jndiName = resourceMap.get(userSelectedId);</code></pre>
+
+          <h3>7.2 代码层：allowlist + canonicalization + 类型校验</h3>
+          <ul>
+            <li>只允许固定 scheme 或固定容器命名空间；</li>
+            <li>对逻辑名做长度、字符集和路径片段校验；</li>
+            <li>禁止 fallback 到用户原始输入；</li>
+            <li>lookup 后进行严格类型校验；</li>
+            <li>异常日志保留内部细节，但对外只返回通用错误。</li>
+          </ul>
+
+          <h3>7.3 运行时层：网络出口与依赖面控制</h3>
+          <ul>
+            <li>默认禁止应用容器访问外部 LDAP、RMI、DNS 解析器以外的任意 DNS、IIOP 等服务；</li>
+            <li>用 egress policy、Kubernetes NetworkPolicy、Service Mesh 或云安全组限制出站；</li>
+            <li>做依赖治理，避免无关 JNDI provider、JMS appender、旧版 Log4j 或危险 ObjectFactory 出现在 classpath；</li>
+            <li>对日志、配置中心和租户后台的输入建立统一的“不可信数据”模型；</li>
+            <li>在 RASP / Agent / eBPF 侧监控异常 JNDI、LDAP、RMI 出站行为。</li>
+          </ul>
+
+          <h3>7.4 报告模板</h3>
+          <blockquote>发现低权限租户管理员可修改资源配置字段 <code>resourceName</code>，该字段进入 <code>InitialContext.lookup()</code> 并作为完整 JNDI 名称解析。当前代码未限制命名空间、协议或返回对象类型。该问题可能导致非预期 JNDI provider 访问、内部网络探测、目录信息泄露，并在特定 JDK / classpath / 对象工厂组合下扩大为代码执行风险。建议改为服务端维护资源 ID 到固定 <code>java:comp/env/...</code> 名称的映射，并增加协议 allowlist、类型校验和网络出口限制。</blockquote>
+
+          <h3>7.5 总结</h3>
+          <p>JNDI 注入的核心不是某个历史 payload，而是 Java 应用把“命名解析能力”交给了不可信输入。审计时要把 <code>lookup()</code> 当成一个能力边界：它可能访问网络、选择 provider、对象化返回值、触发本地工厂，并把结果继续交给业务代码。</p>
+          <p>真正有价值的 Java 安全研究，应该能帮助后来的人把 finding 复核清楚：哪里是 source，哪里是 sink，哪里是上下文放大器，哪里是可以落地的修复边界。JNDI 这个方向尤其如此，因为它横跨 JVM、JDK、框架、容器、依赖树和企业网络出口，任何单点解释都容易失真。</p>
+        </section>
+
+        <section id="refs">
+          <h2>8. 参考资料</h2>
+          <ul>
+            <li><a href="https://docs.oracle.com/javase/8/docs/api/javax/naming/InitialContext.html" target="_blank" rel="noreferrer">Oracle Java SE 8 API：InitialContext</a></li>
+            <li><a href="https://docs.oracle.com/javase/8/docs/api/javax/naming/spi/NamingManager.html" target="_blank" rel="noreferrer">Oracle Java SE 8 API：NamingManager</a></li>
+            <li><a href="https://www.oracle.com/java/technologies/javase/8u121-relnotes.html" target="_blank" rel="noreferrer">Oracle JDK 8u121 Release Notes：Improved protection for JNDI remote class loading</a></li>
+            <li><a href="https://logging.apache.org/security.html" target="_blank" rel="noreferrer">Apache Logging Services Security：Log4j vulnerabilities and threat model</a></li>
+            <li><a href="https://cve.org/CVERecord?id=CVE-2021-44228" target="_blank" rel="noreferrer">CVE-2021-44228：Apache Log4j JNDI lookup vulnerability</a></li>
+            <li><a href="java-spel-evaluation-context.html">站内延伸阅读：SpEL 表达式执行边界：从 EvaluationContext 到白盒审计</a></li>
+            <li><a href="javasecatlas-series.html">站内延伸阅读：JavaSecAtlas 研究文章集</a></li>
+          </ul>
+          <div class="note">SEO 关键词覆盖：Java 安全、Java JNDI、JNDI 注入、InitialContext.lookup、NamingManager、ObjectFactory、Reference、Log4Shell、CVE-2021-44228、Java 代码审计、JVM 安全、白盒审计。</div>
+        </section>
+      </article>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="inner">
+      <span>OracleNep Research Notes</span>
+      <span><a href="./">返回研究文章</a></span>
+    </div>
+  </footer>
+</body>
+</html>
