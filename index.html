@@ -134,6 +134,24 @@
     .metric strong { display: block; color: var(--ink); font-size: 30px; line-height: 1.1; }
     .metric span { display: block; margin-top: 8px; color: var(--muted); font-size: 14px; }
     .metric small { display: block; margin-top: 4px; color: #7b8797; font-size: 12px; line-height: 1.35; }
+    .rank-link {
+      display: inline-block;
+      width: max-content;
+      text-decoration: none;
+      cursor: pointer;
+    }
+    .rank-link:hover,
+    .rank-link:focus-visible {
+      text-decoration: none;
+    }
+    .rank-link:focus-visible {
+      outline: 2px solid rgba(8, 127, 140, .45);
+      outline-offset: 7px;
+      border-radius: 4px;
+    }
+    .rank-link:hover .live-rank {
+      filter: drop-shadow(0 0 12px rgba(72, 214, 196, .32));
+    }
     .live-rank {
       position: relative;
       width: max-content;
@@ -319,7 +337,9 @@
             <span>CVE / CNVD IDs</span>
           </div>
           <div class="metric">
-            <strong class="live-rank" data-edusrc-rank aria-live="polite">...</strong>
+            <a class="rank-link" href="https://src.sjtu.edu.cn/profile/20160/" target="_blank" rel="noreferrer" aria-label="Open EDUSRC profile">
+              <strong class="live-rank" data-edusrc-rank aria-live="polite">...</strong>
+            </a>
             <span>EDUSRC Rank</span>
             <small class="rank-status" data-edusrc-rank-status>Loading latest rank...</small>
           </div>
