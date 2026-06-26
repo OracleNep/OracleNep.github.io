@@ -605,20 +605,23 @@
     }
 
     .rank-link:focus-visible {
-      outline-color: rgba(0, 194, 223, .72);
+      outline-color: rgba(227, 50, 42, .72);
     }
 
     .live-rank {
       color: #f8fafc;
-      background: linear-gradient(90deg, #fff, var(--cyan) 42%, #fff 78%);
-      background-size: 220% 100%;
+      background: transparent;
+      text-shadow:
+        2px 2px 0 rgba(227, 50, 42, .62),
+        -1px -1px 0 rgba(255, 255, 255, .18),
+        0 0 12px rgba(227, 50, 42, .26);
     }
 
     .live-rank::after {
       bottom: -7px;
       height: 3px;
       border-radius: 0;
-      background: linear-gradient(90deg, rgba(227, 50, 42, .12), var(--red), var(--cyan));
+      background: linear-gradient(90deg, rgba(227, 50, 42, .08), var(--red) 42%, rgba(248, 250, 252, .82) 58%, rgba(227, 50, 42, .18));
     }
 
     .rank-status::before {
