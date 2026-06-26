@@ -134,6 +134,45 @@
     .metric strong { display: block; color: var(--ink); font-size: 30px; line-height: 1.1; }
     .metric span { display: block; margin-top: 8px; color: var(--muted); font-size: 14px; }
     .metric small { display: block; margin-top: 4px; color: #7b8797; font-size: 12px; line-height: 1.35; }
+    .live-rank {
+      position: relative;
+      width: max-content;
+      min-width: 4.4ch;
+      color: var(--teal);
+      background: linear-gradient(90deg, #087f8c, #126b4e 45%, #0f766e);
+      background-size: 180% 100%;
+      font-variant-numeric: tabular-nums;
+      font-feature-settings: "tnum";
+      letter-spacing: .02em;
+      animation: rankGlow 3.2s ease-in-out infinite;
+    }
+    .live-rank::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: -5px;
+      height: 2px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, rgba(8, 127, 140, .10), rgba(72, 214, 196, .92), rgba(18, 107, 78, .10));
+      transform-origin: left;
+      animation: rankScan 1.7s ease-in-out infinite;
+    }
+    .live-rank.is-updating { animation-duration: 1.15s; }
+    .rank-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .rank-status::before {
+      content: "";
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--cyan);
+      box-shadow: 0 0 0 0 rgba(72, 214, 196, .58);
+      animation: rankPulse 1.9s ease-out infinite;
+    }
     .project-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
     .link-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
     .card, .project { padding: 22px; }
@@ -193,6 +232,33 @@
     .footer { padding: 34px 0; color: #cbd5e1; background: #152033; font-size: 14px; }
     .footer .inner { display: flex; justify-content: space-between; gap: 20px; }
     .footer a { color: #78e4d4; }
+    @keyframes rankGlow {
+      0%, 100% { background-position: 0% 50%; filter: drop-shadow(0 0 0 rgba(72, 214, 196, 0)); }
+      50% { background-position: 100% 50%; filter: drop-shadow(0 0 10px rgba(72, 214, 196, .20)); }
+    }
+    @keyframes rankScan {
+      0%, 100% { transform: scaleX(.20); opacity: .40; }
+      50% { transform: scaleX(1); opacity: .95; }
+    }
+    @keyframes rankPulse {
+      0% { box-shadow: 0 0 0 0 rgba(72, 214, 196, .58); }
+      72%, 100% { box-shadow: 0 0 0 7px rgba(72, 214, 196, 0); }
+    }
+    @supports ((background-clip: text) or (-webkit-background-clip: text)) {
+      .live-rank {
+        color: transparent;
+        background-clip: text;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .live-rank,
+      .live-rank::after,
+      .rank-status::before {
+        animation: none;
+      }
+    }
     @media (max-width: 920px) {
       .nav { min-height: auto; padding: 14px 0; align-items: start; flex-direction: column; gap: 10px; }
       .nav-links { flex-wrap: wrap; gap: 12px; }
@@ -253,9 +319,9 @@
             <span>CVE / CNVD IDs</span>
           </div>
           <div class="metric">
-            <strong data-edusrc-rank aria-live="polite">...</strong>
+            <strong class="live-rank" data-edusrc-rank aria-live="polite">...</strong>
             <span>EDUSRC Rank</span>
-            <small data-edusrc-rank-status>Loading latest rank...</small>
+            <small class="rank-status" data-edusrc-rank-status>Loading latest rank...</small>
           </div>
           <div class="metric">
             <strong>100K+</strong>
@@ -437,13 +503,45 @@
         hour: "2-digit",
         minute: "2-digit"
       });
+      let renderedRank = null;
+
+      const renderRank = (rank) => {
+        rankEl.textContent = rankFormatter.format(rank);
+      };
+
+      const animateRank = (targetRank) => {
+        const startRank = Number.isSafeInteger(renderedRank) ? renderedRank : Math.max(0, targetRank - 23);
+        const duration = 900;
+        const startTime = performance.now();
+
+        rankEl.classList.add("is-updating");
+
+        const step = (now) => {
+          const progress = Math.min((now - startTime) / duration, 1);
+          const eased = 1 - Math.pow(1 - progress, 3);
+          const nextRank = Math.round(startRank + (targetRank - startRank) * eased);
+
+          renderRank(nextRank);
+
+          if (progress < 1) {
+            requestAnimationFrame(step);
+            return;
+          }
+
+          renderRank(targetRank);
+          renderedRank = targetRank;
+          window.setTimeout(() => rankEl.classList.remove("is-updating"), 240);
+        };
+
+        requestAnimationFrame(step);
+      };
 
       const setRank = (rank, updatedAt) => {
         if (!Number.isSafeInteger(rank)) {
           throw new TypeError("EDUSRC rank must be a safe integer.");
         }
 
-        rankEl.textContent = rankFormatter.format(rank);
+        animateRank(rank);
 
         if (updatedAt) {
           const updatedDate = new Date(updatedAt);
