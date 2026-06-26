@@ -133,6 +133,7 @@
     .metric { padding: 20px; }
     .metric strong { display: block; color: var(--ink); font-size: 30px; line-height: 1.1; }
     .metric span { display: block; margin-top: 8px; color: var(--muted); font-size: 14px; }
+    .metric small { display: block; margin-top: 4px; color: #7b8797; font-size: 12px; line-height: 1.35; }
     .project-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
     .link-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
     .card, .project { padding: 22px; }
@@ -252,8 +253,9 @@
             <span>CVE / CNVD IDs</span>
           </div>
           <div class="metric">
-            <strong>1000+</strong>
-            <span>EDUSRC points</span>
+            <strong data-edusrc-rank aria-live="polite">...</strong>
+            <span>EDUSRC Rank</span>
+            <small data-edusrc-rank-status>Loading latest rank...</small>
           </div>
           <div class="metric">
             <strong>100K+</strong>
@@ -423,5 +425,55 @@
       <span><a href="https://github.com/OracleNep" target="_blank" rel="noreferrer">github.com/OracleNep</a></span>
     </div>
   </footer>
+  <script>
+    (() => {
+      const rankEl = document.querySelector("[data-edusrc-rank]");
+      const statusEl = document.querySelector("[data-edusrc-rank-status]");
+      const fallbackRank = 2009;
+      const rankFormatter = new Intl.NumberFormat("en-US", { maximumFractionDigits: 0 });
+      const dateFormatter = new Intl.DateTimeFormat("en-US", {
+        month: "short",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit"
+      });
+
+      const setRank = (rank, updatedAt) => {
+        if (!Number.isSafeInteger(rank)) {
+          throw new TypeError("EDUSRC rank must be a safe integer.");
+        }
+
+        rankEl.textContent = rankFormatter.format(rank);
+
+        if (updatedAt) {
+          const updatedDate = new Date(updatedAt);
+          if (!Number.isNaN(updatedDate.getTime())) {
+            statusEl.textContent = `Synced ${dateFormatter.format(updatedDate)} from EDUSRC`;
+            return;
+          }
+        }
+
+        statusEl.textContent = "Synced from EDUSRC profile";
+      };
+
+      fetch(`data/edusrc-rank.json?t=${Date.now()}`, { cache: "no-store" })
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error(`Rank data request failed: ${response.status}`);
+          }
+          return response.json();
+        })
+        .then((payload) => {
+          if (!payload || typeof payload.rank !== "number" || !Number.isSafeInteger(payload.rank)) {
+            throw new TypeError("Rank payload must provide rank as a number.");
+          }
+          setRank(payload.rank, payload.updatedAt);
+        })
+        .catch(() => {
+          setRank(fallbackRank);
+          statusEl.textContent = "Using last known EDUSRC rank";
+        });
+    })();
+  </script>
 </body>
 </html>
