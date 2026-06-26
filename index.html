@@ -262,10 +262,23 @@
       0% { box-shadow: 0 0 0 0 rgba(72, 214, 196, .58); }
       72%, 100% { box-shadow: 0 0 0 7px rgba(72, 214, 196, 0); }
     }
+    @keyframes crabFloat {
+      0%, 100% {
+        transform: translate(0, 0);
+        filter: drop-shadow(14px 14px 0 rgba(0, 0, 0, .28));
+      }
+      50% {
+        transform: translate(-8px, -12px);
+        filter:
+          drop-shadow(18px 18px 0 rgba(0, 0, 0, .22))
+          drop-shadow(-7px 5px 0 rgba(227, 50, 42, .24));
+      }
+    }
     @media (prefers-reduced-motion: reduce) {
       .live-rank,
       .live-rank::after,
-      .rank-status::before {
+      .rank-status::before,
+      .hero::after {
         animation: none;
       }
     }
@@ -405,20 +418,26 @@
     .hero::after {
       content: "";
       position: absolute;
-      top: 82px;
-      right: -70px;
-      bottom: 54px;
-      width: min(48vw, 720px);
-      border: 1px solid rgba(255, 255, 255, .16);
+      top: 108px;
+      right: max(5vw, 58px);
+      width: min(36vw, 520px);
+      aspect-ratio: 1;
+      border: 1px solid rgba(255, 255, 255, .20);
       background-image:
-        linear-gradient(110deg, rgba(8, 11, 16, .54), rgba(8, 11, 16, .10)),
-        url("assets/hero-security-portfolio.png");
-      background-size: cover;
-      background-position: center right;
-      filter: grayscale(.74) contrast(1.15);
-      opacity: .46;
-      clip-path: polygon(12% 0, 100% 0, 100% 100%, 0 100%, 0 18%);
-      box-shadow: -18px 18px 0 rgba(227, 50, 42, .16);
+        linear-gradient(90deg, rgba(255, 255, 255, .08) 1px, transparent 1px),
+        linear-gradient(rgba(255, 255, 255, .08) 1px, transparent 1px),
+        radial-gradient(circle at 50% 48%, rgba(227, 50, 42, .22), transparent 58%),
+        url("assets/pixel_crab_transparent.png");
+      background-size: 22px 22px, 22px 22px, 100% 100%, 76% 76%;
+      background-position: center, center, center, center;
+      background-repeat: repeat, repeat, no-repeat, no-repeat;
+      image-rendering: pixelated;
+      opacity: .92;
+      clip-path: polygon(10% 0, 100% 0, 100% 90%, 90% 100%, 0 100%, 0 10%);
+      box-shadow:
+        -16px 16px 0 rgba(227, 50, 42, .18),
+        18px -18px 0 rgba(0, 194, 223, .08);
+      animation: crabFloat 5.8s steps(2, end) infinite;
     }
 
     .inner,
@@ -792,11 +811,11 @@
 
       .hero::after {
         top: auto;
-        right: -120px;
-        bottom: -40px;
-        width: 82vw;
-        height: 42vh;
-        opacity: .22;
+        right: -44px;
+        bottom: 28px;
+        width: 58vw;
+        height: auto;
+        opacity: .32;
       }
 
       .hero-copy {
@@ -819,7 +838,7 @@
       }
 
       .hero-copy {
-        max-width: calc(100vw - 68px);
+        max-width: calc(100vw - 84px);
         padding: 72px 0 78px 14px;
       }
 
@@ -829,7 +848,7 @@
 
       .hero-subtitle {
         max-width: 100%;
-        font-size: 14px;
+        font-size: 13px;
         line-height: 1.62;
       }
 
