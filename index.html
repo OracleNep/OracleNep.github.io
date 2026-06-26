@@ -1,14 +1,14 @@
 <!doctype html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="robots" content="noindex, noarchive" />
-  <meta name="description" content="OracleNep 的个人主页，记录应用安全、Java 审计、SRC、开源项目和一些研究笔记。" />
-  <meta property="og:title" content="OracleNep｜个人主页" />
-  <meta property="og:description" content="Security notes, Java audit, SRC, tooling and everyday notes" />
+  <meta name="description" content="OracleNep's personal site for application security, Java/Spring audit notes, authorized vulnerability research, open-source projects, and security tooling." />
+  <meta property="og:title" content="OracleNep | Security Notes" />
+  <meta property="og:description" content="Application security, Java/Spring audit notes, authorized vulnerability research, open-source projects, and security tooling." />
   <meta property="og:image" content="assets/hero-security-portfolio.png" />
-  <title>OracleNep｜个人主页</title>
+  <title>OracleNep | Security Notes</title>
   <style>
     :root {
       --ink: #17202f;
@@ -214,13 +214,13 @@
 </head>
 <body>
   <header class="topbar">
-    <nav class="nav" aria-label="主导航">
+    <nav class="nav" aria-label="Primary navigation">
       <a class="brand" href="#top">OracleNep</a>
       <div class="nav-links">
-        <a href="#links">常用链接</a>
-        <a href="#research">文章</a>
-        <a href="#vulns">漏洞编号</a>
-        <a href="#projects">项目</a>
+        <a href="#links">Links</a>
+        <a href="#research">Notes</a>
+        <a href="#vulns">Vulnerability IDs</a>
+        <a href="#projects">Projects</a>
       </div>
     </nav>
   </header>
@@ -230,38 +230,38 @@
       <div class="inner">
         <div class="hero-copy">
           <span class="eyebrow">Security / Java / Notes / Open Source</span>
-          <h1>OracleNep 的个人主页</h1>
+          <h1>OracleNep</h1>
           <p class="hero-subtitle">
-            平时主要折腾应用安全、Java 代码审计、SRC 漏洞挖掘和一些小工具。这个页面不做得太正式，先把公开链接、写过的文章、几个编号和项目放在一起，方便别人看，也方便自己回头找。
+            I work on application security, Java/Spring code review, authorized vulnerability research, and security tooling. This page collects the public material I usually reference: profiles, notes, vulnerability IDs, projects, and upstream contributions.
           </p>
           <div class="actions">
-            <a class="button primary" href="https://src.sjtu.edu.cn/profile/20160/" target="_blank" rel="noreferrer">EDUSRC 主页</a>
-            <a class="button" href="research/">看文章</a>
-            <a class="button" href="#vulns">漏洞编号</a>
+            <a class="button primary" href="https://src.sjtu.edu.cn/profile/20160/" target="_blank" rel="noreferrer">EDUSRC Profile</a>
+            <a class="button" href="research/">Read Notes</a>
+            <a class="button" href="#vulns">Vulnerability IDs</a>
             <a class="button" href="https://github.com/OracleNep" target="_blank" rel="noreferrer">GitHub</a>
           </div>
         </div>
       </div>
     </section>
 
-    <section class="section alt" aria-label="一些记录">
+    <section class="section alt" aria-label="Selected records">
       <div class="inner">
         <div class="metrics">
           <div class="metric">
             <strong>20+</strong>
-            <span>CVE / CNVD 相关编号</span>
+            <span>CVE / CNVD IDs</span>
           </div>
           <div class="metric">
             <strong>1000+</strong>
-            <span>EDUSRC 积分记录</span>
+            <span>EDUSRC points</span>
           </div>
           <div class="metric">
-            <strong>10 万+</strong>
-            <span>看过和整理过的 Java 代码量</span>
+            <strong>100K+</strong>
+            <span>Lines of Java code reviewed and triaged</span>
           </div>
           <div class="metric">
-            <strong>上游 PR</strong>
-            <span>给 PHP 官方仓库提过补丁</span>
+            <strong>Upstream PR</strong>
+            <span>Contributions to php-src</span>
           </div>
         </div>
       </div>
@@ -270,37 +270,37 @@
     <section class="section alt" id="links">
       <div class="inner">
         <div class="section-title">
-          <h2>常用链接</h2>
-          <p>一些公开能点开的东西放在这里。没有太多包装，基本就是平台主页、文章、仓库、Release 和几个上游 PR。</p>
+          <h2>Public Links</h2>
+          <p>Public material that is useful for context or verification: profiles, notes, repositories, releases, and upstream pull requests.</p>
         </div>
         <div class="link-grid">
           <a class="link-card" href="https://src.sjtu.edu.cn/profile/20160/" target="_blank" rel="noreferrer">
-            <span><strong>EDUSRC 平台主页</strong><span>提交过的授权漏洞记录和积分主页</span></span>
-            <span class="arrow">打开</span>
+            <span><strong>EDUSRC Profile</strong><span>Authorized vulnerability submissions and point history</span></span>
+            <span class="arrow">Open</span>
           </a>
           <a class="link-card" href="research/">
-            <span><strong>Research Notes</strong><span>平时写的安全研究和项目复盘</span></span>
-            <span class="arrow">打开</span>
+            <span><strong>Research Notes</strong><span>Security research notes and project write-ups</span></span>
+            <span class="arrow">Open</span>
           </a>
           <a class="link-card" href="https://github.com/OracleNep" target="_blank" rel="noreferrer">
-            <span><strong>GitHub / OracleNep</strong><span>代码、工具、实验项目和一些零散提交</span></span>
-            <span class="arrow">打开</span>
+            <span><strong>GitHub / OracleNep</strong><span>Public repositories, tools, experiments, and contributions</span></span>
+            <span class="arrow">Open</span>
           </a>
           <a class="link-card" href="https://github.com/Team-intN18-SoybeanSeclab/JavaSecAtlas" target="_blank" rel="noreferrer">
-            <span><strong>JavaSecAtlas</strong><span>和团队一起做的 Java / Spring 审计工具</span></span>
-            <span class="arrow">打开</span>
+            <span><strong>JavaSecAtlas</strong><span>Java / Spring audit tooling developed with SoybeanSeclab</span></span>
+            <span class="arrow">Open</span>
           </a>
           <a class="link-card" href="https://github.com/Team-intN18-SoybeanSeclab/JavaSecAtlas/releases/tag/v0.1.0-alpha" target="_blank" rel="noreferrer">
-            <span><strong>JavaSecAtlas Release</strong><span>早期 alpha 版本发布记录</span></span>
-            <span class="arrow">打开</span>
+            <span><strong>JavaSecAtlas Release</strong><span>Early alpha release notes</span></span>
+            <span class="arrow">Open</span>
           </a>
           <a class="link-card" href="https://github.com/php/php-src/pull/22261" target="_blank" rel="noreferrer">
-            <span><strong>php-src PR #22261</strong><span>已经合入 PHP 官方仓库的一次小贡献</span></span>
-            <span class="arrow">打开</span>
+            <span><strong>php-src PR #22261</strong><span>Merged contribution to the PHP source repository</span></span>
+            <span class="arrow">Open</span>
           </a>
           <a class="link-card" href="https://github.com/php/php-src/pull/22223" target="_blank" rel="noreferrer">
-            <span><strong>php-src PR #22223</strong><span>围绕 request_parse_body() 参数校验提交的补丁</span></span>
-            <span class="arrow">打开</span>
+            <span><strong>php-src PR #22223</strong><span>Patch around request_parse_body() option validation</span></span>
+            <span class="arrow">Open</span>
           </a>
         </div>
       </div>
@@ -309,26 +309,26 @@
     <section class="section" id="research">
       <div class="inner">
         <div class="section-title">
-          <h2>文章</h2>
-          <p>主要写安全研究和项目复盘，想到什么就补什么。现在先放 JavaSecAtlas 系列，后面会慢慢加 Java 审计、CTF WP、漏洞复现和一些踩坑记录。</p>
+          <h2>Notes</h2>
+          <p>Security research notes, project write-ups, and occasional CTF or reproduction notes. The current focus is JavaSecAtlas, Java/Spring audit workflows, SARIF handling, and practical review process.</p>
         </div>
         <article class="project">
           <span class="label green">Notes</span>
-          <h3>JavaSecAtlas 系列笔记</h3>
-          <p>这组文章是在复盘 JavaSecAtlas V1.2：为什么先不做一个低配 SAST，为什么要把 Semgrep / CodeQL 的 SARIF 接进来，后面又想怎么把结果和 Spring 路由、Agent 复核串起来。</p>
+          <h3>JavaSecAtlas Notes</h3>
+          <p>A short series on JavaSecAtlas V1.2: why the project moved away from being a lightweight SAST clone, why SARIF import matters, and how findings can later be connected with Spring routes and review workflow.</p>
           <div class="tag-row">
             <span class="tag">Java Security</span>
             <span class="tag">SARIF</span>
             <span class="tag">Semgrep / CodeQL</span>
-            <span class="tag">辅助复核</span>
+            <span class="tag">Review workflow</span>
           </div>
           <ul>
-            <li>JavaSecAtlas V1.2：先不急着再造一个 SAST。</li>
-            <li>SARIF 导入：把 Semgrep / CodeQL 的结果接进来。</li>
-            <li>下一步：把 finding 和 Spring 路由对上。</li>
-            <li>辅助复核：把重复检查和最终判断分开处理。</li>
+            <li>JavaSecAtlas V1.2: moving beyond another lightweight SAST.</li>
+            <li>SARIF import: bringing Semgrep and CodeQL findings into the workflow.</li>
+            <li>Next step: mapping findings back to Spring routes.</li>
+            <li>Review workflow: separating repeatable checks from final judgment.</li>
           </ul>
-          <p><a href="research/javasecatlas-series.html">去看文章集 →</a></p>
+          <p><a href="research/javasecatlas-series.html">Read the series →</a></p>
         </article>
       </div>
     </section>
@@ -336,27 +336,27 @@
     <section class="section" id="vulns">
       <div class="inner">
         <div class="section-title">
-          <h2>漏洞编号</h2>
-          <p>这里放几个能公开查到的编号，方便需要核对的时候快速找到记录。具体报告细节还是按平台和厂商的披露要求处理。</p>
+          <h2>Vulnerability IDs</h2>
+          <p>A small set of public IDs for verification and reference. Report details remain subject to platform and vendor disclosure rules.</p>
         </div>
         <div class="vuln-layout">
           <article class="project">
-            <h3>CVE / CNVD 编号</h3>
-            <p>目前累计拿到一些 CVE / CNVD 编号，主要和 Web 安全、Java 生态、代码审计、授权 SRC 有关。</p>
+            <h3>CVE / CNVD IDs</h3>
+            <p>My submitted CVE / CNVD records mainly cover Web security, the Java ecosystem, code review, and authorized SRC scenarios.</p>
             <div class="id-grid">
               <a class="id-link" href="https://www.cve.org/CVERecord?id=CVE-2025-7181" target="_blank" rel="noreferrer">CVE-2025-7181</a>
               <a class="id-link" href="https://www.cve.org/CVERecord?id=CVE-2025-7175" target="_blank" rel="noreferrer">CVE-2025-7175</a>
               <a class="id-link" href="https://www.cnvd.org.cn/flaw/show/CNVD-2026-10837" target="_blank" rel="noreferrer">CNVD-2026-10837</a>
               <a class="id-link" href="https://www.cnvd.org.cn/flaw/show/CNVD-2025-17734" target="_blank" rel="noreferrer">CNVD-2025-17734</a>
             </div>
-            <p>CNVD 官网偶尔会访问不稳定，编号可以先当作索引用。</p>
+            <p>The CNVD site is sometimes unstable from certain networks; the IDs are kept here as reference points.</p>
           </article>
           <article class="project">
-            <h3>写报告这件事</h3>
+            <h3>Reporting Practice</h3>
             <ul>
-              <li>报告一般会把复现步骤、影响范围、风险判断和修复建议写清楚。</li>
-              <li>遇到通用型或事件型漏洞，会尽量把影响版本、触发条件和修复方式整理到能复核的程度。</li>
-              <li>公开页面只放必要索引，不展开未公开的利用细节。</li>
+              <li>Reports are written with reproducible steps, impact scope, risk assessment, and remediation notes.</li>
+              <li>For common or event-driven issues, I try to make affected versions, trigger conditions, and fixes clear enough to review.</li>
+              <li>Public pages keep only necessary references and avoid unpublished exploitation details.</li>
             </ul>
           </article>
         </div>
@@ -366,50 +366,50 @@
     <section class="section alt" id="projects">
       <div class="inner">
         <div class="section-title">
-          <h2>项目和提交</h2>
-          <p>这里放一些我确实参与过、以后也可能继续维护的东西。比起只写介绍，能打开仓库、看到提交和讨论会更直观。</p>
+          <h2>Projects and Contributions</h2>
+          <p>Selected projects and pull requests that have public repositories, commits, or review history behind them.</p>
         </div>
         <div class="project-grid">
           <article class="project">
             <h3>JavaSecAtlas</h3>
-            <p>和团队一起做的 Java / Spring 审计辅助工具，主要用来做白盒审计前的整理、规则验证和报告输出。</p>
+            <p>A Java / Spring audit assistant built with SoybeanSeclab, used for audit preparation, rule prototyping, and report generation.</p>
             <div class="tag-row">
               <span class="tag">Java / Spring</span>
-              <span class="tag">审计辅助</span>
+              <span class="tag">Audit workflow</span>
               <span class="tag">SARIF / HTML</span>
             </div>
             <ul>
-              <li>会识别 Maven / Gradle 项目，提取 Spring 路由和部分权限注解。</li>
-              <li>内置 SSRF、XXE、SpEL、路径穿越、文件上传等启发式规则。</li>
-              <li>我主要参与项目识别、路由提取、规则设计、报告生成和复核流程。</li>
+              <li>Recognizes Maven / Gradle projects and extracts Spring routes with selected authorization annotations.</li>
+              <li>Includes heuristic rules for SSRF, XXE, SpEL, path traversal, and file upload cases.</li>
+              <li>My work covered project recognition, route extraction, rule design, report generation, and review workflow.</li>
             </ul>
           </article>
           <article class="project">
             <h3>PHP php-src</h3>
-            <p>给 PHP 官方源码仓库提过几个小补丁，主要是配置校验、文档注释和测试相关的维护。</p>
+            <p>Small maintenance contributions to the official PHP source repository, mainly around option validation, documentation comments, and tests.</p>
             <div class="tag-row">
               <span class="tag">C</span>
               <span class="tag">PHPT</span>
               <span class="tag">Upstream</span>
             </div>
             <ul>
-              <li>#22261 已合入，补充 ext/intl 错误处理相关的文档和测试注释。</li>
-              <li>#22223 讨论 request_parse_body() 和 max_input_vars 的输入处理一致性。</li>
-              <li>这个过程也让我更熟悉大型开源项目里的 CI、Review 和小步提交。</li>
+              <li>#22261 was merged, updating ext/intl error-handling documentation and test comments.</li>
+              <li>#22223 discusses input-handling consistency between request_parse_body() and max_input_vars.</li>
+              <li>The work helped me get more familiar with CI, review, and small patches in a large open-source project.</li>
             </ul>
           </article>
           <article class="project">
             <h3>Phantom</h3>
-            <p>SoybeanSeclab 团队的浏览器安全扩展，主要用于 SRC 测试前期的信息收集。</p>
+            <p>A SoybeanSeclab browser security extension for early-stage information collection in authorized SRC testing.</p>
             <div class="tag-row">
               <span class="tag">JavaScript</span>
               <span class="tag">Browser Extension</span>
-              <span class="tag">SRC 辅助</span>
+              <span class="tag">SRC workflow</span>
             </div>
             <ul>
-              <li>支持基础扫描、递归扫描、批量 API 测试、结果导出和自定义正则。</li>
-              <li>常见用途是整理前端接口、找敏感信息、看 JS 资源和做授权测试前的资产梳理。</li>
-              <li>算是团队工具链里比较顺手的一块。</li>
+              <li>Supports basic scanning, recursive scanning, batch API testing, export, and custom regex rules.</li>
+              <li>Useful for frontend API mapping, sensitive information discovery, JS resource review, and asset organization before authorized testing.</li>
+              <li>Maintained as part of the team's security tooling workflow.</li>
             </ul>
           </article>
         </div>
@@ -419,7 +419,7 @@
 
   <footer class="footer">
     <div class="inner">
-      <span>OracleNep 的个人主页</span>
+      <span>OracleNep Security Notes</span>
       <span><a href="https://github.com/OracleNep" target="_blank" rel="noreferrer">github.com/OracleNep</a></span>
     </div>
   </footer>
