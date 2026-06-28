@@ -27,14 +27,24 @@ function extractRank(html) {
   return rank;
 }
 
-async function readPreviousRank() {
+async function readPreviousPayload() {
   try {
     const raw = await readFile(dataPath, "utf8");
     const payload = JSON.parse(raw);
-    return Number.isSafeInteger(payload?.rank) ? payload.rank : null;
+    return Number.isSafeInteger(payload?.rank) ? payload : null;
   } catch {
     return null;
   }
+}
+
+function usePreviousRank(previousPayload, error) {
+  if (!Number.isSafeInteger(previousPayload?.rank)) {
+    return false;
+  }
+
+  const reason = error?.message ? `: ${error.message}` : "";
+  console.warn(`Skipping EDUSRC rank update; using previous rank ${previousPayload.rank}${reason}`);
+  return true;
 }
 
 async function fetchProfileHtml() {
@@ -74,9 +84,31 @@ async function fetchProfileHtml() {
   throw lastError;
 }
 
-const html = await fetchProfileHtml();
-const rank = extractRank(html);
-const previousRank = await readPreviousRank();
+const previousPayload = await readPreviousPayload();
+
+let html;
+try {
+  html = await fetchProfileHtml();
+} catch (error) {
+  if (usePreviousRank(previousPayload, error)) {
+    process.exit(0);
+  }
+
+  throw error;
+}
+
+let rank;
+try {
+  rank = extractRank(html);
+} catch (error) {
+  if (usePreviousRank(previousPayload, error)) {
+    process.exit(0);
+  }
+
+  throw error;
+}
+
+const previousRank = previousPayload?.rank ?? null;
 
 if (previousRank === rank) {
   console.log(`EDUSRC rank unchanged: ${rank}`);

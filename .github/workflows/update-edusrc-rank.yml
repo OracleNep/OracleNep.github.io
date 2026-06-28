@@ -1,8 +1,6 @@
 name: Update EDUSRC Rank
 
 on:
-  schedule:
-    - cron: "*/5 * * * *"
   workflow_dispatch:
 
 permissions:
@@ -18,7 +16,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: "24"
 
       - name: Fetch EDUSRC rank
         run: node scripts/update-edusrc-rank.mjs
