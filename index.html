@@ -1252,8 +1252,9 @@
           let chaos = 0;
           const distance = Math.hypot(particle.x - pointer.x, particle.y - pointer.y);
 
-          if (!reducedMotion.matches && pointer.active && distance < radius) {
-            chaos = 1 - distance / radius;
+          if (pointer.active && distance < radius) {
+            const motionScale = reducedMotion.matches ? .62 : 1;
+            chaos = (1 - distance / radius) * motionScale;
             const safeDistance = Math.max(distance, 1);
             const impulse = chaos * (.46 + pointerSpeed * .11);
             particle.vx += ((particle.x - pointer.x) / safeDistance) * impulse;
@@ -1289,7 +1290,10 @@
         pointer.vx *= .84;
         pointer.vy *= .84;
 
-        if (!reducedMotion.matches || pointer.active) {
+        const settling = state.particles.some((particle) =>
+          Math.abs(particle.x - particle.targetX) > .35 || Math.abs(particle.y - particle.targetY) > .35
+        );
+        if (!reducedMotion.matches || pointer.active || settling) {
           state.animationFrame = window.requestAnimationFrame(draw);
         } else {
           state.animationFrame = 0;
@@ -1313,7 +1317,7 @@
         pointer.vy = nextY - pointer.y;
         pointer.x = nextX;
         pointer.y = nextY;
-        pointer.active = inside && !reducedMotion.matches;
+        pointer.active = inside;
         start();
       };
 
@@ -1365,8 +1369,9 @@
 
       source.onload = buildParticles;
       source.src = "assets/pixel_crab_transparent.png";
-      hero.addEventListener("pointermove", updatePointer, { passive: true });
+      window.addEventListener("pointermove", updatePointer, { passive: true });
       hero.addEventListener("pointerleave", leave, { passive: true });
+      window.addEventListener("blur", leave, { passive: true });
       window.addEventListener("resize", resize, { passive: true });
 
       if (reducedMotion.addEventListener) {
