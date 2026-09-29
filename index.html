@@ -262,18 +262,6 @@
       0% { box-shadow: 0 0 0 0 rgba(72, 214, 196, .58); }
       72%, 100% { box-shadow: 0 0 0 7px rgba(72, 214, 196, 0); }
     }
-    @keyframes crabFloat {
-      0%, 100% {
-        transform: translate(0, 0);
-        filter: drop-shadow(14px 14px 0 rgba(0, 0, 0, .28));
-      }
-      50% {
-        transform: translate(-8px, -12px);
-        filter:
-          drop-shadow(18px 18px 0 rgba(0, 0, 0, .22))
-          drop-shadow(-7px 5px 0 rgba(227, 50, 42, .24));
-      }
-    }
     @media (prefers-reduced-motion: reduce) {
       .live-rank,
       .live-rank::after,
@@ -416,12 +404,16 @@
     }
 
     .hero::after {
-      content: "";
+      display: none;
+    }
+
+    .hero-particle-canvas {
       position: absolute;
       top: 108px;
       right: max(5vw, 58px);
       width: min(36vw, 520px);
       aspect-ratio: 1;
+      z-index: 1;
       border: 1px solid rgba(255, 255, 255, .20);
       background-image:
         linear-gradient(90deg, rgba(255, 255, 255, .08) 1px, transparent 1px),
@@ -437,7 +429,20 @@
       box-shadow:
         -16px 16px 0 rgba(227, 50, 42, .18),
         18px -18px 0 rgba(0, 194, 223, .08);
-      animation: crabFloat 5.8s steps(2, end) infinite;
+      display: block;
+      image-rendering: pixelated;
+      pointer-events: none;
+      touch-action: none;
+    }
+
+    .hero-particle-canvas.is-ready {
+      background-image:
+        linear-gradient(90deg, rgba(255, 255, 255, .08) 1px, transparent 1px),
+        linear-gradient(rgba(255, 255, 255, .08) 1px, transparent 1px),
+        radial-gradient(circle at 50% 48%, rgba(227, 50, 42, .22), transparent 58%);
+      background-size: 22px 22px, 22px 22px, 100% 100%;
+      background-position: center, center, center;
+      background-repeat: repeat, repeat, no-repeat;
     }
 
     .inner,
@@ -809,7 +814,7 @@
         padding: 0 10px;
       }
 
-      .hero::after {
+      .hero-particle-canvas {
         top: auto;
         right: -44px;
         bottom: 28px;
@@ -850,6 +855,13 @@
         max-width: 100%;
         font-size: 13px;
         line-height: 1.62;
+      }
+
+      .hero-particle-canvas {
+        right: -32px;
+        bottom: 20px;
+        width: 78vw;
+        opacity: .24;
       }
 
       .eyebrow {
@@ -894,6 +906,7 @@
 
   <main>
     <section class="hero" id="top">
+      <canvas class="hero-particle-canvas" aria-hidden="true"></canvas>
       <div class="inner">
         <div class="hero-copy">
           <span class="eyebrow">Security / Java / Notes / Open Source</span>
@@ -1168,7 +1181,200 @@
         .catch(() => {
           setRank(fallbackRank);
           statusEl.textContent = "Using last known EDUSRC rank";
+      });
+    })();
+  </script>
+  <script>
+    (() => {
+      const canvas = document.querySelector(".hero-particle-canvas");
+      const hero = document.querySelector(".hero");
+      if (!canvas || !hero) return;
+
+      const context = canvas.getContext("2d");
+      if (!context) return;
+
+      const source = new Image();
+      const sourceCanvas = document.createElement("canvas");
+      const sourceContext = sourceCanvas.getContext("2d", { willReadFrequently: true });
+      const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+      const pointer = { x: 0, y: 0, vx: 0, vy: 0, active: false };
+      const state = {
+        width: 0,
+        height: 0,
+        dpr: 1,
+        scale: 1,
+        dotSize: 3,
+        particles: [],
+        animationFrame: 0,
+        lastTime: 0
+      };
+
+      const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
+
+      const resize = () => {
+        const bounds = canvas.getBoundingClientRect();
+        const dpr = Math.min(window.devicePixelRatio || 1, 2);
+
+        state.width = Math.max(1, bounds.width);
+        state.height = Math.max(1, bounds.height);
+        state.dpr = dpr;
+        state.scale = Math.min(
+          state.width / source.naturalWidth,
+          state.height / source.naturalHeight
+        ) * .76;
+        state.dotSize = Math.max(1.5, 4 * state.scale * .86);
+
+        canvas.width = Math.round(state.width * dpr);
+        canvas.height = Math.round(state.height * dpr);
+        context.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+        for (const particle of state.particles) {
+          particle.targetX = (state.width - source.naturalWidth * state.scale) / 2 + particle.sourceX * state.scale;
+          particle.targetY = (state.height - source.naturalHeight * state.scale) / 2 + particle.sourceY * state.scale;
+          if (!particle.initialized) {
+            particle.x = particle.targetX;
+            particle.y = particle.targetY;
+            particle.initialized = true;
+          }
+        }
+      };
+
+      const draw = (time) => {
+        const elapsed = state.lastTime ? Math.min(32, time - state.lastTime) : 16;
+        const frameScale = elapsed / 16.67;
+        state.lastTime = time;
+        context.clearRect(0, 0, state.width, state.height);
+
+        const radius = Math.max(90, Math.min(170, state.width * .34));
+        const pointerSpeed = Math.min(4, Math.hypot(pointer.vx, pointer.vy));
+
+        for (const particle of state.particles) {
+          let chaos = 0;
+          const distance = Math.hypot(particle.x - pointer.x, particle.y - pointer.y);
+
+          if (!reducedMotion.matches && pointer.active && distance < radius) {
+            chaos = 1 - distance / radius;
+            const safeDistance = Math.max(distance, 1);
+            const impulse = chaos * (.46 + pointerSpeed * .11);
+            particle.vx += ((particle.x - pointer.x) / safeDistance) * impulse;
+            particle.vy += ((particle.y - pointer.y) / safeDistance) * impulse;
+            particle.vx += pointer.vx * chaos * .018;
+            particle.vy += pointer.vy * chaos * .018;
+          }
+
+          const spring = reducedMotion.matches ? .34 : .028;
+          particle.vx += (particle.targetX - particle.x) * spring;
+          particle.vy += (particle.targetY - particle.y) * spring;
+          particle.vx *= reducedMotion.matches ? .52 : .88;
+          particle.vy *= reducedMotion.matches ? .52 : .88;
+          particle.x += particle.vx * frameScale;
+          particle.y += particle.vy * frameScale;
+
+          const size = state.dotSize * (1 + chaos * .22);
+          if (chaos > .025) {
+            const chroma = (1 + pointerSpeed) * chaos * 2.6;
+            context.globalAlpha = .19 * chaos;
+            context.fillStyle = "#00c2df";
+            context.fillRect(particle.x - chroma, particle.y + chroma * .35, size, size);
+            context.fillStyle = "#e3322a";
+            context.fillRect(particle.x + chroma, particle.y - chroma * .35, size, size);
+          }
+
+          context.globalAlpha = clamp(.72 + chaos * .28, 0, 1);
+          context.fillStyle = particle.color;
+          context.fillRect(particle.x, particle.y, size, size);
+        }
+
+        context.globalAlpha = 1;
+        pointer.vx *= .84;
+        pointer.vy *= .84;
+
+        if (!reducedMotion.matches || pointer.active) {
+          state.animationFrame = window.requestAnimationFrame(draw);
+        } else {
+          state.animationFrame = 0;
+        }
+      };
+
+      const start = () => {
+        if (!state.animationFrame) {
+          state.lastTime = 0;
+          state.animationFrame = window.requestAnimationFrame(draw);
+        }
+      };
+
+      const updatePointer = (event) => {
+        const bounds = canvas.getBoundingClientRect();
+        const nextX = event.clientX - bounds.left;
+        const nextY = event.clientY - bounds.top;
+        const inside = nextX >= 0 && nextX <= state.width && nextY >= 0 && nextY <= state.height;
+
+        pointer.vx = nextX - pointer.x;
+        pointer.vy = nextY - pointer.y;
+        pointer.x = nextX;
+        pointer.y = nextY;
+        pointer.active = inside && !reducedMotion.matches;
+        start();
+      };
+
+      const leave = () => {
+        pointer.active = false;
+        pointer.vx = 0;
+        pointer.vy = 0;
+        start();
+      };
+
+      const buildParticles = () => {
+        if (!sourceContext || !source.naturalWidth || !source.naturalHeight) return;
+
+        sourceCanvas.width = source.naturalWidth;
+        sourceCanvas.height = source.naturalHeight;
+        sourceContext.clearRect(0, 0, sourceCanvas.width, sourceCanvas.height);
+        sourceContext.drawImage(source, 0, 0);
+
+        const pixels = sourceContext.getImageData(0, 0, sourceCanvas.width, sourceCanvas.height).data;
+        const sampleStep = 4;
+        const particles = [];
+
+        for (let y = 0; y < sourceCanvas.height; y += sampleStep) {
+          for (let x = 0; x < sourceCanvas.width; x += sampleStep) {
+            const index = (y * sourceCanvas.width + x) * 4;
+            const alpha = pixels[index + 3];
+            if (alpha < 80) continue;
+
+            particles.push({
+              sourceX: x,
+              sourceY: y,
+              color: `rgba(${pixels[index]}, ${pixels[index + 1]}, ${pixels[index + 2]}, ${alpha / 255})`,
+              x: 0,
+              y: 0,
+              targetX: 0,
+              targetY: 0,
+              vx: 0,
+              vy: 0,
+              initialized: false
+            });
+          }
+        }
+
+        state.particles = particles;
+        canvas.classList.add("is-ready");
+        resize();
+        start();
+      };
+
+      source.onload = buildParticles;
+      source.src = "assets/pixel_crab_transparent.png";
+      hero.addEventListener("pointermove", updatePointer, { passive: true });
+      hero.addEventListener("pointerleave", leave, { passive: true });
+      window.addEventListener("resize", resize, { passive: true });
+
+      if (reducedMotion.addEventListener) {
+        reducedMotion.addEventListener("change", () => {
+          pointer.active = false;
+          start();
         });
+      }
     })();
   </script>
 </body>
