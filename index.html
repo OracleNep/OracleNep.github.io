@@ -1,14 +1,14 @@
 <!doctype html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="robots" content="noindex, noarchive" />
-  <meta name="description" content="OracleNep's personal site for application security, Java/Spring audit notes, authorized vulnerability research, open-source projects, and security tooling." />
-  <meta property="og:title" content="OracleNep | Security Notes" />
-  <meta property="og:description" content="Application security, Java/Spring audit notes, authorized vulnerability research, open-source projects, and security tooling." />
+  <meta name="description" content="OracleNep 的个人主页：网络安全、AI 安全防御、Agent 工具链安全、Java/Spring 代码审计、漏洞治理和安全研究。" />
+  <meta property="og:title" content="OracleNep | 网络安全与 AI 安全研究" />
+  <meta property="og:description" content="关注 AI 安全防御、Agent 工具链安全、Java/Spring 代码审计、授权漏洞研究与漏洞治理。" />
   <meta property="og:image" content="assets/hero-security-portfolio.png" />
-  <title>OracleNep | Security Notes</title>
+  <title>OracleNep | 网络安全与 AI 安全研究</title>
   <style>
     :root {
       --ink: #17202f;
@@ -843,18 +843,23 @@
       }
 
       .hero-copy {
-        max-width: calc(100vw - 84px);
+        max-width: calc(100vw - 110px);
+        width: 100%;
+        min-width: 0;
         padding: 72px 0 78px 14px;
       }
 
       h1 {
-        font-size: 42px;
+        font-size: 34px;
       }
 
       .hero-subtitle {
-        max-width: 100%;
+        max-width: calc(100vw - 124px);
+        width: calc(100vw - 124px);
         font-size: 13px;
         line-height: 1.62;
+        overflow-wrap: anywhere;
+        word-break: break-word;
       }
 
       .hero-particle-canvas {
@@ -865,8 +870,13 @@
       }
 
       .eyebrow {
-        max-width: 100%;
+        max-width: calc(100vw - 124px);
+        display: block;
+        width: calc(100vw - 124px);
+        min-width: 0;
         overflow-wrap: anywhere;
+        white-space: normal;
+        line-height: 1.4;
       }
 
       .button {
@@ -894,12 +904,12 @@
 <body>
   <header class="topbar">
     <nav class="nav" aria-label="Primary navigation">
-      <a class="brand" href="#top">OracleNep</a>
+      <a class="brand" href="#top">OracleNep / Security Research</a>
       <div class="nav-links">
-        <a href="#links">Links</a>
-        <a href="#research">Notes</a>
-        <a href="#vulns">Vulnerability IDs</a>
-        <a href="#projects">Projects</a>
+        <a href="#research">研究方向</a>
+        <a href="#links">公开入口</a>
+        <a href="#vulns">漏洞索引</a>
+        <a href="#projects">项目成果</a>
       </div>
     </nav>
   </header>
@@ -909,15 +919,15 @@
       <canvas class="hero-particle-canvas" aria-hidden="true"></canvas>
       <div class="inner">
         <div class="hero-copy">
-          <span class="eyebrow">Security / Java / Notes / Open Source</span>
-          <h1>OracleNep</h1>
+          <span class="eyebrow">CYBERSECURITY / AI SECURITY / VULNERABILITY GOVERNANCE</span>
+          <h1>网络安全 × AI 安全</h1>
           <p class="hero-subtitle">
-            I work on application security, Java/Spring code review, authorized vulnerability research, and security tooling. This page collects the public material I usually reference: profiles, notes, vulnerability IDs, projects, and upstream contributions.
+            我是徐陈文翰，2027 届计算机类本科生，关注 AI 安全防御、Agent 工具链安全与漏洞治理；以 Java/Spring 代码审计、授权漏洞研究和安全自动化为工程基础。这里整理可公开核验的研究笔记、项目、漏洞编号和开源贡献。
           </p>
           <div class="actions">
-            <a class="button primary" href="https://src.sjtu.edu.cn/profile/20160/" target="_blank" rel="noreferrer">EDUSRC Profile</a>
-            <a class="button" href="research/">Read Notes</a>
-            <a class="button" href="#vulns">Vulnerability IDs</a>
+            <a class="button primary" href="https://src.sjtu.edu.cn/profile/20160/" target="_blank" rel="noreferrer">EDUSRC 个人主页</a>
+            <a class="button" href="#research">研究方向</a>
+            <a class="button" href="research/">研究笔记</a>
             <a class="button" href="https://github.com/OracleNep" target="_blank" rel="noreferrer">GitHub</a>
           </div>
         </div>
@@ -928,23 +938,23 @@
       <div class="inner">
         <div class="metrics">
           <div class="metric">
-            <strong>20+</strong>
-            <span>CVE / CNVD IDs</span>
+            <strong>AI / Agent</strong>
+            <span>工具权限、Prompt Injection、RAG 与人工复核</span>
           </div>
           <div class="metric">
             <a class="rank-link" href="https://src.sjtu.edu.cn/profile/20160/" target="_blank" rel="noreferrer" aria-label="Open EDUSRC profile">
               <strong class="live-rank" data-edusrc-rank aria-live="polite">...</strong>
             </a>
-            <span>EDUSRC Rank</span>
-            <small class="rank-status" data-edusrc-rank-status>Loading latest rank...</small>
+            <span>EDUSRC Rank / 2000+ 积分</span>
+            <small class="rank-status" data-edusrc-rank-status>从公开主页同步</small>
           </div>
           <div class="metric">
-            <strong>100K+</strong>
-            <span>Lines of Java code reviewed and triaged</span>
+            <strong>20+</strong>
+            <span>CVE / CNVD 编号跟踪与分析</span>
           </div>
           <div class="metric">
-            <strong>Upstream PR</strong>
-            <span>Contributions to php-src</span>
+            <strong>Rank 1</strong>
+            <span>2026 H&amp;NCTF 与黄鹤杯网络安全大赛</span>
           </div>
         </div>
       </div>
@@ -953,33 +963,33 @@
     <section class="section alt" id="links">
       <div class="inner">
         <div class="section-title">
-          <h2>Public Links</h2>
-          <p>Public material that is useful for context or verification: profiles, notes, repositories, releases, and upstream pull requests.</p>
+          <h2>公开研究入口</h2>
+          <p>把可以直接查看的研究材料集中在这里：授权平台主页、研究笔记、工具仓库、版本发布和上游贡献记录。</p>
         </div>
         <div class="link-grid">
           <a class="link-card" href="https://src.sjtu.edu.cn/profile/20160/" target="_blank" rel="noreferrer">
-            <span><strong>EDUSRC Profile</strong><span>Authorized vulnerability submissions and point history</span></span>
-            <span class="arrow">Open</span>
+            <span><strong>EDUSRC 个人主页</strong><span>授权漏洞提交记录与积分主页</span></span>
+            <span class="arrow">打开</span>
           </a>
           <a class="link-card" href="research/">
-            <span><strong>Research Notes</strong><span>Security research notes and project write-ups</span></span>
-            <span class="arrow">Open</span>
+            <span><strong>安全研究笔记</strong><span>Java 安全、SAST、SARIF 与 Agent 复核流程</span></span>
+            <span class="arrow">打开</span>
           </a>
           <a class="link-card" href="https://github.com/OracleNep" target="_blank" rel="noreferrer">
-            <span><strong>GitHub / OracleNep</strong><span>Public repositories, tools, experiments, and contributions</span></span>
-            <span class="arrow">Open</span>
+            <span><strong>GitHub / OracleNep</strong><span>公开仓库、工具、实验和开源协作记录</span></span>
+            <span class="arrow">打开</span>
           </a>
           <a class="link-card" href="https://github.com/Team-intN18-SoybeanSeclab/JavaSecAtlas" target="_blank" rel="noreferrer">
-            <span><strong>JavaSecAtlas</strong><span>Java / Spring audit tooling developed with SoybeanSeclab</span></span>
-            <span class="arrow">Open</span>
+            <span><strong>JavaSecAtlas</strong><span>面向 Java / Spring 的代码审计工作台</span></span>
+            <span class="arrow">打开</span>
           </a>
           <a class="link-card" href="https://github.com/Team-intN18-SoybeanSeclab/JavaSecAtlas/releases/tag/v0.1.0-alpha" target="_blank" rel="noreferrer">
-            <span><strong>JavaSecAtlas Release</strong><span>Early alpha release notes</span></span>
-            <span class="arrow">Open</span>
+            <span><strong>JavaSecAtlas Release</strong><span>项目早期版本与交付说明</span></span>
+            <span class="arrow">打开</span>
           </a>
           <a class="link-card" href="https://github.com/php/php-src/pulls?q=22261+OR+22223" target="_blank" rel="noreferrer">
-            <span><strong>php-src PRs #22261 / #22223</strong><span>Merged ext/intl maintenance and request_parse_body() validation work</span></span>
-            <span class="arrow">Open</span>
+            <span><strong>php-src PRs #22261 / #22223</strong><span>PHP 官方源码维护与输入校验工作</span></span>
+            <span class="arrow">打开</span>
           </a>
         </div>
       </div>
@@ -988,24 +998,24 @@
     <section class="section" id="research">
       <div class="inner">
         <div class="section-title">
-          <h2>Notes</h2>
-          <p>Security research notes, project write-ups, and occasional CTF or reproduction notes. The current focus is JavaSecAtlas, Java/Spring audit workflows, SARIF handling, and practical review process.</p>
+          <h2>研究方向</h2>
+          <p>从 AI 安全防御到漏洞治理，我关注可验证、可复测、能落到工程流程里的安全研究。</p>
         </div>
         <article class="project">
-          <span class="label green">Notes</span>
-          <h3>JavaSecAtlas Notes</h3>
-          <p>A short series on JavaSecAtlas V1.2: why the project moved away from being a lightweight SAST clone, why SARIF import matters, and how findings can later be connected with Spring routes and review workflow.</p>
+          <span class="label green">AI Security</span>
+          <h3>AI 安全防御与 Agent 工具链</h3>
+          <p>关注 Agent 的工具权限、MCP 调用边界、Prompt Injection、RAG 数据使用和人工确认机制，参与 VulnClaw 上游改进并复核 AI 辅助分析结果。</p>
           <div class="tag-row">
-            <span class="tag">Java Security</span>
-            <span class="tag">SARIF</span>
-            <span class="tag">Semgrep / CodeQL</span>
-            <span class="tag">Review workflow</span>
+            <span class="tag">Agent Security</span>
+            <span class="tag">MCP</span>
+            <span class="tag">Prompt Injection</span>
+            <span class="tag">RAG</span>
           </div>
           <ul>
-            <li>JavaSecAtlas V1.2: moving beyond another lightweight SAST.</li>
-            <li>SARIF import: bringing Semgrep and CodeQL findings into the workflow.</li>
-            <li>Next step: mapping findings back to Spring routes.</li>
-            <li>Review workflow: separating repeatable checks from final judgment.</li>
+            <li>关注 Agent 工作流的工具权限、调用边界、运行记录和误报复核。</li>
+            <li>将 AI 输出作为辅助证据，保留人工对风险结论的最终确认。</li>
+            <li>结合 VulnClaw 与 AI Coding Agent 完成资产信息整理和安全分析。</li>
+            <li>研究 Prompt Injection、RAG 数据使用与安全防御约束。</li>
           </ul>
           <p><a href="research/javasecatlas-series.html">Read the series →</a></p>
         </article>
@@ -1015,27 +1025,27 @@
     <section class="section" id="vulns">
       <div class="inner">
         <div class="section-title">
-          <h2>Vulnerability IDs</h2>
-          <p>A small set of public IDs for verification and reference. Report details remain subject to platform and vendor disclosure rules.</p>
+          <h2>漏洞研究与编号索引</h2>
+          <p>这里保留可公开核验的编号和研究范围。报告细节遵循平台与厂商披露规则，CNVD 详情页需要登录后查看，因此仅保留编号文本。</p>
         </div>
         <div class="vuln-layout">
           <article class="project">
-            <h3>CVE / CNVD IDs</h3>
-            <p>My submitted CVE / CNVD records mainly cover Web security, the Java ecosystem, code review, and authorized SRC scenarios.</p>
+            <h3>CVE / CNVD 编号</h3>
+            <p>研究覆盖 Web 安全、Java 生态、代码审计、业务逻辑和授权 SRC 场景，累计跟踪与分析 CVE / CNVD 编号 20+。</p>
             <div class="id-grid">
               <a class="id-link" href="https://www.cve.org/CVERecord?id=CVE-2025-7181" target="_blank" rel="noreferrer">CVE-2025-7181</a>
               <a class="id-link" href="https://www.cve.org/CVERecord?id=CVE-2025-7175" target="_blank" rel="noreferrer">CVE-2025-7175</a>
-              <a class="id-link" href="https://www.cnvd.org.cn/flaw/show/CNVD-2026-10837" target="_blank" rel="noreferrer">CNVD-2026-10837</a>
-              <a class="id-link" href="https://www.cnvd.org.cn/flaw/show/CNVD-2025-17734" target="_blank" rel="noreferrer">CNVD-2025-17734</a>
+              <span class="id-link">CNVD-2026-10837</span>
+              <span class="id-link">CNVD-2025-17734</span>
             </div>
-            <p>The CNVD site is sometimes unstable from certain networks; the IDs are kept here as reference points.</p>
+            <p>CNVD 编号只作为索引保留，平台详情不设置外链，避免未登录用户点击后得到不可访问的详情页。</p>
           </article>
           <article class="project">
-            <h3>Reporting Practice</h3>
+            <h3>漏洞治理工作流</h3>
             <ul>
-              <li>Reports are written with reproducible steps, impact scope, risk assessment, and remediation notes.</li>
-              <li>For common or event-driven issues, I try to make affected versions, trigger conditions, and fixes clear enough to review.</li>
-              <li>Public pages keep only necessary references and avoid unpublished exploitation details.</li>
+              <li>按复现步骤、影响范围、风险评级、修复建议和复测结果组织报告。</li>
+              <li>结合公告、源码和实际触发条件分析受影响版本与处置优先级。</li>
+              <li>公开页面只保留必要索引，不展示未公开利用细节、目标凭据或内部地址。</li>
             </ul>
           </article>
         </div>
@@ -1045,50 +1055,50 @@
     <section class="section alt" id="projects">
       <div class="inner">
         <div class="section-title">
-          <h2>Projects and Contributions</h2>
-          <p>Selected projects and pull requests that have public repositories, commits, or review history behind them.</p>
+          <h2>工具与开源成果</h2>
+          <p>选择有公开仓库、版本或协作记录的项目，展示从安全研究到工具落地的工程能力。</p>
         </div>
         <div class="project-grid">
           <article class="project">
             <h3>JavaSecAtlas</h3>
-            <p>A Java / Spring audit assistant built with SoybeanSeclab, used for audit preparation, rule prototyping, and report generation.</p>
+            <p>与 SoybeanSeclab 协作开发的 Java / Spring 代码审计工作台，用于审计准备、规则验证、SARIF 归并和报告整理。</p>
             <div class="tag-row">
               <span class="tag">Java / Spring</span>
               <span class="tag">Audit workflow</span>
               <span class="tag">SARIF / HTML</span>
             </div>
             <ul>
-              <li>Recognizes Maven / Gradle projects and extracts Spring routes with selected authorization annotations.</li>
-              <li>Includes heuristic rules for SSRF, XXE, SpEL, path traversal, and file upload cases.</li>
-              <li>My work covered project recognition, route extraction, rule design, report generation, and review workflow.</li>
+              <li>支持 Maven / Gradle 项目识别、Spring 路由提取和权限注解整理。</li>
+              <li>覆盖 SSRF、XXE、SpEL、路径穿越和文件上传等启发式规则。</li>
+              <li>参与项目识别、规则设计、报告生成和 Agent 复核流程设计。</li>
             </ul>
           </article>
           <article class="project">
-            <h3>PHP php-src</h3>
-            <p>Small maintenance contributions to the official PHP source repository, mainly around option validation, documentation comments, and tests.</p>
+            <h3>VulnClaw</h3>
+            <p>面向授权安全测试的 AI Agent 自动化工具，结合 MCP 工具链与 Skill 编排完成资产信息收集、漏洞验证和报告整理。</p>
             <div class="tag-row">
-              <span class="tag">C</span>
-              <span class="tag">PHPT</span>
-              <span class="tag">Upstream</span>
+              <span class="tag">AI Agent</span>
+              <span class="tag">MCP</span>
+              <span class="tag">Authorized Testing</span>
             </div>
             <ul>
-              <li>#22261 was merged, updating ext/intl error-handling documentation and test comments.</li>
-              <li>#22223 discusses input-handling consistency between request_parse_body() and max_input_vars.</li>
-              <li>The work helped me get more familiar with CI, review, and small patches in a large open-source project.</li>
+              <li>参与 solve frontier / fallback 恢复逻辑改进，提升异常场景下的任务续探能力。</li>
+              <li>关注工具权限、运行记录、误报复核和人工确认等防御性约束。</li>
+              <li>将 AI 输出作为辅助证据，保留人工对风险结论的最终确认。</li>
             </ul>
           </article>
           <article class="project">
             <h3>Phantom</h3>
-            <p>A SoybeanSeclab browser security extension for early-stage information collection in authorized SRC testing.</p>
+            <p>SoybeanSeclab 浏览器安全扩展，面向授权 SRC 测试中的前端资产梳理和风险线索收集。</p>
             <div class="tag-row">
               <span class="tag">JavaScript</span>
               <span class="tag">Browser Extension</span>
               <span class="tag">SRC workflow</span>
             </div>
             <ul>
-              <li>Supports basic scanning, recursive scanning, batch API testing, export, and custom regex rules.</li>
-              <li>Useful for frontend API mapping, sensitive information discovery, JS resource review, and asset organization before authorized testing.</li>
-              <li>Maintained as part of the team's security tooling workflow.</li>
+              <li>支持基础与递归扫描、批量 API 测试、结果导出和自定义正则。</li>
+              <li>用于前端接口盘点、JS 资源分析、敏感信息线索发现和授权范围控制。</li>
+              <li>作为团队安全工具链的一部分持续维护。</li>
             </ul>
           </article>
         </div>
@@ -1098,7 +1108,7 @@
 
   <footer class="footer">
     <div class="inner">
-      <span>OracleNep Security Notes</span>
+      <span>OracleNep · 网络安全与 AI 安全研究</span>
       <span><a href="https://github.com/OracleNep" target="_blank" rel="noreferrer">github.com/OracleNep</a></span>
     </div>
   </footer>
