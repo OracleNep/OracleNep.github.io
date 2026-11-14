@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
+  <meta name="author" content="OracleNep" />
+  <meta name="description" content="解释 prtseek 如何分离 HTTP 原文与模型上下文，处理流式 usage 累计快照，并保留异常结束前已收到的用量。" />
+  <link rel="canonical" href="https://oraclenep.github.io/research/prtseek/context-observation-metering.html" />
+  <meta property="og:type" content="article" />
+  <meta property="og:title" content="上下文与用量：有界观察、逐轮计量和中断记录｜prtseek 开发笔记" />
+  <meta property="og:description" content="解释 prtseek 如何分离 HTTP 原文与模型上下文，处理流式 usage 累计快照，并保留异常结束前已收到的用量。" />
+  <meta property="og:url" content="https://oraclenep.github.io/research/prtseek/context-observation-metering.html" />
+  <meta property="og:site_name" content="OracleNep Research Notes" />
+  <meta property="article:published_time" content="2026-11-14T00:00:00+08:00" />
+  <meta property="article:modified_time" content="2026-11-14T00:00:00+08:00" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="上下文与用量：有界观察、逐轮计量和中断记录｜prtseek 开发笔记" />
+  <meta name="twitter:description" content="解释 prtseek 如何分离 HTTP 原文与模型上下文，处理流式 usage 累计快照，并保留异常结束前已收到的用量。" />
+  <title>上下文与用量：有界观察、逐轮计量和中断记录｜prtseek 开发笔记｜OracleNep</title>
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "TechArticle",
+  "headline": "上下文与用量：有界观察、逐轮计量和中断记录",
+  "description": "解释 prtseek 如何分离 HTTP 原文与模型上下文，处理流式 usage 累计快照，并保留异常结束前已收到的用量。",
+  "url": "https://oraclenep.github.io/research/prtseek/context-observation-metering.html",
+  "mainEntityOfPage": "https://oraclenep.github.io/research/prtseek/context-observation-metering.html",
+  "datePublished": "2026-11-14",
+  "dateModified": "2026-11-14",
+  "inLanguage": "zh-CN",
+  "author": {
+    "@type": "Person",
+    "name": "OracleNep",
+    "url": "https://github.com/OracleNep"
+  },
+  "isPartOf": {
+    "@type": "CollectionPage",
+    "name": "prtseek 开发文章集",
+    "url": "https://oraclenep.github.io/research/prtseek/"
+  },
+  "keywords": [
+    "prtseek",
+    "Context",
+    "HTTP observation",
+    "Metering"
+  ],
+  "citation": [
+    "https://github.com/Team-intN18-SoybeanSeclab/prtseek/blob/c888078cf58ef609946ab31aec7a1c87b9b9981c/agent/http_observation.go",
+    "https://github.com/Team-intN18-SoybeanSeclab/prtseek/blob/c888078cf58ef609946ab31aec7a1c87b9b9981c/agent/http_observation_test.go",
+    "https://github.com/Team-intN18-SoybeanSeclab/prtseek/blob/c888078cf58ef609946ab31aec7a1c87b9b9981c/agent/model_meter.go",
+    "https://github.com/Team-intN18-SoybeanSeclab/prtseek/blob/c888078cf58ef609946ab31aec7a1c87b9b9981c/agent/host_tools.go",
+    "https://github.com/Team-intN18-SoybeanSeclab/prtseek/blob/c888078cf58ef609946ab31aec7a1c87b9b9981c/server/conversation_turns.go",
+    "https://github.com/Team-intN18-SoybeanSeclab/prtseek/blob/c888078cf58ef609946ab31aec7a1c87b9b9981c/db/conversation_turns.go",
+    "https://github.com/Team-intN18-SoybeanSeclab/prtseek/blob/c888078cf58ef609946ab31aec7a1c87b9b9981c/server/ctf_execution.go"
+  ]
+}
+  </script>
+  <link rel="stylesheet" href="../../assets/site.css?v=20261114-research" />
+</head>
+<body class="research-page research-article">
+<header class="topbar">
+  <nav class="nav" aria-label="主导航">
+    <a class="brand" href="../../">OracleNep / Security Research</a>
+    <div class="nav-links">
+      <a href="../../#projects">Projects</a>
+      <a href="../../#vulns">Disclosures</a>
+      <a href="../../#contributions">Contributions</a>
+      <a href="../">Research</a>
+    </div>
+  </nav>
+</header>
+<main>
+<section class="hero"><div class="inner"><div class="hero-copy">
+  <nav class="breadcrumb" aria-label="面包屑"><a href="../../">Home</a><span aria-hidden="true">/</span><a href="../">Research</a><span aria-hidden="true">/</span><a href="./">prtseek</a><span aria-hidden="true">/</span><span aria-current="page">03</span></nav>
+  <span class="eyebrow">prtseek / Development Notes / 03</span>
+  <h1>上下文与用量：有界观察、逐轮计量和中断记录</h1>
+  <p class="subtitle">解释 prtseek 如何分离 HTTP 原文与模型上下文，处理流式 usage 累计快照，并保留异常结束前已收到的用量。</p>
+  <div class="actions"><a class="button" href="./">专题目录</a><a class="button" href="https://github.com/Team-intN18-SoybeanSeclab/prtseek">项目源码 ↗</a></div>
+</div></div></section><div class="inner layout">
+<aside class="toc" aria-label="文章目录"><details open><summary>目录</summary><div class="toc-content"><a href="#signal">01 / 上下文里应该保留可区分的信息</a><a href="#http">02 / HTTP 200 只是观察中的一个字段</a><a href="#route">03 / 网络出口也是实验条件</a><a href="#usage">04 / 流式 usage 不能逐条相加</a><a href="#interrupt">05 / EOF 不是正常结束信号</a><a href="#boundary">06 / 减少上下文要保留回查路径</a><a href="#sources">源码与版本</a><a href="#series">系列阅读</a></div></details><p class="small">prtseek 开发文章集<br>第 3 / 6 篇</p></aside>
+<article>
+<div class="meta"><span class="tag">OracleNep</span><span class="tag">2026-11-14</span><span class="tag">Context</span><span class="tag">HTTP observation</span><span class="tag">Metering</span></div>
+<section id="signal"><h2>01 / 上下文里应该保留可区分的信息</h2>
+<p>连续访问几个 URL，如果每次都把完整 HTML 塞进上下文，导航栏、脚本和重复页面很快会占满窗口。简单截掉长输出又会丢失回查能力：模型看到一段摘要，却无法确认它来自哪个最终地址、是否经历跳转、正文是否被截断。</p>
+<p>prtseek 的处理是把一次 HTTP 访问拆成结构化观察、面向模型的有界正文和落盘原文。上下文优先保留能影响判断的字段；需要继续检查表单或脚本时，再读取对应材料。这种分层减少重复文本进入对话，但不会自动证明压缩后的信息足够完成所有任务。</p>
+</section>
+<section id="http"><h2>02 / HTTP 200 只是观察中的一个字段</h2>
+<p><code>WebFetch</code> 返回原始 URL、最终 URL、跳转链、状态、耗时、已读取响应长度、SHA256、截断标记和 <code>body_file</code>。一次访问最终落到登录页或验证页时，即使状态是 200，也应结合地址、正文与跳转链判断，不能直接记成“接口有效”或“目标达成”。</p>
+<div class="table-scroll" role="region" aria-label="HTTP 观察的三层信息" tabindex="0"><table><thead><tr><th>层次</th><th>内容与当前边界</th><th>用途</th></tr></thead><tbody>
+<tr><td>结构化元数据</td><td>地址、状态、跳转、长度、哈希、耗时</td><td>辨认请求实际到达哪里、结果是否变化</td></tr>
+<tr><td>模型可见正文</td><td>默认 8000 字符，可设置 500–12000</td><td>控制单次观察进入上下文的体积</td></tr>
+<tr><td>会话内原文</td><td><code>.research/http</code>，响应体最多读取 2 MiB</td><td>按需复查与保留本次已读取内容</td></tr>
+</tbody></table></div>
+<p>这里有两种截断：原始响应超过读取上限，以及展示正文超过字符预算。<code>observed_body_bytes</code> 与 <code>observed_body_sha256</code> 描述的是实际保存的字节；原始响应被截断时，它们只能标识保存下来的前缀，不能代表完整响应的长度或完整性。</p>
+<p>HTML 默认过滤导航、script、style 等噪声；<code>extract=true</code> 会提取表单、链接、脚本引用和注释。默认摘要适合先判断页面性质，结构提取适合继续定位交互入口。两者都不能替代浏览器执行 JavaScript 后的实际行为。</p>
+</section>
+<section id="route"><h2>03 / 网络出口也是实验条件</h2>
+<p>如果工具配置的代理失败后悄悄改用直连，前后两个响应可能来自不同网络路径。此时看到正文变化，很难判断是参数产生了作用，还是出口、证书或访问控制改变了结果。</p>
+<p>当前 HTTP 工具使用显式代理与 CA 配置，配置错误会返回错误，不静默切换出口。Shell 和 HTTP 工具也应按一致配置解释网络行为。Windows 环境还需要识别实际 Shell：PowerShell 5.1、<code>curl.exe</code>、编码和脚本文件的行为，不能用 Bash 的命令习惯默认推断。</p>
+<p>这意味着有些失败应先归入环境问题：证书加载失败、重定向异常或 Shell 参数解析失败，尚不足以反驳目标假设。把失败原因保留在观察记录里，可以避免 Agent 换一组参数继续重复同一个环境错误。</p>
+</section>
+<section id="usage"><h2>04 / 流式 usage 不能逐条相加</h2>
+<p>流式响应可能多次报告同一个请求的累计用量。假设输出 Token 快照依次为 40、65、65，正确的本次累计值是 65，直接相加却会得到 170。<code>usageDelta</code> 为 input、output、cache read、cache write 各自保留已见最大值，只累计正向差额。</p>
+<pre><code>本次请求的输出快照： 40 → 65 → 65
+本次新增计量：       40 → 25 →  0
+该请求累计输出：     65
+
+next  = max(previous, current)
+delta = next - previous</code></pre>
+<p>这个逻辑以 provider 适配层交出的累计 usage 为输入。如果新增适配器拿到的是逐块增量，必须先统一语义，否则最大值规则会漏计。不同协议的字段名称和计费定义也不能仅凭名称相近就认定一致。</p>
+<p>每个 Chat turn 的观察器独立记账，子任务只共享预算。新轮次记录与旧会话累计快照的兼容汇总还要避免双算。缓存读取单列有助于解释上下文复用，但累计 Token 不等同于账单金额；未由 provider 报告的用量不能凭空补齐。</p>
+</section>
+<section id="interrupt"><h2>05 / EOF 不是正常结束信号</h2>
+<p>网络流断在半句回答后，如果适配层把 EOF 包成一个普通结束事件，上层就可能错误地把本轮记成完成。计量包装层因此要求看到真实的 <code>StopReason</code>；没有结束原因、也没有其他错误的流会被记为 <code>ErrIncompleteRun</code>。非流式返回同样检查结束原因是否存在。</p>
+<p>usage 在事件向外传递前先进入观察器，因此中断前已经收到的用量可以保留下来。这不能恢复 provider 尚未发出的最后一份用量，但能避免因为消费者提前停止而丢掉已经观察到的数据。</p>
+<p>服务重启后，仍处于 running 的执行和轮次会被修正为 interrupted，并记录 <code>service_restart</code>。这个修正表达的是“上一次运行未正常收尾”，不会暗示任务自动续跑或目标已经完成。前端也需要呈现结束原因，而不只是停止转圈。</p>
+</section>
+<section id="boundary"><h2>06 / 减少上下文要保留回查路径</h2>
+<p>这一设计的取舍是把完整性、可读性与用量分开处理：模型看到的是有限观察，文件保留本次读取的原文，计量记录 provider 实际报告的数据。任何一层都不能借另一个层次的存在而夸大自己的保证。</p>
+<p>验证这套机制应针对可确定的行为：累计快照不会重复相加、缺少结束原因会报错、截断标记与已保存字节一致、代理失败不会换出口。至于这些措施能减少多少 Token、能否提高任务成功率，需要在同一模型配置和任务集上做对照，不能从代码结构直接推导一个提升比例。</p>
+</section>
+
+<section id="sources"><h2>源码与版本</h2>
+<p>本文依据 prtseek 提交 <a href="https://github.com/Team-intN18-SoybeanSeclab/prtseek/tree/c888078cf58ef609946ab31aec7a1c87b9b9981c"><code>c888078</code></a> 撰写。以下链接固定到该快照，便于复核；后续版本的行为可能变化。</p>
+<ul><li><a href="https://github.com/Team-intN18-SoybeanSeclab/prtseek/blob/c888078cf58ef609946ab31aec7a1c87b9b9981c/agent/http_observation.go"><code>agent/http_observation.go</code></a> — 有界正文、结构提取、代理与原文保存</li><li><a href="https://github.com/Team-intN18-SoybeanSeclab/prtseek/blob/c888078cf58ef609946ab31aec7a1c87b9b9981c/agent/http_observation_test.go"><code>agent/http_observation_test.go</code></a> — HTTP 观察回归测试</li><li><a href="https://github.com/Team-intN18-SoybeanSeclab/prtseek/blob/c888078cf58ef609946ab31aec7a1c87b9b9981c/agent/model_meter.go"><code>agent/model_meter.go</code></a> — 累计 usage 差分与结束原因检查</li><li><a href="https://github.com/Team-intN18-SoybeanSeclab/prtseek/blob/c888078cf58ef609946ab31aec7a1c87b9b9981c/agent/host_tools.go"><code>agent/host_tools.go</code></a> — 宿主机工具环境</li><li><a href="https://github.com/Team-intN18-SoybeanSeclab/prtseek/blob/c888078cf58ef609946ab31aec7a1c87b9b9981c/server/conversation_turns.go"><code>server/conversation_turns.go</code></a> — 轮次运行与计量</li><li><a href="https://github.com/Team-intN18-SoybeanSeclab/prtseek/blob/c888078cf58ef609946ab31aec7a1c87b9b9981c/db/conversation_turns.go"><code>db/conversation_turns.go</code></a> — 轮次持久化</li><li><a href="https://github.com/Team-intN18-SoybeanSeclab/prtseek/blob/c888078cf58ef609946ab31aec7a1c87b9b9981c/server/ctf_execution.go"><code>server/ctf_execution.go</code></a> — 服务启动时修正未结束的执行与轮次</li></ul>
+<p>prtseek 基于 <a href="https://github.com/RuoJi6/ARTEX">RuoJi6/ARTEX</a> 二次开发，原始项目来自 <a href="https://github.com/Autumn-27/ARTEX">Autumn-27/ARTEX</a>，沿用 AGPL-3.0。本文描述源码机制与验证边界，不将合成测试等同于真实模型解题效果。</p>
+</section>
+<section id="series"><h2>系列阅读</h2><nav aria-label="系列文章导航"><p><a href="./">返回 prtseek 开发文章集</a> · 第 3 / 6 篇</p><p>上一篇：<a rel="prev" href="bounded-agent-collaboration.html">多 Agent 协作：派发、等待、取消与共享预算</a></p><p>下一篇：<a rel="next" href="evidence-and-experiments.html">证据与实验：从重复尝试到可复核的结论</a></p></nav></section>
+</article></div>
+</main>
+<footer class="footer"><div class="inner">
+  <span>OracleNep / prtseek Development Notes</span>
+  <span><a href="./">prtseek 专题</a> · <a href="../">全部文章</a> · <a href="../../">返回首页</a></span>
+</div></footer>
+<script src="../../assets/research.js?v=20261114-research" defer></script>
+</body>
+</html>

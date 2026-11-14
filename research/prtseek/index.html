@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
+  <meta name="author" content="OracleNep" />
+  <meta name="description" content="围绕 prtseek 的 CTF 工作流，记录多 Agent 协作、上下文与用量管理、证据实验、前端会话体验和测试评测的设计与取舍。" />
+  <link rel="canonical" href="https://oraclenep.github.io/research/prtseek/" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="prtseek 开发文章集" />
+  <meta property="og:description" content="围绕 prtseek 的 CTF 工作流，记录多 Agent 协作、上下文与用量管理、证据实验、前端会话体验和测试评测的设计与取舍。" />
+  <meta property="og:url" content="https://oraclenep.github.io/research/prtseek/" />
+  <meta property="og:site_name" content="OracleNep Research Notes" />
+  
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="prtseek 开发文章集" />
+  <meta name="twitter:description" content="围绕 prtseek 的 CTF 工作流，记录多 Agent 协作、上下文与用量管理、证据实验、前端会话体验和测试评测的设计与取舍。" />
+  <title>prtseek 开发文章集｜OracleNep</title>
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "CollectionPage",
+  "name": "prtseek 开发文章集",
+  "description": "围绕 prtseek 的 CTF 工作流，记录多 Agent 协作、上下文与用量管理、证据实验、前端会话体验和测试评测的设计与取舍。",
+  "url": "https://oraclenep.github.io/research/prtseek/",
+  "inLanguage": "zh-CN",
+  "author": {
+    "@type": "Person",
+    "name": "OracleNep",
+    "url": "https://github.com/OracleNep"
+  },
+  "datePublished": "2026-11-14",
+  "dateModified": "2026-11-14",
+  "hasPart": [
+    {
+      "@type": "TechArticle",
+      "headline": "从聊天界面到可验收的 CTF 工作流",
+      "url": "https://oraclenep.github.io/research/prtseek/workflow-architecture.html",
+      "position": 1
+    },
+    {
+      "@type": "TechArticle",
+      "headline": "多 Agent 协作：派发、等待、取消与共享预算",
+      "url": "https://oraclenep.github.io/research/prtseek/bounded-agent-collaboration.html",
+      "position": 2
+    },
+    {
+      "@type": "TechArticle",
+      "headline": "上下文与用量：有界观察、逐轮计量和中断记录",
+      "url": "https://oraclenep.github.io/research/prtseek/context-observation-metering.html",
+      "position": 3
+    },
+    {
+      "@type": "TechArticle",
+      "headline": "证据与实验：从重复尝试到可复核的结论",
+      "url": "https://oraclenep.github.io/research/prtseek/evidence-and-experiments.html",
+      "position": 4
+    },
+    {
+      "@type": "TechArticle",
+      "headline": "前端会话体验：主题、启动动画与可信状态",
+      "url": "https://oraclenep.github.io/research/prtseek/frontend-session-experience.html",
+      "position": 5
+    },
+    {
+      "@type": "TechArticle",
+      "headline": "测试与评测：CI 通过以后，还能证明什么",
+      "url": "https://oraclenep.github.io/research/prtseek/regression-and-evaluation.html",
+      "position": 6
+    }
+  ]
+}
+  </script>
+  <link rel="stylesheet" href="../../assets/site.css?v=20261114-research" />
+</head>
+<body class="research-page research-index">
+<header class="topbar">
+  <nav class="nav" aria-label="主导航">
+    <a class="brand" href="../../">OracleNep / Security Research</a>
+    <div class="nav-links">
+      <a href="../../#projects">Projects</a>
+      <a href="../../#vulns">Disclosures</a>
+      <a href="../../#contributions">Contributions</a>
+      <a href="../">Research</a>
+    </div>
+  </nav>
+</header>
+<main>
+<section class="hero"><div class="inner"><div class="hero-copy">
+  <nav class="breadcrumb" aria-label="面包屑"><a href="../../">Home</a><span aria-hidden="true">/</span><a href="../">Research</a><span aria-hidden="true">/</span><span aria-current="page">prtseek</span></nav>
+  <span class="eyebrow">prtseek / Development Notes</span>
+  <h1>prtseek 开发文章集</h1>
+  <p class="subtitle">围绕 prtseek 的 CTF 工作流，记录多 Agent 协作、上下文与用量管理、证据实验、前端会话体验和测试评测的设计与取舍。</p>
+  <div class="actions"><a class="button" href="workflow-architecture.html">从第一篇开始</a><a class="button" href="https://github.com/Team-intN18-SoybeanSeclab/prtseek">项目源码 ↗</a></div>
+</div></div></section><section class="section"><div class="inner grid">
+<article class="card"><h2>从一次任务出发，理解工作台的设计</h2>
+<p>一个 Agent 能输出答案之后，还需要处理什么？这个专题从任务材料和验收条件开始，沿着派发、观察、实验、交付与验证六个环节，记录 prtseek 的工程选择。六篇文章可以顺序阅读，也可以按问题直接进入。</p>
+<p>prtseek 是基于 <a href="https://github.com/RuoJi6/ARTEX">RuoJi6/ARTEX</a> 的二次开发项目，原始上游为 <a href="https://github.com/Autumn-27/ARTEX">Autumn-27/ARTEX</a>，沿用 AGPL-3.0。本期依据 <a href="https://github.com/Team-intN18-SoybeanSeclab/prtseek/tree/c888078cf58ef609946ab31aec7a1c87b9b9981c"><code>c888078</code></a> 整理，示例使用合成场景；源码机制、测试结果与真实模型能力分别讨论。</p>
+<div class="tag-row"><span class="tag">6 篇文章</span><span class="tag">2026-11-14</span><span class="tag">Go / Next.js</span><span class="tag">OracleNep</span></div>
+<p><a href="https://github.com/Team-intN18-SoybeanSeclab/prtseek/blob/c888078cf58ef609946ab31aec7a1c87b9b9981c/CHANGELOG.md">对应版本更新日志 →</a></p></article>
+<article class="card"><div class="meta"><span class="tag">01 / 06</span><span class="tag">Architecture</span><span class="tag">CTF workflow</span><span class="tag">ARTEX</span></div>
+<h2><a href="workflow-architecture.html">从聊天界面到可验收的 CTF 工作流</a></h2><p>从 ARTEX 二次开发的边界出发，拆解 prtseek 的四角色协作、会话材料、执行状态与目标验收，说明为什么一段完整回答还不够。</p><a class="arrow" href="workflow-architecture.html">阅读第 1 篇 →</a></article>
+<article class="card"><div class="meta"><span class="tag">02 / 06</span><span class="tag">Concurrency</span><span class="tag">Run budget</span><span class="tag">Lifecycle</span></div>
+<h2><a href="bounded-agent-collaboration.html">多 Agent 协作：派发、等待、取消与共享预算</a></h2><p>拆解 prtseek 的异步子任务、结果收取、并发上限、原子调用预算与关闭顺序，避免并行协作留下后台任务和重复计量。</p><a class="arrow" href="bounded-agent-collaboration.html">阅读第 2 篇 →</a></article>
+<article class="card"><div class="meta"><span class="tag">03 / 06</span><span class="tag">Context</span><span class="tag">HTTP observation</span><span class="tag">Metering</span></div>
+<h2><a href="context-observation-metering.html">上下文与用量：有界观察、逐轮计量和中断记录</a></h2><p>解释 prtseek 如何分离 HTTP 原文与模型上下文，处理流式 usage 累计快照，并保留异常结束前已收到的用量。</p><a class="arrow" href="context-observation-metering.html">阅读第 3 篇 →</a></article>
+<article class="card"><div class="meta"><span class="tag">04 / 06</span><span class="tag">Evidence</span><span class="tag">Experiments</span><span class="tag">Verification</span></div>
+<h2><a href="evidence-and-experiments.html">证据与实验：从重复尝试到可复核的结论</a></h2><p>围绕 prtseek 的阶段复核、实验目录、证据引用和验证等级，说明如何减少重复尝试与旧产物污染，并保留语义判断的边界。</p><a class="arrow" href="evidence-and-experiments.html">阅读第 4 篇 →</a></article>
+<article class="card"><div class="meta"><span class="tag">05 / 06</span><span class="tag">Frontend</span><span class="tag">Theme</span><span class="tag">Session UX</span></div>
+<h2><a href="frontend-session-experience.html">前端会话体验：主题、启动动画与可信状态</a></h2><p>复盘 prtseek 的系统主题、开机动画、附件重试、文件预览与会话概览，解释界面细节如何影响长任务的判断与操作。</p><a class="arrow" href="frontend-session-experience.html">阅读第 5 篇 →</a></article>
+<article class="card"><div class="meta"><span class="tag">06 / 06</span><span class="tag">CI</span><span class="tag">Regression</span><span class="tag">Evaluation</span></div>
+<h2><a href="regression-and-evaluation.html">测试与评测：CI 通过以后，还能证明什么</a></h2><p>区分 prtseek 的编译检查、工作流回归、二进制与容器冒烟、合成题评测和真实模型能力，明确测试证据可以支持的结论。</p><a class="arrow" href="regression-and-evaluation.html">阅读第 6 篇 →</a></article>
+</div></section>
+</main>
+<footer class="footer"><div class="inner">
+  <span>OracleNep / prtseek Development Notes</span>
+  <span><a href="./">prtseek 专题</a> · <a href="../">全部文章</a> · <a href="../../">返回首页</a></span>
+</div></footer>
+<script src="../../assets/research.js?v=20261114-research" defer></script>
+</body>
+</html>

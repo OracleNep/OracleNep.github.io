@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
+  <meta name="author" content="OracleNep" />
+  <meta name="description" content="复盘 prtseek 的系统主题、开机动画、附件重试、文件预览与会话概览，解释界面细节如何影响长任务的判断与操作。" />
+  <link rel="canonical" href="https://oraclenep.github.io/research/prtseek/frontend-session-experience.html" />
+  <meta property="og:type" content="article" />
+  <meta property="og:title" content="前端会话体验：主题、启动动画与可信状态｜prtseek 开发笔记" />
+  <meta property="og:description" content="复盘 prtseek 的系统主题、开机动画、附件重试、文件预览与会话概览，解释界面细节如何影响长任务的判断与操作。" />
+  <meta property="og:url" content="https://oraclenep.github.io/research/prtseek/frontend-session-experience.html" />
+  <meta property="og:site_name" content="OracleNep Research Notes" />
+  <meta property="article:published_time" content="2026-11-14T00:00:00+08:00" />
+  <meta property="article:modified_time" content="2026-11-14T00:00:00+08:00" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="前端会话体验：主题、启动动画与可信状态｜prtseek 开发笔记" />
+  <meta name="twitter:description" content="复盘 prtseek 的系统主题、开机动画、附件重试、文件预览与会话概览，解释界面细节如何影响长任务的判断与操作。" />
+  <title>前端会话体验：主题、启动动画与可信状态｜prtseek 开发笔记｜OracleNep</title>
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "TechArticle",
+  "headline": "前端会话体验：主题、启动动画与可信状态",
+  "description": "复盘 prtseek 的系统主题、开机动画、附件重试、文件预览与会话概览，解释界面细节如何影响长任务的判断与操作。",
+  "url": "https://oraclenep.github.io/research/prtseek/frontend-session-experience.html",
+  "mainEntityOfPage": "https://oraclenep.github.io/research/prtseek/frontend-session-experience.html",
+  "datePublished": "2026-11-14",
+  "dateModified": "2026-11-14",
+  "inLanguage": "zh-CN",
+  "author": {
+    "@type": "Person",
+    "name": "OracleNep",
+    "url": "https://github.com/OracleNep"
+  },
+  "isPartOf": {
+    "@type": "CollectionPage",
+    "name": "prtseek 开发文章集",
+    "url": "https://oraclenep.github.io/research/prtseek/"
+  },
+  "keywords": [
+    "prtseek",
+    "Frontend",
+    "Theme",
+    "Session UX"
+  ],
+  "citation": [
+    "https://github.com/Team-intN18-SoybeanSeclab/prtseek/blob/c888078cf58ef609946ab31aec7a1c87b9b9981c/web/src/scripts/theme-boot.tsx",
+    "https://github.com/Team-intN18-SoybeanSeclab/prtseek/blob/c888078cf58ef609946ab31aec7a1c87b9b9981c/web/src/lib/preferences/preferences-config.ts",
+    "https://github.com/Team-intN18-SoybeanSeclab/prtseek/blob/c888078cf58ef609946ab31aec7a1c87b9b9981c/web/src/components/prts-boot.tsx",
+    "https://github.com/Team-intN18-SoybeanSeclab/prtseek/blob/c888078cf58ef609946ab31aec7a1c87b9b9981c/web/src/lib/chat-attachments.ts",
+    "https://github.com/Team-intN18-SoybeanSeclab/prtseek/blob/c888078cf58ef609946ab31aec7a1c87b9b9981c/web/src/components/conversation-overview.tsx",
+    "https://github.com/Team-intN18-SoybeanSeclab/prtseek/blob/c888078cf58ef609946ab31aec7a1c87b9b9981c/web/src/lib/ctf-status.ts"
+  ]
+}
+  </script>
+  <link rel="stylesheet" href="../../assets/site.css?v=20261114-research" />
+</head>
+<body class="research-page research-article">
+<header class="topbar">
+  <nav class="nav" aria-label="主导航">
+    <a class="brand" href="../../">OracleNep / Security Research</a>
+    <div class="nav-links">
+      <a href="../../#projects">Projects</a>
+      <a href="../../#vulns">Disclosures</a>
+      <a href="../../#contributions">Contributions</a>
+      <a href="../">Research</a>
+    </div>
+  </nav>
+</header>
+<main>
+<section class="hero"><div class="inner"><div class="hero-copy">
+  <nav class="breadcrumb" aria-label="面包屑"><a href="../../">Home</a><span aria-hidden="true">/</span><a href="../">Research</a><span aria-hidden="true">/</span><a href="./">prtseek</a><span aria-hidden="true">/</span><span aria-current="page">05</span></nav>
+  <span class="eyebrow">prtseek / Development Notes / 05</span>
+  <h1>前端会话体验：主题、启动动画与可信状态</h1>
+  <p class="subtitle">复盘 prtseek 的系统主题、开机动画、附件重试、文件预览与会话概览，解释界面细节如何影响长任务的判断与操作。</p>
+  <div class="actions"><a class="button" href="./">专题目录</a><a class="button" href="https://github.com/Team-intN18-SoybeanSeclab/prtseek">项目源码 ↗</a></div>
+</div></div></section><div class="inner layout">
+<aside class="toc" aria-label="文章目录"><details open><summary>目录</summary><div class="toc-content"><a href="#surface">01 / 长任务界面需要回答具体问题</a><a href="#theme">02 / 系统主题要在首屏就生效</a><a href="#boot">03 / 启动动画也要处理焦点和退出</a><a href="#uploads">04 / 发送失败，不应该重传已成功的附件</a><a href="#preview">05 / 晚到的预览不能覆盖当前选择</a><a href="#overview">06 / 概览展示状态的来源与边界</a><a href="#sources">源码与版本</a><a href="#series">系列阅读</a></div></details><p class="small">prtseek 开发文章集<br>第 5 / 6 篇</p></aside>
+<article>
+<div class="meta"><span class="tag">OracleNep</span><span class="tag">2026-11-14</span><span class="tag">Frontend</span><span class="tag">Theme</span><span class="tag">Session UX</span></div>
+<section id="surface"><h2>01 / 长任务界面需要回答具体问题</h2>
+<p>一次 Agent 任务可能同时有模型输出、多个子任务、附件上传和文件产物。用户最需要知道的是：现在还在运行吗，哪条路线卡住了，附件是否已经上传，结果文件属于哪次操作，当前结论验证到什么程度。</p>
+<p>如果界面只显示聊天气泡和一个停止按钮，这些信息就只能靠用户从文字里猜。prtseek 的前端改动既包括恢复启动动画和统一主题，也包括把运行状态、目标状态、用量与文件归属放到可观察的位置。视觉一致性和状态准确性需要一起验收。</p>
+</section>
+<section id="theme"><h2>02 / 系统主题要在首屏就生效</h2>
+<p>默认跟随系统，首先意味着没有显式用户偏好时使用 <code>system</code>。用户已经选择浅色或深色后，仍应尊重保存的值。主题启动脚本在 head 中提前读取配置的 cookie 或 localStorage，将 system 解析为当前系统颜色，并设置根节点的 dark class、主题数据属性和 <code>colorScheme</code>。</p>
+<p>提前执行的作用是减少 hydration 前后的主题闪烁。如果等 React 挂载后才纠正默认深色，浅色系统也会先看到一次黑屏。保存偏好、首次访问、存储不可用与非法偏好值，都应有可解释的回退行为。</p>
+<p>对话框和侧边栏的一致性依赖语义颜色：background、foreground、sidebar 等变量应随当前主题一起解析。弹层通常通过 portal 渲染到页面其他位置，局部容器里写死的颜色更容易失效。因此检查主题不能只看聊天主体，还要打开设置、文件预览、菜单和侧边栏比较文字、边框与底色。</p>
+</section>
+<section id="boot"><h2>03 / 启动动画也要处理焦点和退出</h2>
+<p><code>PrtsBoot</code> 在每次 document load 播放一次。应用内导航如果没有卸载布局，就不会反复播放；刷新页面会再次出现。这个边界比持久化一个“永远不再播放”的标记更符合启动动画的含义，也避免每次切换会话都阻挡操作。</p>
+<p>动画使用原生 <code>&lt;dialog&gt;</code>，在 hydration 后调用 <code>showModal()</code>。单纯盖一层高 z-index 遮罩，只能挡住鼠标视线，键盘焦点仍可能落到后面的输入框；模态 dialog 则把启动阶段的交互边界交给浏览器处理。</p>
+<p>退出由动画结束事件和计时兜底共同保证，普通模式约 2000 毫秒，减少动态效果模式约 600 毫秒，同时支持跳过与 Esc。测试不能只录一段动画顺利播完，还应覆盖动画事件没有触发、用户立即跳过、键盘退出和 reduced motion。启动装饰一旦阻塞输入，就变成了可用性故障。</p>
+</section>
+<section id="uploads"><h2>04 / 发送失败，不应该重传已成功的附件</h2>
+<p>附件上传与消息发送是两个步骤。上传成功后，模型请求或消息提交仍可能失败。如果重试把整组文件重新上传，既浪费时间，又容易在工作区制造重复材料。<code>uploadChatFiles</code> 保存成功上传的回执，重试时复用已有回执，只上传缺少回执的附件。</p>
+<pre><code>合成示例：选择 A、B 两个文件
+第一次：批量上传成功 → 保存 A、B 回执 → 消息发送失败
+第二次：复用 A、B 回执 → 直接重试发送消息
+
+如果保留 A 回执后新增 B：只上传尚无回执的 B</code></pre>
+<p>当前复用基于 File 对象引用。它解决的是同一轮界面操作中的重复上传，不是内容哈希级的全局去重。重新选择文件、刷新浏览器或换一台设备，都不能据此假定会自动命中之前的回执。</p>
+<p>还要区分“已有回执”与“服务端可能收到了部分字节”。缺失附件以一个批次上传；如果整个请求报错，或回执数量与文件数量不一致，函数不会承诺保存这个失败批次的逐文件进度。现有机制覆盖上传成功后发送失败的复用，不是断点续传。测试既要检查回执复用与顺序，也要检查上传报错后草稿仍可重试，不能只看最终附件数量。</p>
+</section>
+<section id="preview"><h2>05 / 晚到的预览不能覆盖当前选择</h2>
+<p>用户先打开文件 A，马上切到 B；如果 A 的响应比 B 晚到，缺少保护的界面会显示 A，却仍让用户以为自己在看 B。会话概览用递增的 <code>previewRequest</code> 版本标识请求，只有当前版本的响应可以更新预览。关闭 dialog 时也递增版本，让尚未返回的旧请求失效。</p>
+<p>版本校验解决的是界面状态竞争，不等于已经取消底层网络请求。两者都可能有价值，但不能把防止旧响应覆盖写成“没有多余请求”。文件列表还区分 input、artifact 和 evidence，让用户知道所看的是原始附件、生成产物还是验证材料。</p>
+<p>这些细节直接影响判断：如果一个旧文件预览覆盖了新实验结果，用户很容易把过时观察当成当前证据。把响应归属写进状态更新条件，比仅依靠加载动画更可靠。</p>
+</section>
+<section id="overview"><h2>06 / 概览展示状态的来源与边界</h2>
+<p>概览把 execution、outcome、耗时、累计 Token、缓存读取、结束原因、共享调用数和活跃子任务分别展示。用户可以同时看到“运行已结束”和“目标仍未验证”，也可以知道是服务重启、取消还是其他异常导致本轮终止。</p>
+<p>验证等级旁注明 Agent 报告，避免把模型提交的结论呈现成平台裁决。标签、颜色和文字都应沿用同一状态含义：不能仅因运行 completed 就显示一个暗示验收成功的总状态。</p>
+<p>前端验收因此包含两类检查。一类是不同屏幕和主题下的可读性、弹层与键盘操作；另一类是故障状态下的信息准确性，包括上传重试、快速切换预览、子任务未结束和服务重启。漂亮的正常态截图只能覆盖其中一部分。</p>
+</section>
+
+<section id="sources"><h2>源码与版本</h2>
+<p>本文依据 prtseek 提交 <a href="https://github.com/Team-intN18-SoybeanSeclab/prtseek/tree/c888078cf58ef609946ab31aec7a1c87b9b9981c"><code>c888078</code></a> 撰写。以下链接固定到该快照，便于复核；后续版本的行为可能变化。</p>
+<ul><li><a href="https://github.com/Team-intN18-SoybeanSeclab/prtseek/blob/c888078cf58ef609946ab31aec7a1c87b9b9981c/web/src/scripts/theme-boot.tsx"><code>web/src/scripts/theme-boot.tsx</code></a> — 首屏主题偏好解析</li><li><a href="https://github.com/Team-intN18-SoybeanSeclab/prtseek/blob/c888078cf58ef609946ab31aec7a1c87b9b9981c/web/src/lib/preferences/preferences-config.ts"><code>web/src/lib/preferences/preferences-config.ts</code></a> — 主题等偏好的默认值</li><li><a href="https://github.com/Team-intN18-SoybeanSeclab/prtseek/blob/c888078cf58ef609946ab31aec7a1c87b9b9981c/web/src/components/prts-boot.tsx"><code>web/src/components/prts-boot.tsx</code></a> — 启动动画、模态焦点与退出</li><li><a href="https://github.com/Team-intN18-SoybeanSeclab/prtseek/blob/c888078cf58ef609946ab31aec7a1c87b9b9981c/web/src/lib/chat-attachments.ts"><code>web/src/lib/chat-attachments.ts</code></a> — 附件上传回执复用</li><li><a href="https://github.com/Team-intN18-SoybeanSeclab/prtseek/blob/c888078cf58ef609946ab31aec7a1c87b9b9981c/web/src/components/conversation-overview.tsx"><code>web/src/components/conversation-overview.tsx</code></a> — 会话概览、文件预览与请求版本</li><li><a href="https://github.com/Team-intN18-SoybeanSeclab/prtseek/blob/c888078cf58ef609946ab31aec7a1c87b9b9981c/web/src/lib/ctf-status.ts"><code>web/src/lib/ctf-status.ts</code></a> — 执行及目标状态的前端表达</li></ul>
+<p>prtseek 基于 <a href="https://github.com/RuoJi6/ARTEX">RuoJi6/ARTEX</a> 二次开发，原始项目来自 <a href="https://github.com/Autumn-27/ARTEX">Autumn-27/ARTEX</a>，沿用 AGPL-3.0。本文描述源码机制与验证边界，不将合成测试等同于真实模型解题效果。</p>
+</section>
+<section id="series"><h2>系列阅读</h2><nav aria-label="系列文章导航"><p><a href="./">返回 prtseek 开发文章集</a> · 第 5 / 6 篇</p><p>上一篇：<a rel="prev" href="evidence-and-experiments.html">证据与实验：从重复尝试到可复核的结论</a></p><p>下一篇：<a rel="next" href="regression-and-evaluation.html">测试与评测：CI 通过以后，还能证明什么</a></p></nav></section>
+</article></div>
+</main>
+<footer class="footer"><div class="inner">
+  <span>OracleNep / prtseek Development Notes</span>
+  <span><a href="./">prtseek 专题</a> · <a href="../">全部文章</a> · <a href="../../">返回首页</a></span>
+</div></footer>
+<script src="../../assets/research.js?v=20261114-research" defer></script>
+</body>
+</html>

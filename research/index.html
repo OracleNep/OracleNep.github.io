@@ -5,32 +5,83 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
   <meta name="author" content="OracleNep" />
-  <meta name="description" content="OracleNep 的安全研究文章入口，整理 JavaSecAtlas、Java 安全、Java JNDI 注入、Spring SpEL、代码审计、SARIF、Semgrep、CodeQL、LLM Agent 与 CTF 复盘等内容。" />
-  <meta name="keywords" content="JavaSecAtlas, Java 安全, Java JNDI, JNDI 注入, Java 代码审计, Spring SpEL, EvaluationContext, SARIF, Semgrep, CodeQL, SAST, LLM Agent, 安全研究" />
+  <meta name="description" content="OracleNep 的安全研究文章入口，整理 prtseek 开发笔记、JavaSecAtlas、Java 安全、Java JNDI 注入、Spring SpEL、代码审计、SARIF、Semgrep、CodeQL、LLM Agent 与 CTF 复盘等内容。" />
+  <meta name="keywords" content="prtseek, Agent engineering, JavaSecAtlas, Java 安全, Java JNDI, JNDI 注入, Java 代码审计, Spring SpEL, EvaluationContext, SARIF, Semgrep, CodeQL, SAST, LLM Agent, 安全研究" />
   <link rel="canonical" href="https://oraclenep.github.io/research/" />
   <meta property="og:type" content="website" />
   <meta property="og:title" content="Research Notes｜OracleNep" />
-  <meta property="og:description" content="Java 安全、JNDI 注入、Spring SpEL、代码审计、安全工具开发与项目复盘文章入口。" />
+  <meta property="og:description" content="prtseek 开发文章集、Java 安全、JNDI 注入、Spring SpEL、代码审计与安全工具工程复盘。" />
   <meta property="og:url" content="https://oraclenep.github.io/research/" />
   <meta name="twitter:card" content="summary" />
   <meta name="twitter:title" content="Research Notes｜OracleNep" />
-  <meta name="twitter:description" content="JavaSecAtlas、Java JNDI、Spring SpEL、Java 代码审计、SARIF 与安全工具工程复盘。" />
+  <meta name="twitter:description" content="prtseek 多 Agent 工作流、JavaSecAtlas、Java JNDI、Spring SpEL 与安全工具工程复盘。" />
   <title>Research Notes｜OracleNep 安全研究文章</title>
   <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "CollectionPage",
-    "name": "Research Notes｜OracleNep",
-    "description": "OracleNep 的安全研究文章入口，整理 JavaSecAtlas、Java 安全、Java JNDI 注入、代码审计、Spring SpEL、SARIF、Semgrep、CodeQL、LLM Agent 与 CTF 复盘等内容。",
-    "url": "https://oraclenep.github.io/research/",
-    "inLanguage": "zh-CN",
-    "author": {"@type": "Person", "name": "OracleNep", "url": "https://github.com/OracleNep"},
-    "hasPart": [
-      {"@type": "Article", "headline": "JNDI 注入的执行边界：从 InitialContext.lookup 到 NamingManager 的白盒审计", "url": "https://oraclenep.github.io/research/java-jndi-lookup-boundary.html", "about": ["Java Security", "JNDI Injection", "InitialContext.lookup", "NamingManager", "Code Audit"]},
-      {"@type": "Article", "headline": "JavaSecAtlas 研究文章集", "url": "https://oraclenep.github.io/research/javasecatlas-series.html", "about": ["JavaSecAtlas", "Java Security", "SARIF", "Semgrep", "CodeQL", "LLM Agent"]},
-      {"@type": "Article", "headline": "SpEL 表达式执行边界：从 EvaluationContext 到白盒审计", "url": "https://oraclenep.github.io/research/java-spel-evaluation-context.html", "about": ["Java Security", "Spring SpEL", "EvaluationContext", "Code Audit", "Expression Injection"]}
-    ]
-  }
+{
+  "@context": "https://schema.org",
+  "@type": "CollectionPage",
+  "name": "Research Notes｜OracleNep",
+  "description": "OracleNep 的安全研究文章入口，整理 prtseek 开发笔记、JavaSecAtlas、Java 安全、Java JNDI 注入、代码审计、Spring SpEL、SARIF、Semgrep、CodeQL、LLM Agent 与 CTF 复盘等内容。",
+  "url": "https://oraclenep.github.io/research/",
+  "inLanguage": "zh-CN",
+  "author": {
+    "@type": "Person",
+    "name": "OracleNep",
+    "url": "https://github.com/OracleNep"
+  },
+  "hasPart": [
+    {
+      "@type": "CollectionPage",
+      "name": "prtseek 开发文章集",
+      "url": "https://oraclenep.github.io/research/prtseek/",
+      "about": [
+        "prtseek",
+        "CTF",
+        "Agent Engineering",
+        "Evidence",
+        "Evaluation"
+      ]
+    },
+    {
+      "@type": "Article",
+      "headline": "JNDI 注入的执行边界：从 InitialContext.lookup 到 NamingManager 的白盒审计",
+      "url": "https://oraclenep.github.io/research/java-jndi-lookup-boundary.html",
+      "about": [
+        "Java Security",
+        "JNDI Injection",
+        "InitialContext.lookup",
+        "NamingManager",
+        "Code Audit"
+      ]
+    },
+    {
+      "@type": "Article",
+      "headline": "JavaSecAtlas 研究文章集",
+      "url": "https://oraclenep.github.io/research/javasecatlas-series.html",
+      "about": [
+        "JavaSecAtlas",
+        "Java Security",
+        "SARIF",
+        "Semgrep",
+        "CodeQL",
+        "LLM Agent"
+      ]
+    },
+    {
+      "@type": "Article",
+      "headline": "SpEL 表达式执行边界：从 EvaluationContext 到白盒审计",
+      "url": "https://oraclenep.github.io/research/java-spel-evaluation-context.html",
+      "about": [
+        "Java Security",
+        "Spring SpEL",
+        "EvaluationContext",
+        "Code Audit",
+        "Expression Injection"
+      ]
+    }
+  ],
+  "dateModified": "2026-11-14"
+}
   </script>
   <link rel="stylesheet" href="../assets/site.css?v=20261114-research" />
 </head>
@@ -54,13 +105,19 @@
           <nav class="breadcrumb" aria-label="面包屑"><a href="../">Home</a><span aria-hidden="true">/</span><span aria-current="page">Research</span></nav>
           <span class="eyebrow">Research Notes</span>
           <h1>安全研究文章</h1>
-          <p class="subtitle">这里整理 Java 安全、代码审计、安全工具开发和项目复盘类文章。先从 JavaSecAtlas、JNDI 注入边界和 Spring SpEL 审计开始，后面会继续补 Java 代码审计、CTF WP 和漏洞复现。</p>
+          <p class="subtitle">这里整理 Java 安全、代码审计和安全工具开发笔记。prtseek 专题记录 CTF Agent 工作流的工程取舍；JavaSecAtlas、JNDI 与 SpEL 文章关注审计上下文、执行边界和复核方法。</p>
         </div>
       </div>
     </section>
 
     <section class="section">
       <div class="inner grid">
+        <article class="card">
+          <h2><a href="prtseek/">prtseek 开发文章集</a></h2>
+          <p>围绕 prtseek 的 CTF 工作流，记录多 Agent 协作、上下文与用量管理、证据实验、前端会话体验和测试评测的设计与取舍。六篇独立文章，附固定版本源码、实现边界和系列导航。</p>
+          <div class="tag-row"><span class="tag">6 篇文章</span><span class="tag">Multi-Agent</span><span class="tag">Go / Next.js</span><span class="tag">Evidence &amp; Evaluation</span></div>
+          <a class="arrow" href="prtseek/">打开文章集 →</a>
+        </article>
         <article class="card">
           <h2><a href="java-jndi-lookup-boundary.html">JNDI 注入的执行边界：从 InitialContext.lookup 到 NamingManager 的白盒审计</a></h2>
           <p>一篇 Java 安全深度研究文章：不堆 payload，从 InitialContext.lookup、URL Context、NamingManager、Reference/ObjectFactory 与 Log4Shell 之后的审计边界出发，整理 JNDI 注入的威胁模型、代码分析、检测规则与工程化修复方法。</p>

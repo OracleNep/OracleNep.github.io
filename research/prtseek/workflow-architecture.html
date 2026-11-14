@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
+  <meta name="author" content="OracleNep" />
+  <meta name="description" content="从 ARTEX 二次开发的边界出发，拆解 prtseek 的四角色协作、会话材料、执行状态与目标验收，说明为什么一段完整回答还不够。" />
+  <link rel="canonical" href="https://oraclenep.github.io/research/prtseek/workflow-architecture.html" />
+  <meta property="og:type" content="article" />
+  <meta property="og:title" content="从聊天界面到可验收的 CTF 工作流｜prtseek 开发笔记" />
+  <meta property="og:description" content="从 ARTEX 二次开发的边界出发，拆解 prtseek 的四角色协作、会话材料、执行状态与目标验收，说明为什么一段完整回答还不够。" />
+  <meta property="og:url" content="https://oraclenep.github.io/research/prtseek/workflow-architecture.html" />
+  <meta property="og:site_name" content="OracleNep Research Notes" />
+  <meta property="article:published_time" content="2026-11-14T00:00:00+08:00" />
+  <meta property="article:modified_time" content="2026-11-14T00:00:00+08:00" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="从聊天界面到可验收的 CTF 工作流｜prtseek 开发笔记" />
+  <meta name="twitter:description" content="从 ARTEX 二次开发的边界出发，拆解 prtseek 的四角色协作、会话材料、执行状态与目标验收，说明为什么一段完整回答还不够。" />
+  <title>从聊天界面到可验收的 CTF 工作流｜prtseek 开发笔记｜OracleNep</title>
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "TechArticle",
+  "headline": "从聊天界面到可验收的 CTF 工作流",
+  "description": "从 ARTEX 二次开发的边界出发，拆解 prtseek 的四角色协作、会话材料、执行状态与目标验收，说明为什么一段完整回答还不够。",
+  "url": "https://oraclenep.github.io/research/prtseek/workflow-architecture.html",
+  "mainEntityOfPage": "https://oraclenep.github.io/research/prtseek/workflow-architecture.html",
+  "datePublished": "2026-11-14",
+  "dateModified": "2026-11-14",
+  "inLanguage": "zh-CN",
+  "author": {
+    "@type": "Person",
+    "name": "OracleNep",
+    "url": "https://github.com/OracleNep"
+  },
+  "isPartOf": {
+    "@type": "CollectionPage",
+    "name": "prtseek 开发文章集",
+    "url": "https://oraclenep.github.io/research/prtseek/"
+  },
+  "keywords": [
+    "prtseek",
+    "Architecture",
+    "CTF workflow",
+    "ARTEX"
+  ],
+  "citation": [
+    "https://github.com/Team-intN18-SoybeanSeclab/prtseek/blob/c888078cf58ef609946ab31aec7a1c87b9b9981c/README.md",
+    "https://github.com/Team-intN18-SoybeanSeclab/prtseek/blob/c888078cf58ef609946ab31aec7a1c87b9b9981c/server/ctf_execution.go",
+    "https://github.com/Team-intN18-SoybeanSeclab/prtseek/blob/c888078cf58ef609946ab31aec7a1c87b9b9981c/server/ctf_outcome.go",
+    "https://github.com/Team-intN18-SoybeanSeclab/prtseek/blob/c888078cf58ef609946ab31aec7a1c87b9b9981c/server/ctf_overview.go"
+  ]
+}
+  </script>
+  <link rel="stylesheet" href="../../assets/site.css?v=20261114-research" />
+</head>
+<body class="research-page research-article">
+<header class="topbar">
+  <nav class="nav" aria-label="主导航">
+    <a class="brand" href="../../">OracleNep / Security Research</a>
+    <div class="nav-links">
+      <a href="../../#projects">Projects</a>
+      <a href="../../#vulns">Disclosures</a>
+      <a href="../../#contributions">Contributions</a>
+      <a href="../">Research</a>
+    </div>
+  </nav>
+</header>
+<main>
+<section class="hero"><div class="inner"><div class="hero-copy">
+  <nav class="breadcrumb" aria-label="面包屑"><a href="../../">Home</a><span aria-hidden="true">/</span><a href="../">Research</a><span aria-hidden="true">/</span><a href="./">prtseek</a><span aria-hidden="true">/</span><span aria-current="page">01</span></nav>
+  <span class="eyebrow">prtseek / Development Notes / 01</span>
+  <h1>从聊天界面到可验收的 CTF 工作流</h1>
+  <p class="subtitle">从 ARTEX 二次开发的边界出发，拆解 prtseek 的四角色协作、会话材料、执行状态与目标验收，说明为什么一段完整回答还不够。</p>
+  <div class="actions"><a class="button" href="./">专题目录</a><a class="button" href="https://github.com/Team-intN18-SoybeanSeclab/prtseek">项目源码 ↗</a></div>
+</div></div></section><div class="inner layout">
+<aside class="toc" aria-label="文章目录"><details open><summary>目录</summary><div class="toc-content"><a href="#problem">01 / 一段完整回答，缺少哪些东西</a><a href="#upstream">02 / 从 ARTEX 继承什么，向 CTF 收敛什么</a><a href="#roles">03 / 四个角色围绕交付物协作</a><a href="#state">04 / 运行结束和目标完成，分别建模</a><a href="#materials">05 / 会话目录是协作单元，不是隔离容器</a><a href="#design">06 / 架构的验收对象应当是失败路径</a><a href="#sources">源码与版本</a><a href="#series">系列阅读</a></div></details><p class="small">prtseek 开发文章集<br>第 1 / 6 篇</p></aside>
+<article>
+<div class="meta"><span class="tag">OracleNep</span><span class="tag">2026-11-14</span><span class="tag">Architecture</span><span class="tag">CTF workflow</span><span class="tag">ARTEX</span></div>
+<section id="problem"><h2>01 / 一段完整回答，缺少哪些东西</h2>
+<p>假设有一道合成附件题：压缩包里放着两个候选字符串，另有一个校验文件说明哪个候选才有效。Agent 成功读取文件，输出了一个看起来很像答案的字符串，然后结束回答。对聊天产品来说，这一轮已经完成；对解题工作台来说，还缺少一次校验、可回查的观察记录，以及把结论交给下一位执行者的方式。</p>
+<p>prtseek 的开发围绕这类落差展开。模型负责提出路线和调用工具，程序负责保存材料、约束任务生命周期、记录用量，并要求结论关联真实证据。只把角色提示词写得更详细，无法解决子任务继续运行、旧文件混入新实验或中断后账目缺失这些问题。</p>
+<p>这个系列讨论公开代码中的机制与取舍。示例使用合成场景，分析对象是可观察的调用、记录和产物，不把模型生成的过程文字当成真实内部推理，也不以文章中的流程示意宣称解题率提高。</p>
+</section>
+<section id="upstream"><h2>02 / 从 ARTEX 继承什么，向 CTF 收敛什么</h2>
+<p>prtseek 基于 <a href="https://github.com/RuoJi6/ARTEX">RuoJi6/ARTEX</a> 二次开发，原始项目来自 <a href="https://github.com/Autumn-27/ARTEX">Autumn-27/ARTEX</a>，保留 <code>github.com/Autumn-27/artex</code> 模块路径与 AGPL-3.0 许可证。因此，不能把整个 Agent 运行框架描述成从零原创。</p>
+<p>项目将工作重心收敛到 CTF：以材料盘点、任务分解、执行验证和交付记录为主线，简化工作台入口。在 Go 后端、SQLite 持久化以及 Next.js 静态前端的基础上，逐步补齐异步协作、共享调用预算、逐轮计量、证据复核和异常结束处理。前端静态资源嵌入 Go 程序，也使“源码可以构建”和“最终二进制里真的有可用页面”成为两项不同的检查。</p>
+<p>这一定位决定了后续设计的尺度：先让本地工作流可追踪、可停止、可核验，再讨论更多角色或更复杂的调度。功能数量本身不能回答一次任务为什么成功或失败。</p>
+</section>
+<section id="roles"><h2>03 / 四个角色围绕交付物协作</h2>
+<div class="table-scroll" role="region" aria-label="四个角色的职责" tabindex="0"><table><thead><tr><th>角色</th><th>主要问题</th><th>应交出的材料</th></tr></thead><tbody>
+<tr><td><code>triage</code></td><td>题目给了什么，还缺什么？</td><td>材料清单、约束与待确认事项</td></tr>
+<tr><td><code>command</code></td><td>哪些假设值得分别验证？</td><td>有验收条件的任务、收敛后的结论</td></tr>
+<tr><td><code>solver</code></td><td>某条路线能否被实际观察支持？</td><td>工具证据、脚本、结果与阻塞点</td></tr>
+<tr><td><code>writeup</code></td><td>别人能否理解并复核结果？</td><td>有来源的步骤、产物与验证说明</td></tr>
+</tbody></table></div>
+<p>这里描述的是默认角色的分工，不是每道题都必须经过的固定流水线。一个明确的附件转换任务可以直接交给一个 solver；只有存在互补路线时，并行才有意义。把同一句“继续找答案”复制给多个 solver，通常只会得到重复工具调用和更难合并的叙述。</p>
+<p>派发任务时，至少要写出已有材料、需要区分的假设和完成条件。例如“读取校验文件，验证候选集合，返回唯一匹配项及校验观察”，就比“研究一下压缩包”更容易验收。writeup 也必须沿用这些证据，不能在整理文字时把尚未验证的猜测改写成事实。</p>
+</section>
+<section id="state"><h2>04 / 运行结束和目标完成，分别建模</h2>
+<p>后端把 execution 与 outcome 分开保存。前者描述程序运行是否结束、取消、超时或中断；后者描述任务当前是 <code>unverified</code>、<code>partial</code>、<code>blocked</code> 还是 <code>verified</code>。两者回答不同的问题，界面也应分别显示。</p>
+<pre><code>合成示例：缺少题目要求的加密附件
+execution = completed
+outcome   = blocked
+criterion = 材料齐全后才能验证候选结果
+summary   = 当前只收到说明文件，缺少附件和必要参数</code></pre>
+<p>这组状态并不矛盾：Agent 已经完成了本轮检查，并如实指出材料不足。反过来，程序正常结束也可能只获得一个尚未校验的候选，此时不能把 completed 直接映射成“解题成功”。</p>
+<p><code>report_outcome</code> 将结论、验收条件、验证方法、证据引用和产物纳入结构化报告。程序可以拒绝不存在的证据或不可读取的产物，但仍然需要审查“引用的观察是否真的支持验收条件”。这个语义边界会在第四篇继续展开。</p>
+</section>
+<section id="materials"><h2>05 / 会话目录是协作单元，不是隔离容器</h2>
+<p>每个子任务有自己的会话及工作目录。创建子任务时，后端把父会话材料目录和根会话的原始题目目录写入任务文本，并要求只读引用已有材料、将产物写进自己的目录。子任务继承父会话实际使用的模型配置，父子关系也落入持久化记录。</p>
+<p>这种组织方式能减少多个执行者覆盖同名产物，也方便从结果追溯材料来源。但“只读引用”在这条路径上是任务约定，独立目录本身并不构成操作系统权限隔离。不能据此声称每个 solver 都运行在独立容器，或绝无可能修改父目录。</p>
+<p>要继续加强这部分，需要另外设计进程权限、文件访问范围或容器边界，并验证这些限制真正作用于工具执行。当前文章只把会话目录视作材料归属和产物管理机制，不把尚未实现的沙箱能力算进去。</p>
+</section>
+<section id="design"><h2>06 / 架构的验收对象应当是失败路径</h2>
+<p>这套结构最值得检查的场景往往发生在非正常路径：父任务交付时是否还有未收取结果，取消后子任务是否仍写记录，重启后旧会话是否一直显示运行中，报告是否引用了别人的文件。只看一次顺利解出的演示，很难发现这些问题。</p>
+<p>后续各篇沿着同一条线继续：第二篇讨论并发任务如何结束；第三篇讨论上下文和用量如何记录；第四篇讨论证据如何约束结论；第五篇把这些状态落到界面；第六篇说明哪些行为可以通过确定性测试验证，哪些结论必须等待真实模型评测。</p>
+</section>
+
+<section id="sources"><h2>源码与版本</h2>
+<p>本文依据 prtseek 提交 <a href="https://github.com/Team-intN18-SoybeanSeclab/prtseek/tree/c888078cf58ef609946ab31aec7a1c87b9b9981c"><code>c888078</code></a> 撰写。以下链接固定到该快照，便于复核；后续版本的行为可能变化。</p>
+<ul><li><a href="https://github.com/Team-intN18-SoybeanSeclab/prtseek/blob/c888078cf58ef609946ab31aec7a1c87b9b9981c/README.md"><code>README.md</code></a> — 项目定位、上游来源和部署方式</li><li><a href="https://github.com/Team-intN18-SoybeanSeclab/prtseek/blob/c888078cf58ef609946ab31aec7a1c87b9b9981c/server/ctf_execution.go"><code>server/ctf_execution.go</code></a> — 子任务创建、父子关系与材料目录</li><li><a href="https://github.com/Team-intN18-SoybeanSeclab/prtseek/blob/c888078cf58ef609946ab31aec7a1c87b9b9981c/server/ctf_outcome.go"><code>server/ctf_outcome.go</code></a> — 目标报告结构与证据校验</li><li><a href="https://github.com/Team-intN18-SoybeanSeclab/prtseek/blob/c888078cf58ef609946ab31aec7a1c87b9b9981c/server/ctf_overview.go"><code>server/ctf_overview.go</code></a> — 运行和目标状态的汇总</li></ul>
+<p>prtseek 基于 <a href="https://github.com/RuoJi6/ARTEX">RuoJi6/ARTEX</a> 二次开发，原始项目来自 <a href="https://github.com/Autumn-27/ARTEX">Autumn-27/ARTEX</a>，沿用 AGPL-3.0。本文描述源码机制与验证边界，不将合成测试等同于真实模型解题效果。</p>
+</section>
+<section id="series"><h2>系列阅读</h2><nav aria-label="系列文章导航"><p><a href="./">返回 prtseek 开发文章集</a> · 第 1 / 6 篇</p><p>下一篇：<a rel="next" href="bounded-agent-collaboration.html">多 Agent 协作：派发、等待、取消与共享预算</a></p></nav></section>
+</article></div>
+</main>
+<footer class="footer"><div class="inner">
+  <span>OracleNep / prtseek Development Notes</span>
+  <span><a href="./">prtseek 专题</a> · <a href="../">全部文章</a> · <a href="../../">返回首页</a></span>
+</div></footer>
+<script src="../../assets/research.js?v=20261114-research" defer></script>
+</body>
+</html>
