@@ -5,25 +5,25 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
   <meta name="author" content="OracleNep" />
-  <meta name="description" content="网页正文要留多少，流式 usage 怎么加，连接断了又该记多少。这几处处理不对，长会话就很难看明白。" />
+  <meta name="description" content="把整页 HTML 塞进上下文，很快就没地方了；用量照流上的数字直接相加，又会比账单多。两处都得给个说法。" />
   <link rel="canonical" href="https://oraclenep.github.io/research/prtseek/context-observation-metering.html" />
   <meta property="og:type" content="article" />
   <meta property="og:title" content="上下文越跑越长，Token 还得算得清｜prtseek 开发笔记" />
-  <meta property="og:description" content="网页正文要留多少，流式 usage 怎么加，连接断了又该记多少。这几处处理不对，长会话就很难看明白。" />
+  <meta property="og:description" content="把整页 HTML 塞进上下文，很快就没地方了；用量照流上的数字直接相加，又会比账单多。两处都得给个说法。" />
   <meta property="og:url" content="https://oraclenep.github.io/research/prtseek/context-observation-metering.html" />
   <meta property="og:site_name" content="OracleNep Research Notes" />
   <meta property="article:published_time" content="2026-11-14T00:00:00+08:00" />
   <meta property="article:modified_time" content="2026-11-14T00:00:00+08:00" />
   <meta name="twitter:card" content="summary" />
   <meta name="twitter:title" content="上下文越跑越长，Token 还得算得清｜prtseek 开发笔记" />
-  <meta name="twitter:description" content="网页正文要留多少，流式 usage 怎么加，连接断了又该记多少。这几处处理不对，长会话就很难看明白。" />
+  <meta name="twitter:description" content="把整页 HTML 塞进上下文，很快就没地方了；用量照流上的数字直接相加，又会比账单多。两处都得给个说法。" />
   <title>上下文越跑越长，Token 还得算得清｜prtseek 开发笔记｜OracleNep</title>
   <script type="application/ld+json">
 {
   "@context": "https://schema.org",
   "@type": "TechArticle",
   "headline": "上下文越跑越长，Token 还得算得清",
-  "description": "网页正文要留多少，流式 usage 怎么加，连接断了又该记多少。这几处处理不对，长会话就很难看明白。",
+  "description": "把整页 HTML 塞进上下文，很快就没地方了；用量照流上的数字直接相加，又会比账单多。两处都得给个说法。",
   "url": "https://oraclenep.github.io/research/prtseek/context-observation-metering.html",
   "mainEntityOfPage": "https://oraclenep.github.io/research/prtseek/context-observation-metering.html",
   "datePublished": "2026-11-14",
@@ -75,35 +75,36 @@
   <nav class="breadcrumb" aria-label="面包屑"><a href="../../">Home</a><span aria-hidden="true">/</span><a href="../">Research</a><span aria-hidden="true">/</span><a href="./">prtseek</a><span aria-hidden="true">/</span><span aria-current="page">03</span></nav>
   <span class="eyebrow">prtseek / Development Notes / 03</span>
   <h1>上下文越跑越长，Token 还得算得清</h1>
-  <p class="subtitle">网页正文要留多少，流式 usage 怎么加，连接断了又该记多少。这几处处理不对，长会话就很难看明白。</p>
+  <p class="subtitle">整页 HTML 塞进去，几轮就没地方了；用量照流上的数字直接加，又比账单多。这两处都得给个明确的说法。</p>
   <div class="actions"><a class="button" href="./">专题目录</a><a class="button" href="https://github.com/Team-intN18-SoybeanSeclab/prtseek">项目源码 ↗</a></div>
 </div></div></section><div class="inner layout">
-<aside class="toc" aria-label="文章目录"><details open><summary>目录</summary><div class="toc-content"><a href="#http">网页先看摘要，原文留在会话里</a><a href="#usage">40、65、65，最后该记多少</a><a href="#interrupt">流断了，已经收到的数字还在</a><a href="#sources">相关代码</a><a href="#series">其他文章</a></div></details><p class="small">prtseek 开发文章集<br>第 3 / 6 篇</p></aside>
+<aside class="toc" aria-label="文章目录"><details open><summary>目录</summary><div class="toc-content"><a href="#http">网页正文留多少</a><a href="#usage">40、65、65</a><a href="#interrupt">断流和重启</a><a href="#sources">相关代码</a><a href="#series">其他文章</a></div></details><p class="small">prtseek 开发文章集<br>第 3 / 6 篇</p></aside>
 <article>
 <div class="meta"><span class="tag">OracleNep</span><span class="tag">2026-11-14</span><span class="tag">Context</span><span class="tag">HTTP observation</span><span class="tag">Metering</span></div>
 <div id="signal">
-<p>一个网页几万字，真正要看的可能只是一个表单。把整页 HTML 喂进去，导航、脚本和重复页脚很快就占掉上下文；直接截断又不太放心，后面要查的东西可能刚好在被删掉的部分。</p>
-<p>另一个麻烦藏在统计里。同一次模型请求，流上可能报好几次 usage。界面把每份数字都加上，看到的 Token 就比实际报告的多。连接中途断开时，如果又只在正常结束时记账，另一部分消耗反而不见了。</p>
-<p>这两个地方分别改：工具返回的内容留一条回查路径，模型报告的用量按请求和轮次记。</p>
+<p>一个网页几万字，真正要看的可能只是一个表单。整页 HTML 喂进去，导航、脚本、重复页脚很快占满上下文；直接截断又不放心，说不定下一秒要查的东西就在被切掉的那截里。</p>
+<p>另一头的麻烦在统计上。同一次请求，流上可能报好几次 usage。界面把每份都加上，看到的数字就比实际报告的大。连接中途断开时如果只在正常结束时记账，另一部分消耗干脆不见了。</p>
+<p>这两件事分开处理：工具返回的内容留一条回查路径，模型报的用量按请求和轮次记。</p>
 </div>
-<section id="http"><h2>网页先看摘要，原文留在会话里</h2>
-<p><code>WebFetch</code> 现在会把原始 URL、最终 URL、跳转链、状态、耗时和正文信息一起返回。最常见的误判其实很直观：请求返回 200，打开却是登录页。保留最终地址和跳转链，至少能让 Agent 发现自己已经到了别的地方。</p>
-<p>给模型的正文默认 8000 字符，可以设在 500–12000 之间。HTML 默认去掉导航、script、style 等噪声；需要看入口时，用 <code>extract=true</code> 提取表单、链接、脚本引用和注释。原文则保存在会话的 <code>.research/http</code> 下，通过 <code>body_file</code> 回去读。</p>
-<p>原文也有上限，目前最多读取 2 MiB。所以返回字段特意叫 <code>observed_body_bytes</code> 和 <code>observed_body_sha256</code>：如果响应超过上限，长度和哈希对应的是读到并保存的那一段。正文摘要被截短、原始响应没读完，这是两件事，各有自己的标记。</p>
-<p id="route">请求出口也得固定。代理配置失败后自动直连，看起来像工具更“健壮”了，研究时却会添麻烦：前后响应变了，到底是参数有效，还是换了出口？当前实现会直接报配置错误。Shell 与 HTTP 工具按显式代理和 CA 配置工作，Windows 下还得认清实际跑的是 PowerShell 5.1，别把命令解析错误当成目标返回的结果。</p>
+<section id="http"><h2>网页正文留多少</h2>
+<p><code>WebFetch</code> 现在连原始 URL、最终 URL、跳转链、状态、耗时一起返回。最常见的误判很土：状态 200，打开是登录页。留着最终地址和跳转链，Agent 才有机会发现自己已经跑到别处了。</p>
+<p>给模型的正文默认 8000 字符，范围 500–12000。HTML 默认去掉导航、script、style 这些噪声；要看入口的时候用 <code>extract=true</code>，单独取表单、链接、脚本引用和注释。原文存在会话的 <code>.research/http</code> 下，靠 <code>body_file</code> 回去读。</p>
+<p>原文也有上限，目前最多读 2 MiB。所以返回的字段特意叫 <code>observed_body_bytes</code> 和 <code>observed_body_sha256</code>：响应超过上限时，这两个数对应的是“读到并保存下来的那一段”，不是整个响应。摘要被截短、原文没读完，是两件事，各有各的标记。</p>
+<p id="route">出口也得钉死。代理配置坏了就自动直连，看着像变健壮了，做研究时反而添乱：前后两次响应不一样，到底是参数生效了，还是换了出口？现在配置错就报错。Shell 和 HTTP 工具按显式代理、显式 CA 走；Windows 上还要认清楚实际跑的是 PowerShell 5.1，别把命令解析错误当成目标返回的东西。</p>
 </section>
-<section id="usage"><h2>40、65、65，最后该记多少</h2>
-<p>假设一次请求先后报了三份输出用量：40、65、65。这是累计快照的话，最后就是 65。逐条相加会变成 170。</p>
+<section id="usage"><h2>40、65、65</h2>
+<p>一次请求先后报了三份输出用量：40、65、65。如果是累计快照，最后就是 65。逐条相加会变成 170。</p>
 <pre><code>收到的累计值   40    65    65
 本次增加       40    25     0</code></pre>
-<p><code>usageDelta</code> 对 input、output、cache read、cache write 分别保留本次请求见过的最大值，只把增加的部分交给观察器。重复快照不会再加一遍，数值暂时回退时也不会倒扣。</p>
-<p>这里有个适配器约定：传进来的要是累计值。如果新 provider 给的是每块增量，先在适配层转换，不能直接套这个算法。光是字段名都叫 usage，并不能说明口径相同。</p>
-<p>每轮有自己的观察器，子任务也单独记。汇总旧会话时则要照顾原来的累计快照，避免新轮次记录和旧 activity 重复相加。缓存读取单列出来，方便看长上下文有没有复用；要核账单，还得按具体 provider 的计费口径算。</p>
+<p><code>usageDelta</code> 对 input、output、cache read、cache write 分别留本次请求见过的最大值，只把增加的部分交给观察器。重复的快照不会再加一遍，数值临时回退也不会倒扣。</p>
+<p>这里有个前提，得写在适配层：传进来的必须是累计值。新 provider 如果给的是每块增量，先在适配层转成累计，不能直接套这个算法。字段都叫 usage，不代表口径一样。</p>
+<p>每轮有自己的观察器，子任务单独记。汇总旧会话时要照顾原来的累计快照，别让新轮次的记录和旧 activity 又加一遍。缓存读取单列出来，方便看长上下文有没有复用；真要核账，还是得按 provider 的计费口径算。</p>
 </section>
-<section id="interrupt"><h2>流断了，已经收到的数字还在</h2>
-<p>usage 会先交给观察器，再把事件向外传。这意味着消费端中途停掉时，已经收到的用量仍能留下来。如果 provider 还没来得及发最后一份 usage 就断了，那一段也只能缺着，程序没法从半句文本反推出准确数值。</p>
-<p>结束状态也一起收紧了。流读到 EOF，不足以说明模型正常结束；有些适配器还会在 EOF 时补一个结束事件。包装层要求实际的 <code>StopReason</code>，缺失时返回 <code>ErrIncompleteRun</code>。非流式调用也检查结束原因。</p>
-<p id="boundary">服务重启则处理另一种遗留：数据库里仍是 running 的执行和轮次会改成 interrupted，轮次原因记为 <code>service_restart</code>。下次打开会话，至少能知道上一次停在哪里，而不会一直看到“运行中”。是否续跑、从哪一步续跑，是接下来需要判断的事。</p>
+<section id="interrupt"><h2>断流和重启</h2>
+<p>usage 是先交给观察器、再往外传的。所以消费端中途停掉，已经收到的用量仍然留得下来。反过来，provider 还没发最后一份 usage 就断了，那一段只能缺着——从半句文本反推准确数值，做不到。</p>
+<p>结束状态也收紧了。流读到 EOF 不能说明模型正常结束，有些适配器还会在 EOF 时补一个结束事件。包装层要求拿到实际的 <code>StopReason</code>，缺了就返回 <code>ErrIncompleteRun</code>；非流式调用同样检查。</p>
+<p id="boundary">服务重启是另一种遗留：数据库里还挂着 running 的执行和轮次，会改成 interrupted，轮次原因写 <code>service_restart</code>。下次打开会话，至少知道上次停在哪，而不是一直显示“运行中”。要不要续、从哪一步续，是另外一件事。</p>
+<p>这些数字说明的是程序收到了什么。跟账单对不对得上，还得看 provider 怎么算。</p>
 </section><section id="sources"><h2>相关代码</h2><p>对应版本：<a href="https://github.com/Team-intN18-SoybeanSeclab/prtseek/tree/c888078cf58ef609946ab31aec7a1c87b9b9981c"><code>c888078</code></a>。</p><ul><li><a href="https://github.com/Team-intN18-SoybeanSeclab/prtseek/blob/c888078cf58ef609946ab31aec7a1c87b9b9981c/agent/http_observation.go"><code>agent/http_observation.go</code></a> — 有界正文、结构提取、代理与原文保存</li><li><a href="https://github.com/Team-intN18-SoybeanSeclab/prtseek/blob/c888078cf58ef609946ab31aec7a1c87b9b9981c/agent/http_observation_test.go"><code>agent/http_observation_test.go</code></a> — HTTP 观察回归测试</li><li><a href="https://github.com/Team-intN18-SoybeanSeclab/prtseek/blob/c888078cf58ef609946ab31aec7a1c87b9b9981c/agent/model_meter.go"><code>agent/model_meter.go</code></a> — 累计 usage 差分与结束原因检查</li><li><a href="https://github.com/Team-intN18-SoybeanSeclab/prtseek/blob/c888078cf58ef609946ab31aec7a1c87b9b9981c/agent/host_tools.go"><code>agent/host_tools.go</code></a> — 宿主机工具环境</li><li><a href="https://github.com/Team-intN18-SoybeanSeclab/prtseek/blob/c888078cf58ef609946ab31aec7a1c87b9b9981c/server/conversation_turns.go"><code>server/conversation_turns.go</code></a> — 轮次运行与计量</li><li><a href="https://github.com/Team-intN18-SoybeanSeclab/prtseek/blob/c888078cf58ef609946ab31aec7a1c87b9b9981c/db/conversation_turns.go"><code>db/conversation_turns.go</code></a> — 轮次持久化</li><li><a href="https://github.com/Team-intN18-SoybeanSeclab/prtseek/blob/c888078cf58ef609946ab31aec7a1c87b9b9981c/server/ctf_execution.go"><code>server/ctf_execution.go</code></a> — 服务启动时修正未结束的执行与轮次</li></ul></section><section id="series"><h2>其他文章</h2><nav aria-label="系列文章导航"><p><a href="./">返回 prtseek 文章集</a></p><p>上一篇：<a rel="prev" href="bounded-agent-collaboration.html">派出去的 Agent，最后要收回来</a></p><p>下一篇：<a rel="next" href="evidence-and-experiments.html">同一个结果，别验证三遍</a></p></nav></section>
 </article></div>
 </main>

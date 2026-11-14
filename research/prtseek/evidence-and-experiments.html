@@ -5,25 +5,25 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
   <meta name="author" content="OracleNep" />
-  <meta name="description" content="换了参数还是同一张页面，脚本失败却读到了旧文件。Agent 看起来一直在忙，证据却可能一条都没增加。" />
+  <meta name="description" content="换了参数，拿回来还是同一张页面；脚本报错，读到的却是上次的文件。Agent 看着很忙，证据可能一条没多。" />
   <link rel="canonical" href="https://oraclenep.github.io/research/prtseek/evidence-and-experiments.html" />
   <meta property="og:type" content="article" />
   <meta property="og:title" content="同一个结果，别验证三遍｜prtseek 开发笔记" />
-  <meta property="og:description" content="换了参数还是同一张页面，脚本失败却读到了旧文件。Agent 看起来一直在忙，证据却可能一条都没增加。" />
+  <meta property="og:description" content="换了参数，拿回来还是同一张页面；脚本报错，读到的却是上次的文件。Agent 看着很忙，证据可能一条没多。" />
   <meta property="og:url" content="https://oraclenep.github.io/research/prtseek/evidence-and-experiments.html" />
   <meta property="og:site_name" content="OracleNep Research Notes" />
   <meta property="article:published_time" content="2026-11-14T00:00:00+08:00" />
   <meta property="article:modified_time" content="2026-11-14T00:00:00+08:00" />
   <meta name="twitter:card" content="summary" />
   <meta name="twitter:title" content="同一个结果，别验证三遍｜prtseek 开发笔记" />
-  <meta name="twitter:description" content="换了参数还是同一张页面，脚本失败却读到了旧文件。Agent 看起来一直在忙，证据却可能一条都没增加。" />
+  <meta name="twitter:description" content="换了参数，拿回来还是同一张页面；脚本报错，读到的却是上次的文件。Agent 看着很忙，证据可能一条没多。" />
   <title>同一个结果，别验证三遍｜prtseek 开发笔记｜OracleNep</title>
   <script type="application/ld+json">
 {
   "@context": "https://schema.org",
   "@type": "TechArticle",
   "headline": "同一个结果，别验证三遍",
-  "description": "换了参数还是同一张页面，脚本失败却读到了旧文件。Agent 看起来一直在忙，证据却可能一条都没增加。",
+  "description": "换了参数，拿回来还是同一张页面；脚本报错，读到的却是上次的文件。Agent 看着很忙，证据可能一条没多。",
   "url": "https://oraclenep.github.io/research/prtseek/evidence-and-experiments.html",
   "mainEntityOfPage": "https://oraclenep.github.io/research/prtseek/evidence-and-experiments.html",
   "datePublished": "2026-11-14",
@@ -73,41 +73,41 @@
   <nav class="breadcrumb" aria-label="面包屑"><a href="../../">Home</a><span aria-hidden="true">/</span><a href="../">Research</a><span aria-hidden="true">/</span><a href="./">prtseek</a><span aria-hidden="true">/</span><span aria-current="page">04</span></nav>
   <span class="eyebrow">prtseek / Development Notes / 04</span>
   <h1>同一个结果，别验证三遍</h1>
-  <p class="subtitle">换了参数还是同一张页面，脚本失败却读到了旧文件。Agent 看起来一直在忙，证据却可能一条都没增加。</p>
+  <p class="subtitle">换了参数，拿回来还是同一张页面；脚本报错，读到的却是上次的文件。Agent 看着很忙，证据可能一条没多。</p>
   <div class="actions"><a class="button" href="./">专题目录</a><a class="button" href="https://github.com/Team-intN18-SoybeanSeclab/prtseek">项目源码 ↗</a></div>
 </div></div></section><div class="inner layout">
-<aside class="toc" aria-label="文章目录"><details open><summary>目录</summary><div class="toc-content"><a href="#review">先提醒它停下来看看</a><a href="#experiment">旧文件比报错更容易误导人</a><a href="#levels">报告里的 verified 从哪来</a><a href="#semantics">哈希对上以后，还是要读内容</a><a href="#sources">相关代码</a><a href="#series">其他文章</a></div></details><p class="small">prtseek 开发文章集<br>第 4 / 6 篇</p></aside>
+<aside class="toc" aria-label="文章目录"><details open><summary>目录</summary><div class="toc-content"><a href="#review">原地打转</a><a href="#experiment">旧文件比报错更容易误导人</a><a href="#levels">verified 从哪来</a><a href="#semantics">哈希对得上，内容不一定对</a><a href="#sources">相关代码</a><a href="#series">其他文章</a></div></details><p class="small">prtseek 开发文章集<br>第 4 / 6 篇</p></aside>
 <article>
 <div class="meta"><span class="tag">OracleNep</span><span class="tag">2026-11-14</span><span class="tag">Evidence</span><span class="tag">Experiments</span><span class="tag">Verification</span></div>
 <div id="stagnation">
-<p>有一类过程很难只靠最后的回答看出问题：Agent 换参数、发请求、解释结果，再换参数。工具一直有输出，文字也一直在往下走，可几次请求拿回来的其实是同一张页面。</p>
-<p>重复本身不一定错。确认某个现象稳定出现，也需要重复。让我在意的是，它有没有意识到结果没变，以及下一次尝试准备区分什么。</p>
+<p>有一类过程很难只看最后的回答发现问题：Agent 换参数、发请求、解释结果，再换参数。工具一直有输出，文字也一直在往下走，可几次请求拿回来的其实是同一张页面。</p>
+<p>重复本身不一定错。要确认一个现象稳定，确实得重复。让我在意的是它有没有意识到结果没变，以及下一次尝试准备区分什么。</p>
 </div>
-<section id="review"><h2>先提醒它停下来看看</h2>
-<p>当前做法比较朴素：看最近 8 次非轮询工具调用。同样的结果出现至少 3 次，或者失败达到 4 次，就提示做一次阶段复核。提醒之间至少隔 4 步，正常情况下每 8 步也会检查一次。</p>
-<p>HTTP 结果不能把整份 JSON 直接拿来比较。耗时每次都变，落盘文件名也会变，这些字段会掩盖重复正文。所以签名只取状态、已读取正文长度、哈希和原文截断标记。其他工具仍按原始输出比较，没有加模糊匹配。</p>
-<p>提示里让 Agent 记下当前假设、证据、反证和下一项要改变的变量。有可引用证据时，也尝试保存一个检查点。这里没有再调一次模型来当裁判，也不会把工具锁住。假如正在做重复性实验，就继续；假如一直拿到验证页，最好先查出口和初始状态。</p>
-<p>响应里混了随机字段时，这种精确比较仍可能漏掉重复。先保留这个简单规则，是因为误把两份不同观察合并，也会把后面的判断带偏。</p>
+<section id="review"><h2>原地打转</h2>
+<p>现在的做法很朴素：看最近 8 次非轮询工具调用。同一个结果出现 3 次以上，或者失败到 4 次，就提示做一次阶段复核。提醒之间至少隔 4 步，正常情况下每 8 步也会查一次。</p>
+<p>HTTP 结果不能直接拿整份 JSON 比较。耗时每次都变，落盘文件名也会变，这些字段会盖住重复的正文。所以签名只取状态、已读取正文长度、哈希和原文截断标记。其他工具照旧按原始输出比，没有加模糊匹配。</p>
+<p>提示里让它记下当前假设、证据、反证和下一项要改的变量；有可引用证据时再存一个检查点。这里没有再调一次模型来当裁判，也不会锁住工具。正在做重复性实验就继续，一直拿到验证页就得先查出口和初始状态。</p>
+<p>如果响应里混着随机字段，这种精确比较还是会漏。先留着这个简单规则，是因为把两份不同的观察错并成一份，后果更麻烦。</p>
 </section>
 <section id="experiment"><h2>旧文件比报错更容易误导人</h2>
-<p>假设上一次留下了 <code>result.txt</code>，这一次脚本失败，后面的读取却照常成功。只检查文件存在，就会得到一个很好看的假阳性。</p>
-<p><code>research_experiment</code> 要求先填假设、改变的变量和预期观察，然后分配一个新的 <code>exp-…</code> 编号、目录和产物前缀。最简单的本地实验可以这样安排：</p>
+<p>上次留下的 <code>result.txt</code> 还在，这次脚本失败，后面的读取照常成功。只检查文件存不存在，就会得到一个很漂亮的假阳性。</p>
+<p><code>research_experiment</code> 要求先填假设、改变的变量和预期观察，然后分配新的 <code>exp-…</code> 编号、目录和产物前缀。最简单的本地实验排成这样：</p>
 <pre><code>先确认：本实验的输出文件还不存在
 执行：  把结果写入新分配的目录
 再检查：读取新文件，按预先写好的条件校验</code></pre>
-<p>这几步里，基线很关键。如果脚本运行前文件就在那里，后面的“读到了”说明不了什么。重新读一遍旧产物，也只能说明它还在。</p>
-<p>目录只能解决本地文件的问题。远端的缓存、登录状态和已有数据不会跟着换目录一起复位，还得用唯一标识或实际验证过的清理办法。代码能查实验编号和目录是否存在，却看不出远端是不是已经恢复到起点。</p>
+<p>基线是这里面最关键的一步。脚本跑之前文件就在，后面“读到了”什么也说明不了。重新读一遍旧产物，只能证明它还在。</p>
+<p>目录只解决本地文件。远端的缓存、登录状态、已有数据不会跟着换目录一起复位，还得用唯一标识或真验证过的清理办法。代码能查实验编号和目录在不在，查不了远端有没有回到起点。</p>
 </section>
-<section id="levels"><h2>报告里的 verified 从哪来</h2>
-<p><code>report_outcome</code> 里除了目标状态，还有一项验证等级。<code>inference</code> 是推断，<code>observed</code> 有实际观察，<code>reproduced</code> 表示报告做了独立复现，<code>accepted</code> 表示报告获得了平台接受。每往后一步，都得补对应材料。</p>
-<p>verified 需要验证说明和成功的实际工具观察。派发回执、等待回执，或者之前写下的“我已经完成”，不能自己给自己作证。reproduced 要带实验编号，基线和结果必须是本会话两次不同的观察，而且基线在前。accepted 要给出接受证据，并把它列进总 evidence 集合。</p>
-<p id="integrity">证据还要查归属。会话编号必须属于当前任务或其后代，观察编号得存在，文件得读得出来，大小和 SHA256 要与记录一致。产物则使用会话目录里的相对路径，指向现存普通文件。这样能先挡住编造编号、串用其他任务材料和事后改写文件这些问题。</p>
+<section id="levels"><h2>verified 从哪来</h2>
+<p><code>report_outcome</code> 里除了目标状态，还有一项验证等级。<code>inference</code> 是推断，<code>observed</code> 有实际观察，<code>reproduced</code> 是做过独立复现，<code>accepted</code> 是平台接受了。每往后一步，都得补对应的材料。</p>
+<p>verified 要验证说明加一次成功的工具观察。派发回执、等待回执、之前写下的“我已经完成”，都不能自己给自己作证。reproduced 要带实验编号，基线和结果必须是本会话两次不同的观察，而且基线在前。accepted 要给出接受证据，并把它列进总的 evidence 集合。</p>
+<p id="integrity">证据还要查归属。会话编号必须属于当前任务或它的后代，观察编号得存在，文件得读得出来，大小和 SHA256 要和记录一致。产物用会话目录里的相对路径，指向现存的普通文件。这样能先挡住编造编号、挪用别的任务材料、事后改文件这几类。</p>
 </section>
-<section id="semantics"><h2>哈希对上以后，还是要读内容</h2>
-<p>一个真实工具成功输出了错误答案，这份输出也可以有完全正确的哈希。</p>
-<p>所以证据校验到这里仍有一层没做：内容是否支持验收条件。两个合法观察编号，未必构成有效的对照实验；一份成功返回的页面，也未必写着平台接受。界面把等级标成“Agent 报告”，就是不想藏掉这个来源。</p>
-<p>有确定校验方法的题，应该把它实际执行出来。候选要对校验值，输出文件要查内容，需要平台确认的就保留对应回执。比起再让 Agent 写一段“经过反复确认”，我更愿意在结果旁边看到那次校验到底读了什么、返回了什么。</p>
-</section><section id="sources"><h2>相关代码</h2><p>对应版本：<a href="https://github.com/Team-intN18-SoybeanSeclab/prtseek/tree/c888078cf58ef609946ab31aec7a1c87b9b9981c"><code>c888078</code></a>。</p><ul><li><a href="https://github.com/Team-intN18-SoybeanSeclab/prtseek/blob/c888078cf58ef609946ab31aec7a1c87b9b9981c/agent/research_progress.go"><code>agent/research_progress.go</code></a> — 停滞签名、阶段复核和实验工具</li><li><a href="https://github.com/Team-intN18-SoybeanSeclab/prtseek/blob/c888078cf58ef609946ab31aec7a1c87b9b9981c/agent/research_runtime.go"><code>agent/research_runtime.go</code></a> — 工具观察与研究运行时</li><li><a href="https://github.com/Team-intN18-SoybeanSeclab/prtseek/blob/c888078cf58ef609946ab31aec7a1c87b9b9981c/agent/research_memory.go"><code>agent/research_memory.go</code></a> — 证据与研究记录的持久化</li><li><a href="https://github.com/Team-intN18-SoybeanSeclab/prtseek/blob/c888078cf58ef609946ab31aec7a1c87b9b9981c/server/ctf_outcome.go"><code>server/ctf_outcome.go</code></a> — 验证等级、归属、完整性及产物校验</li><li><a href="https://github.com/Team-intN18-SoybeanSeclab/prtseek/blob/c888078cf58ef609946ab31aec7a1c87b9b9981c/agent/research_progress_test.go"><code>agent/research_progress_test.go</code></a> — 阶段复核和实验回归测试</li></ul></section><section id="series"><h2>其他文章</h2><nav aria-label="系列文章导航"><p><a href="./">返回 prtseek 文章集</a></p><p>上一篇：<a rel="prev" href="context-observation-metering.html">上下文越跑越长，Token 还得算得清</a></p><p>下一篇：<a rel="next" href="frontend-session-experience.html">开机动画、主题，以及几个会话里的小问题</a></p></nav></section>
+<section id="semantics"><h2>哈希对得上，内容不一定对</h2>
+<p>一个真实工具成功输出了错误答案，这份输出的哈希也可以完全正确。</p>
+<p>所以校验到这里还差一层：内容是否支持验收条件。两个合法观察编号，凑不出一次有效的对照实验；一份成功返回的页面，上面也未必写着平台接受。界面上把等级标成“Agent 报告”，就是不想藏掉这个来源。</p>
+<p>有确定校验方法的题，应该把它真跑一遍。候选要对校验值，输出文件要看内容，需要平台确认的就留回执。比起让 Agent 再写一段“经过反复确认”，我更愿意在结果旁边看到那次校验到底读了什么、返回了什么。</p>
+</section><section id="sources"><h2>相关代码</h2><p>对应版本：<a href="https://github.com/Team-intN18-SoybeanSeclab/prtseek/tree/c888078cf58ef609946ab31aec7a1c87b9b9981c"><code>c888078</code></a>。</p><ul><li><a href="https://github.com/Team-intN18-SoybeanSeclab/prtseek/blob/c888078cf58ef609946ab31aec7a1c87b9b9981c/agent/research_progress.go"><code>agent/research_progress.go</code></a> — 重复观察检测与阶段提醒</li><li><a href="https://github.com/Team-intN18-SoybeanSeclab/prtseek/blob/c888078cf58ef609946ab31aec7a1c87b9b9981c/agent/research_runtime.go"><code>agent/research_runtime.go</code></a> — 实验编号、目录与产物分配</li><li><a href="https://github.com/Team-intN18-SoybeanSeclab/prtseek/blob/c888078cf58ef609946ab31aec7a1c87b9b9981c/agent/research_memory.go"><code>agent/research_memory.go</code></a> — 假设与证据的结构化记录</li><li><a href="https://github.com/Team-intN18-SoybeanSeclab/prtseek/blob/c888078cf58ef609946ab31aec7a1c87b9b9981c/server/ctf_outcome.go"><code>server/ctf_outcome.go</code></a> — 验证等级与证据归属校验</li><li><a href="https://github.com/Team-intN18-SoybeanSeclab/prtseek/blob/c888078cf58ef609946ab31aec7a1c87b9b9981c/agent/research_progress_test.go"><code>agent/research_progress_test.go</code></a> — 重复检测的回归用例</li></ul></section><section id="series"><h2>其他文章</h2><nav aria-label="系列文章导航"><p><a href="./">返回 prtseek 文章集</a></p><p>上一篇：<a rel="prev" href="context-observation-metering.html">上下文越跑越长，Token 还得算得清</a></p><p>下一篇：<a rel="next" href="frontend-session-experience.html">开机动画、主题，以及几个会话里的小问题</a></p></nav></section>
 </article></div>
 </main>
 <footer class="footer"><div class="inner">

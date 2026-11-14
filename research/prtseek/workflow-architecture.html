@@ -5,25 +5,25 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
   <meta name="author" content="OracleNep" />
-  <meta name="description" content="题目附件放哪，派出去的任务怎么收尾，找到的字符串到底算不算答案。这些事比多加几个角色更早需要解决。" />
+  <meta name="description" content="题目附件落在哪，派出去的任务怎么收尾，找到的字符串算不算答案。这三件事比多加几个角色挡路得多。" />
   <link rel="canonical" href="https://oraclenep.github.io/research/prtseek/workflow-architecture.html" />
   <meta property="og:type" content="article" />
   <meta property="og:title" content="把 prtseek 改成一个 CTF 工作台｜prtseek 开发笔记" />
-  <meta property="og:description" content="题目附件放哪，派出去的任务怎么收尾，找到的字符串到底算不算答案。这些事比多加几个角色更早需要解决。" />
+  <meta property="og:description" content="题目附件落在哪，派出去的任务怎么收尾，找到的字符串算不算答案。这三件事比多加几个角色挡路得多。" />
   <meta property="og:url" content="https://oraclenep.github.io/research/prtseek/workflow-architecture.html" />
   <meta property="og:site_name" content="OracleNep Research Notes" />
   <meta property="article:published_time" content="2026-11-14T00:00:00+08:00" />
   <meta property="article:modified_time" content="2026-11-14T00:00:00+08:00" />
   <meta name="twitter:card" content="summary" />
   <meta name="twitter:title" content="把 prtseek 改成一个 CTF 工作台｜prtseek 开发笔记" />
-  <meta name="twitter:description" content="题目附件放哪，派出去的任务怎么收尾，找到的字符串到底算不算答案。这些事比多加几个角色更早需要解决。" />
+  <meta name="twitter:description" content="题目附件落在哪，派出去的任务怎么收尾，找到的字符串算不算答案。这三件事比多加几个角色挡路得多。" />
   <title>把 prtseek 改成一个 CTF 工作台｜prtseek 开发笔记｜OracleNep</title>
   <script type="application/ld+json">
 {
   "@context": "https://schema.org",
   "@type": "TechArticle",
   "headline": "把 prtseek 改成一个 CTF 工作台",
-  "description": "题目附件放哪，派出去的任务怎么收尾，找到的字符串到底算不算答案。这些事比多加几个角色更早需要解决。",
+  "description": "题目附件落在哪，派出去的任务怎么收尾，找到的字符串算不算答案。这三件事比多加几个角色挡路得多。",
   "url": "https://oraclenep.github.io/research/prtseek/workflow-architecture.html",
   "mainEntityOfPage": "https://oraclenep.github.io/research/prtseek/workflow-architecture.html",
   "datePublished": "2026-11-14",
@@ -72,36 +72,40 @@
   <nav class="breadcrumb" aria-label="面包屑"><a href="../../">Home</a><span aria-hidden="true">/</span><a href="../">Research</a><span aria-hidden="true">/</span><a href="./">prtseek</a><span aria-hidden="true">/</span><span aria-current="page">01</span></nav>
   <span class="eyebrow">prtseek / Development Notes / 01</span>
   <h1>把 prtseek 改成一个 CTF 工作台</h1>
-  <p class="subtitle">题目附件放哪，派出去的任务怎么收尾，找到的字符串到底算不算答案。这些事比多加几个角色更早需要解决。</p>
+  <p class="subtitle">题目附件落在哪，派出去的任务怎么收尾，找到的字符串算不算答案。这三件事比多加几个角色挡路得多。</p>
   <div class="actions"><a class="button" href="./">专题目录</a><a class="button" href="https://github.com/Team-intN18-SoybeanSeclab/prtseek">项目源码 ↗</a></div>
 </div></div></section><div class="inner layout">
-<aside class="toc" aria-label="文章目录"><details open><summary>目录</summary><div class="toc-content"><a href="#roles">四个角色，用不着每次都到齐</a><a href="#state">“跑完了”这个状态太含糊</a><a href="#materials">材料得有归属</a><a href="#sources">相关代码</a><a href="#series">其他文章</a></div></details><p class="small">prtseek 开发文章集<br>第 1 / 6 篇</p></aside>
+<aside class="toc" aria-label="文章目录"><details open><summary>目录</summary><div class="toc-content"><a href="#roles">默认的四个角色</a><a href="#state">execution 和 outcome</a><a href="#materials">会话目录</a><a href="#gaps">还欠着的</a><a href="#sources">相关代码</a><a href="#series">其他文章</a></div></details><p class="small">prtseek 开发文章集<br>第 1 / 6 篇</p></aside>
 <article>
 <div class="meta"><span class="tag">OracleNep</span><span class="tag">2026-11-14</span><span class="tag">Architecture</span><span class="tag">CTF workflow</span><span class="tag">ARTEX</span></div>
 <div id="problem">
-<p>给 Agent 一道题，看它调用工具、写脚本，再返回一段答案，整个过程已经很像一个能用的产品了。可只要多追问几轮，或者同时跑两条路线，聊天框里就开始装不下所有事情：附件属于哪一轮，脚本是谁写的，另一个 solver 还在不在跑，最后那句“已完成”又是根据什么说的。</p>
-<p>改 prtseek 时，我更关心这些问题。模型已经会读文件和执行工具，工作台还得把它做过的事留下来，让下一步有东西可接。</p>
-<p id="upstream">先交代来源。prtseek 基于 <a href="https://github.com/RuoJi6/ARTEX">RuoJi6/ARTEX</a> 二次开发，原始项目来自 <a href="https://github.com/Autumn-27/ARTEX">Autumn-27/ARTEX</a>，继续使用 AGPL-3.0，Go 模块路径也保留着 <code>github.com/Autumn-27/artex</code>。这次工作的重点是把它往 CTF 使用场景收：简化入口，调整默认角色，再补会话、协作和验证中缺少的部分。</p>
+<p>ARTEX 给的是一个能用的 Agent 前端：会话、工具调用、模型切换都是现成的。我接手时的想法很简单，把角色改成 CTF 用的几个，再补几条工具，应该就能跑题了。</p>
+<p>跑通一道题确实不难。难的是同时开两条路线之后：附件属于哪一轮，脚本是谁写的，另一个 solver 还在不在跑，最后那句“已完成”又是按什么说的。界面上这些东西全糊在一起。</p>
+<p>这不是模型能力问题，是工作台的问题——它没把 Agent 做过的事情留在别人能接的地方。下面记的是为了让这几件事有地方落，我改了哪些结构。</p>
+<p id="upstream">先交代来源。prtseek 基于 <a href="https://github.com/RuoJi6/ARTEX">RuoJi6/ARTEX</a> 二次开发，原始项目是 <a href="https://github.com/Autumn-27/ARTEX">Autumn-27/ARTEX</a>，继续用 AGPL-3.0，Go 模块路径也还留着 <code>github.com/Autumn-27/artex</code>。改动集中在 CTF 这个用法上：入口收窄、默认角色换掉，再补会话、协作、验证这几块。</p>
 </div>
-<section id="roles"><h2>四个角色，用不着每次都到齐</h2>
-<p>现在默认有 triage、command、solver 和 writeup。名字很好理解：triage 先看材料，command 拆任务，solver 执行，writeup 整理结果。真正容易写错的是它们之间的任务描述。</p>
-<p>比如一个压缩包里有几个候选字符串，还有一份校验文件。派发“研究一下这个压缩包”，和派发“按校验文件验证候选，返回匹配项及校验记录”，给下一位执行者留下的空间完全不同。前一种很容易读完文件就开始解释；后一种至少知道该在哪里停下来检查。</p>
-<p>也没必要为了走完流程，让四个角色轮流说一遍话。材料齐全、步骤明确的小题，直接交给一个 solver 就行。确实有两条值得分别试的路线，再让 command 并行派发。writeup 放在后面接已有的脚本和证据，整理时还没验证的地方就留着，别顺手把猜测写成定论。</p>
+<section id="roles"><h2>默认的四个角色</h2>
+<p>triage、command、solver、writeup。名字就是字面意思：先看材料，再拆任务，然后干活，最后整理。</p>
+<p>要花心思的是派发时那句任务描述。“研究一下这个压缩包”和“按校验文件验证候选，返回匹配项和校验记录”，给下一个人留下的空间完全不同。前一句它打开文件就开始解释，后一句它知道该在哪停下来核对。</p>
+<p>也犯不上为了让四个角色都露脸而轮流说一遍话。材料齐、步骤明确的小题，一个 solver 直接做更快；确实有两条值得分开试的路线，再让 command 并行派。writeup 接在脚本和证据后面写，没验证的地方就空着——一旦把猜测写成定论，后面改回来很费劲。</p>
 </section>
-<section id="state"><h2>“跑完了”这个状态太含糊</h2>
-<p>一个任务查完材料，发现缺附件，然后正常结束。界面该显示成功还是失败？如果只留一个 status，无论选哪边都少了一半信息。</p>
-<p>所以后端分别保存 execution 和 outcome。execution 记录运行结束、取消、超时这些程序状态；outcome 记录目标进度，有 <code>unverified</code>、<code>partial</code>、<code>blocked</code>、<code>verified</code> 四种。上面的缺附件例子就可以记成：</p>
+<section id="state"><h2>execution 和 outcome</h2>
+<p>有个场景我想了很久：任务查完材料，发现缺附件，然后正常结束。界面该显示成功还是失败？只留一个 status，选哪边都少一半信息。</p>
+<p>所以现在分开存。execution 记程序状态：跑完了、取消了、超时了。outcome 记目标进度：<code>unverified</code>、<code>partial</code>、<code>blocked</code>、<code>verified</code>。上面那个例子落下来是：</p>
 <pre><code>execution = completed
 outcome   = blocked
 summary   = 缺少题目要求的附件，暂时无法验证</code></pre>
-<p>这样看就很清楚了：这一轮检查做完了，题还没解出来。</p>
-<p>找到一个像 flag 的字符串也一样。可以先报 partial，等实际校验后再更新。<code>report_outcome</code> 要求把验收条件、验证方式、证据和产物写进去，至少让“成功”后面跟着能打开的东西。至于那份证据是否足够说明答案正确，还得看内容，程序查到一个合法编号就自动盖章显然不够。</p>
+<p>读起来不矛盾：这一轮检查做完了，题还没解出来。</p>
+<p>找到像 flag 的字符串也一样，先报 partial，真校验过再改。<code>report_outcome</code> 要求填验收条件、验证方式、证据和产物，至少让“成功”后面跟着点得开的东西。至于那份证据够不够说明答案对，还得看内容——程序查得到一个合法编号，不等于这些编号能说明问题。</p>
 </section>
-<section id="materials"><h2>材料得有归属</h2>
-<p>会话工作目录是这套流程里一个很实际的单位。附件进来有地方放，solver 写的脚本有地方找，之后生成的 WRITEUP 也能回到同一条任务记录上。前端、SQLite 里的状态和磁盘上的文件需要对得起来，否则聊得再顺，过几天回来还是不知道哪个文件有用。</p>
-<p>子任务会创建自己的会话和目录，继承父会话实际使用的模型配置。启动时，任务文本会带上父会话材料目录和根会话的题目目录，并要求只读引用原材料，把产物写到自己的目录里。这样两个 solver 都生成 <code>result.txt</code> 时，至少不会默认落在同一个位置。</p>
-<p>不过这条“只读”目前是任务里的约定。目录分开并没有给工具套上操作系统权限，也没有把每个 solver 放进独立容器。需要文件访问隔离的话，还得继续往工具执行层做，不能在目录名上解决。</p>
-<p id="design">我希望后面接手一条会话时，先能找到原题、实际执行过的脚本和验证结果。聊天记录可以很长，但不该只有聊天记录。</p>
+<section id="materials"><h2>会话目录</h2>
+<p>会话工作目录是这套流程里最实在的单位。附件有地方放，脚本有地方找，WRITEUP 也能挂回同一条记录。前端、SQLite 里的状态和磁盘上的文件得对得上，不然聊得再顺，过几天回来还是不知道哪个文件有用。</p>
+<p>子任务有自己的会话和目录，继承父会话实际在用的模型配置。启动时任务文本里带上父会话的材料目录和根会话的题目目录，要求只读引用原材料、产物写进自己的目录。两个 solver 都生成 <code>result.txt</code> 时，至少不会默认落到同一个位置。</p>
+<p>“只读”目前只是任务文本里的约定。目录分开不等于权限分开：没有 OS 级隔离，也没有一人一个容器。真要限制文件访问，得往下做到工具执行层，光靠目录名解决不了。</p>
+</section>
+<section id="gaps"><h2>还欠着的</h2>
+<p>做完的和没做的都记一句。目录只读靠约定；writeup 的质量完全取决于上游证据，证据虚它写出来也虚；四个角色之外没有独立的复核角色，人工检查还是得在会话外面做。</p>
+<p>这三条都不算新问题，只是这次没排上。真正改过的还是上面那几处，代码在下面。</p>
 </section><section id="sources"><h2>相关代码</h2><p>对应版本：<a href="https://github.com/Team-intN18-SoybeanSeclab/prtseek/tree/c888078cf58ef609946ab31aec7a1c87b9b9981c"><code>c888078</code></a>。</p><ul><li><a href="https://github.com/Team-intN18-SoybeanSeclab/prtseek/blob/c888078cf58ef609946ab31aec7a1c87b9b9981c/README.md"><code>README.md</code></a> — 项目定位、上游来源和部署方式</li><li><a href="https://github.com/Team-intN18-SoybeanSeclab/prtseek/blob/c888078cf58ef609946ab31aec7a1c87b9b9981c/server/ctf_execution.go"><code>server/ctf_execution.go</code></a> — 子任务创建、父子关系与材料目录</li><li><a href="https://github.com/Team-intN18-SoybeanSeclab/prtseek/blob/c888078cf58ef609946ab31aec7a1c87b9b9981c/server/ctf_outcome.go"><code>server/ctf_outcome.go</code></a> — 目标报告结构与证据校验</li><li><a href="https://github.com/Team-intN18-SoybeanSeclab/prtseek/blob/c888078cf58ef609946ab31aec7a1c87b9b9981c/server/ctf_overview.go"><code>server/ctf_overview.go</code></a> — 运行和目标状态的汇总</li></ul></section><section id="series"><h2>其他文章</h2><nav aria-label="系列文章导航"><p><a href="./">返回 prtseek 文章集</a></p><p>下一篇：<a rel="next" href="bounded-agent-collaboration.html">派出去的 Agent，最后要收回来</a></p></nav></section>
 </article></div>
 </main>

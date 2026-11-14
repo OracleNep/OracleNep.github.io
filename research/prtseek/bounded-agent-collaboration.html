@@ -5,25 +5,25 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
   <meta name="author" content="OracleNep" />
-  <meta name="description" content="异步派发很容易，麻烦的是有人先做完、有人还没停，以及父任务准备交付时后台仍在写文件。" />
+  <meta name="description" content="派发只要一瞬间，收结果、取消、关闭才是要写的部分。每一步没做完，父任务都可能提前收工。" />
   <link rel="canonical" href="https://oraclenep.github.io/research/prtseek/bounded-agent-collaboration.html" />
   <meta property="og:type" content="article" />
   <meta property="og:title" content="派出去的 Agent，最后要收回来｜prtseek 开发笔记" />
-  <meta property="og:description" content="异步派发很容易，麻烦的是有人先做完、有人还没停，以及父任务准备交付时后台仍在写文件。" />
+  <meta property="og:description" content="派发只要一瞬间，收结果、取消、关闭才是要写的部分。每一步没做完，父任务都可能提前收工。" />
   <meta property="og:url" content="https://oraclenep.github.io/research/prtseek/bounded-agent-collaboration.html" />
   <meta property="og:site_name" content="OracleNep Research Notes" />
   <meta property="article:published_time" content="2026-11-14T00:00:00+08:00" />
   <meta property="article:modified_time" content="2026-11-14T00:00:00+08:00" />
   <meta name="twitter:card" content="summary" />
   <meta name="twitter:title" content="派出去的 Agent，最后要收回来｜prtseek 开发笔记" />
-  <meta name="twitter:description" content="异步派发很容易，麻烦的是有人先做完、有人还没停，以及父任务准备交付时后台仍在写文件。" />
+  <meta name="twitter:description" content="派发只要一瞬间，收结果、取消、关闭才是要写的部分。每一步没做完，父任务都可能提前收工。" />
   <title>派出去的 Agent，最后要收回来｜prtseek 开发笔记｜OracleNep</title>
   <script type="application/ld+json">
 {
   "@context": "https://schema.org",
   "@type": "TechArticle",
   "headline": "派出去的 Agent，最后要收回来",
-  "description": "异步派发很容易，麻烦的是有人先做完、有人还没停，以及父任务准备交付时后台仍在写文件。",
+  "description": "派发只要一瞬间，收结果、取消、关闭才是要写的部分。每一步没做完，父任务都可能提前收工。",
   "url": "https://oraclenep.github.io/research/prtseek/bounded-agent-collaboration.html",
   "mainEntityOfPage": "https://oraclenep.github.io/research/prtseek/bounded-agent-collaboration.html",
   "datePublished": "2026-11-14",
@@ -72,37 +72,39 @@
   <nav class="breadcrumb" aria-label="面包屑"><a href="../../">Home</a><span aria-hidden="true">/</span><a href="../">Research</a><span aria-hidden="true">/</span><a href="./">prtseek</a><span aria-hidden="true">/</span><span aria-current="page">02</span></nav>
   <span class="eyebrow">prtseek / Development Notes / 02</span>
   <h1>派出去的 Agent，最后要收回来</h1>
-  <p class="subtitle">异步派发很容易，麻烦的是有人先做完、有人还没停，以及父任务准备交付时后台仍在写文件。</p>
+  <p class="subtitle">派发只要一瞬间，收结果、取消、关闭才是要写的那部分。哪一步没做完，父任务都可能提前收工。</p>
   <div class="actions"><a class="button" href="./">专题目录</a><a class="button" href="https://github.com/Team-intN18-SoybeanSeclab/prtseek">项目源码 ↗</a></div>
 </div></div></section><div class="inner layout">
-<aside class="toc" aria-label="文章目录"><details open><summary>目录</summary><div class="toc-content"><a href="#delivery">子任务结束了，父任务未必知道</a><a href="#shutdown">取消之后还要等一下</a><a href="#budget">预算不能按人头各发一份</a><a href="#tradeoff">有时一个 solver 就够了</a><a href="#sources">相关代码</a><a href="#series">其他文章</a></div></details><p class="small">prtseek 开发文章集<br>第 2 / 6 篇</p></aside>
+<aside class="toc" aria-label="文章目录"><details open><summary>目录</summary><div class="toc-content"><a href="#delivery">delivered 这个字段</a><a href="#shutdown">cancel 之后还要等一下</a><a href="#budget">RunBudget 挂在 context 上</a><a href="#tradeoff">有时候一个 solver 就够了</a><a href="#sources">相关代码</a><a href="#series">其他文章</a></div></details><p class="small">prtseek 开发文章集<br>第 2 / 6 篇</p></aside>
 <article>
 <div class="meta"><span class="tag">OracleNep</span><span class="tag">2026-11-14</span><span class="tag">Concurrency</span><span class="tag">Run budget</span><span class="tag">Lifecycle</span></div>
 <div id="async">
-<p>多 Agent 里最显眼的功能是同时启动几个 solver。写到后面会发现，需要反复处理的反而是收尾。</p>
-<p>设想 A、B 两条路线一起跑：A 已经给出了可用结果，B 还在继续尝试。父 Agent 能不能先交付？如果不需要 B 了，按下取消之后是不是就能开始下一轮？这些问题不处理，页面上看起来已经结束，后台却可能还在请求模型、写会话记录。</p>
-<p>prtseek 的 <code>delegate_agents</code> 启动后立即返回子会话编号，之后用 <code>wait_agents</code> 收结果。这样父任务不用堵在派发调用里，但也多了一份责任：记住自己派出了什么，以及哪些结果还没有拿回来。</p>
+<p>多 Agent 最显眼的功能是同时开几个 solver。真写起来，反复改的其实是收尾。</p>
+<p>设想 A、B 两条路线一起跑：A 已经给出可用结果，B 还在试。父 Agent 能不能先交付？如果 B 不要了，按下取消是不是就能开下一轮？这些不处理，页面上看着结束了，后台还在请求模型、还在写会话记录。</p>
+<p>prtseek 的 <code>delegate_agents</code> 启动后立刻返回子会话编号，结果用 <code>wait_agents</code> 收。父任务不用堵在派发调用里，代价是多一份账要记：自己派出了什么，哪些结果还没拿回来。</p>
 </div>
-<section id="delivery"><h2>子任务结束了，父任务未必知道</h2>
-<p>这里有一个不太起眼的字段：<code>delivered</code>。它记录父任务有没有收取结果。子任务进入终态，只能说明结果已经产生；父 Agent 的上下文里可能还没有这份结果。</p>
-<p><code>wait_agents</code> 看到新的终态结果就可以返回，同时给出是否还有 pending 任务。它不用等所有路线都跑完。一次等待默认 20 秒，允许设成 1–30 秒；等到超时仍然可以返回“还有任务在跑”，这个超时不负责判定子任务失败。</p>
-<p>父任务准备结束时，<code>completionCheck</code> 会再看一遍直属子任务。仍在运行的要处理，已经结束但没收取的也要处理。这样能挡住一种很别扭的交付：子任务明明找到了结果，父任务却因为没拿到它，还在按旧判断写最终回答。</p>
+<section id="delivery"><h2>delivered 这个字段</h2>
+<p>我一开始以为子任务进终态就等于结果到手。不是。终态只说明结果产生了，父 Agent 的上下文里可能还没有它。</p>
+<p>所以单独记了一个 <code>delivered</code>：父任务有没有真的把结果收走。</p>
+<p><code>wait_agents</code> 看到新的终态就返回，顺手告诉你还有没有 pending。它不等所有路线跑完——一次默认等 20 秒，可以设 1–30 秒；等超时了也照样返回“还有任务在跑”，这个超时不负责判定子任务失败。</p>
+<p>父任务准备收工时，<code>completionCheck</code> 再把直属子任务看一遍。还在跑的、已经结束但没收的，都要处理。挡的是一种很别扭的交付：子任务明明找到了结果，父任务没拿到，还在按旧判断写最终回答。</p>
 </section>
-<section id="shutdown"><h2>取消之后还要等一下</h2>
-<p>回到 A、B 的例子。收取 A 以后，如果 B 已经没有继续跑的必要，就调用 <code>cancel_agent</code>，然后再 wait 一次，把 B 的最终状态收回来。取消请求返回时，工具可能正在退出，不能把“已经通知停止”当成“已经停止”。</p>
-<p>取消范围限于本轮直属子任务及其后代。整轮关闭时，代码先把工作流标记为 closed，挡住新派发，再取消 context，最后等 <code>WaitGroup</code>。这几步的顺序不能随便换：用户下一句话进来之前，上一轮的 transcript writer 得先收干净。</p>
-<p>还有一处容易把状态记错。子任务正常返回后，清理代码自己也会发取消信号。如果直接看清理后的 context，就可能把正常完成记成 cancelled。当前实现会区分运行期间的取消和收尾时的取消，并在释放 busy 标记之前等待后代退出。</p>
-<p>这一套仍然依赖工具愿意响应取消。新接进来的外部程序如果完全不理会 context，就得另外解决进程终止，光等 goroutine 不会让它自己消失。</p>
+<section id="shutdown"><h2>cancel 之后还要等一下</h2>
+<p>回到 A、B。收下 A 之后，如果 B 没必要继续，就 <code>cancel_agent</code>，然后再 wait 一次，把 B 的最终状态拿回来。取消请求返回时，工具可能还在退出，“已经通知停止”和“已经停止”是两件事。</p>
+<p>取消范围限于本轮直属子任务和它们的后代。整轮关闭的顺序是先给工作流打 closed、挡住新派发，再取消 context，最后等 <code>WaitGroup</code>。这几步不能换：用户下一句话进来之前，上一轮的 transcript writer 得先收拾干净。</p>
+<p>有一处容易把状态记错。子任务正常返回后，清理代码自己也会发一次取消信号；直接看清理后的 context，正常完成会被记成 cancelled。现在的实现把运行期间的取消和收尾时的取消分开，并且在释放 busy 标记之前等后代退出。</p>
+<p>这套东西依赖工具愿意响应取消。新接进来的外部程序如果完全不理会 context，只能另外做进程终止——光等 goroutine，它不会自己消失。</p>
 </section>
-<section id="budget"><h2>预算不能按人头各发一份</h2>
-<p>父任务允许 200 次调用，子任务再各允许 200 次，派发几层以后，总开销就和最初的限制没什么关系了。现在父子通过 context 共用一个 <code>RunBudget</code>，调用 provider 之前先预留额度。</p>
-<p>预留用原子 CAS。假如只剩一次，两个 solver 同时过来，只有一个能拿到它。这里数的是逻辑模型请求，压缩上下文和 continuation 也算；provider 内部的网络重试另有限制。它控制不了每次请求有多长，因此不能拿调用预算代替 Token 预算。</p>
-<p id="limits">任务数量也有几道限制：单次派发 1–6 个 solver，同时活跃的子任务最多 8 个，本轮累计最多 24 个，派发深度上限 4。并发数管住眼前的资源，总量则挡住“结束一个再创建一个”不断往下跑。这些是当前代码里的设定值，还没有理由把它们说成最优配置。</p>
-<p>共享额度和记账还得分开。每个 Chat turn 用自己的 <code>ModelObserver</code> 记录用量，之后再汇总父子任务。否则子任务消耗先计入父任务、又在汇总时加一次，数字会越算越大。</p>
+<section id="budget"><h2>RunBudget 挂在 context 上</h2>
+<p>父任务允许 200 次调用，子任务再各给 200 次，派几层之后总开销就和最初的限制没关系了。</p>
+<p>现在父子通过 context 共用一个 <code>RunBudget</code>，调 provider 之前先预留额度。预留是原子 CAS：只剩一次的时候两个 solver 同时来，只有一个拿得到。</p>
+<p>这里数的是逻辑模型请求，压缩上下文和 continuation 也算在内；provider 内部的网络重试另有限制。它管不了每次请求多长，所以调用预算替代不了 Token 预算。</p>
+<p id="limits">任务数量另有三道闸：单次派发 1–6 个 solver，同时活跃的子任务最多 8 个，本轮累计 24 个，派发深度 4 层。并发管眼前的资源，总量挡的是“结束一个再起一个”慢慢往下跑。这些是当前代码里的数，没什么理由说成最优。</p>
+<p>共享额度和记账得分开。每个 Chat turn 用自己的 <code>ModelObserver</code> 记用量，最后再汇总父子。混在一起会出另一种错：子任务的消耗先算进父任务，汇总时又加一遍，数字越滚越大。</p>
 </section>
-<section id="tradeoff"><h2>有时一个 solver 就够了</h2>
-<p>允许单次只派一个 solver，是为了不给简单题硬凑第二条路线。两个人都去读同一个文件、试同一种解法，最后还得多花一轮合并结果，这种并行未必划算。</p>
-<p>我更想看到的对照是：多花的调用，究竟换来了哪条原本没有的证据。耗时可以一起看，错误报成功的次数也要看。现在先把任务能停下来、结果能收回来这两件事做实，继续加并发之前，再用具体题目判断值不值。</p>
+<section id="tradeoff"><h2>有时候一个 solver 就够了</h2>
+<p>单次允许只派一个，是不想给简单题硬凑第二条路线。两个人读同一个文件、试同一种解法，最后还要多花一轮合并结果，这种并行是负收益。</p>
+<p>我更想看另一组对照：多花的这些调用，换回了哪条原本拿不到的证据。耗时一起看，错误报成功的次数也一起看。现在先把“停得下来、收得回来”做实；再加并发之前，拿具体题目说话。</p>
 </section><section id="sources"><h2>相关代码</h2><p>对应版本：<a href="https://github.com/Team-intN18-SoybeanSeclab/prtseek/tree/c888078cf58ef609946ab31aec7a1c87b9b9981c"><code>c888078</code></a>。</p><ul><li><a href="https://github.com/Team-intN18-SoybeanSeclab/prtseek/blob/c888078cf58ef609946ab31aec7a1c87b9b9981c/server/ctf_execution.go"><code>server/ctf_execution.go</code></a> — 协作工具、计数限制、结果收取和关闭顺序</li><li><a href="https://github.com/Team-intN18-SoybeanSeclab/prtseek/blob/c888078cf58ef609946ab31aec7a1c87b9b9981c/agent/run_budget.go"><code>agent/run_budget.go</code></a> — 共享调用预算与原子预留</li><li><a href="https://github.com/Team-intN18-SoybeanSeclab/prtseek/blob/c888078cf58ef609946ab31aec7a1c87b9b9981c/agent/model_meter.go"><code>agent/model_meter.go</code></a> — 每个 Chat turn 的独立观察器</li><li><a href="https://github.com/Team-intN18-SoybeanSeclab/prtseek/blob/c888078cf58ef609946ab31aec7a1c87b9b9981c/server/ctf_workflow_regression_test.go"><code>server/ctf_workflow_regression_test.go</code></a> — 工作流回归场景</li></ul></section><section id="series"><h2>其他文章</h2><nav aria-label="系列文章导航"><p><a href="./">返回 prtseek 文章集</a></p><p>上一篇：<a rel="prev" href="workflow-architecture.html">把 prtseek 改成一个 CTF 工作台</a></p><p>下一篇：<a rel="next" href="context-observation-metering.html">上下文越跑越长，Token 还得算得清</a></p></nav></section>
 </article></div>
 </main>

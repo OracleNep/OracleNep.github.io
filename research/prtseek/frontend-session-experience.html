@@ -5,25 +5,25 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
   <meta name="author" content="OracleNep" />
-  <meta name="description" content="这轮前端调整从三个很直观的问题开始：动画没了，默认黑色，弹窗和侧栏的颜色也没对齐。" />
+  <meta name="description" content="这轮前端改动从三个很直观的毛病开始：动画没了，默认黑色，弹窗和侧栏颜色对不上。后面又补了两个用起来才发现的。" />
   <link rel="canonical" href="https://oraclenep.github.io/research/prtseek/frontend-session-experience.html" />
   <meta property="og:type" content="article" />
   <meta property="og:title" content="开机动画、主题，以及几个会话里的小问题｜prtseek 开发笔记" />
-  <meta property="og:description" content="这轮前端调整从三个很直观的问题开始：动画没了，默认黑色，弹窗和侧栏的颜色也没对齐。" />
+  <meta property="og:description" content="这轮前端改动从三个很直观的毛病开始：动画没了，默认黑色，弹窗和侧栏颜色对不上。后面又补了两个用起来才发现的。" />
   <meta property="og:url" content="https://oraclenep.github.io/research/prtseek/frontend-session-experience.html" />
   <meta property="og:site_name" content="OracleNep Research Notes" />
   <meta property="article:published_time" content="2026-11-14T00:00:00+08:00" />
   <meta property="article:modified_time" content="2026-11-14T00:00:00+08:00" />
   <meta name="twitter:card" content="summary" />
   <meta name="twitter:title" content="开机动画、主题，以及几个会话里的小问题｜prtseek 开发笔记" />
-  <meta name="twitter:description" content="这轮前端调整从三个很直观的问题开始：动画没了，默认黑色，弹窗和侧栏的颜色也没对齐。" />
+  <meta name="twitter:description" content="这轮前端改动从三个很直观的毛病开始：动画没了，默认黑色，弹窗和侧栏颜色对不上。后面又补了两个用起来才发现的。" />
   <title>开机动画、主题，以及几个会话里的小问题｜prtseek 开发笔记｜OracleNep</title>
   <script type="application/ld+json">
 {
   "@context": "https://schema.org",
   "@type": "TechArticle",
   "headline": "开机动画、主题，以及几个会话里的小问题",
-  "description": "这轮前端调整从三个很直观的问题开始：动画没了，默认黑色，弹窗和侧栏的颜色也没对齐。",
+  "description": "这轮前端改动从三个很直观的毛病开始：动画没了，默认黑色，弹窗和侧栏颜色对不上。后面又补了两个用起来才发现的。",
   "url": "https://oraclenep.github.io/research/prtseek/frontend-session-experience.html",
   "mainEntityOfPage": "https://oraclenep.github.io/research/prtseek/frontend-session-experience.html",
   "datePublished": "2026-11-14",
@@ -74,35 +74,36 @@
   <nav class="breadcrumb" aria-label="面包屑"><a href="../../">Home</a><span aria-hidden="true">/</span><a href="../">Research</a><span aria-hidden="true">/</span><a href="./">prtseek</a><span aria-hidden="true">/</span><span aria-current="page">05</span></nav>
   <span class="eyebrow">prtseek / Development Notes / 05</span>
   <h1>开机动画、主题，以及几个会话里的小问题</h1>
-  <p class="subtitle">这轮前端调整从三个很直观的问题开始：动画没了，默认黑色，弹窗和侧栏的颜色也没对齐。</p>
+  <p class="subtitle">这轮前端改动从三个很直观的毛病开始：动画没了，默认黑色，弹窗和侧栏颜色对不上。后面又补了两个用起来才发现的。</p>
   <div class="actions"><a class="button" href="./">专题目录</a><a class="button" href="https://github.com/Team-intN18-SoybeanSeclab/prtseek">项目源码 ↗</a></div>
 </div></div></section><div class="inner layout">
-<aside class="toc" aria-label="文章目录"><details open><summary>目录</summary><div class="toc-content"><a href="#theme">浅色系统，不该先闪一下黑屏</a><a href="#boot">动画两秒钟，退出得有兜底</a><a href="#uploads">文件已经传完，就别再传了</a><a href="#preview">点的是 B，别给我显示 A</a><a href="#sources">相关代码</a><a href="#series">其他文章</a></div></details><p class="small">prtseek 开发文章集<br>第 5 / 6 篇</p></aside>
+<aside class="toc" aria-label="文章目录"><details open><summary>目录</summary><div class="toc-content"><a href="#theme">首屏别先闪一下黑</a><a href="#boot">开机动画怎么收场</a><a href="#uploads">文件传过了就别再传</a><a href="#preview">点 B 显示 A</a><a href="#sources">相关代码</a><a href="#series">其他文章</a></div></details><p class="small">prtseek 开发文章集<br>第 5 / 6 篇</p></aside>
 <article>
 <div class="meta"><span class="tag">OracleNep</span><span class="tag">2026-11-14</span><span class="tag">Frontend</span><span class="tag">Theme</span><span class="tag">Session UX</span></div>
 <div id="surface">
-<p>这次前端调整的起点很直接：之前的开机动画没了，默认主题变成黑色，对话框和侧边栏的色调也不一致。先把这些改回来，再看会话操作里还有哪些地方不顺。</p>
-<p>后面补的附件重试和文件预览，平时不太显眼，碰到发送失败或快速切文件时却很影响使用。这里放在一起记。</p>
+<p>这次的起点没什么技术含量：开机动画没了，默认主题变成黑的，对话框和侧边栏的色调也对不上。先把这三处改回来，再看会话操作里还有哪些地方别扭。</p>
+<p>后面补的附件重试和文件预览属于另一类——平时注意不到，赶上发送失败或者快速切文件的时候，很难受。放在一起记。</p>
 </div>
-<section id="theme"><h2>浅色系统，不该先闪一下黑屏</h2>
-<p>默认主题设成 <code>system</code> 还不够。等 React 挂载后再读偏好，首屏仍可能先按深色画出来，然后突然切成浅色。主题脚本现在放在 head 里提前执行：读取配置的 cookie 或 localStorage，解析 system，再设置根节点的 dark class、主题属性和 <code>colorScheme</code>。</p>
-<p>用户手动选过浅色或深色，就继续尊重保存的选择。跟随系统是没有明确偏好时的默认值，不该每次刷新都替用户重新决定。</p>
-<p>颜色统一则要往变量上收。聊天区域、sidebar、dialog 分别写死一套颜色，主页面看起来正常，弹窗一开就露馅。尤其是 portal 出去的弹层，不能指望它一直继承某个局部容器的样式。检查时把设置、菜单、文件预览都打开，边框和文字也一起看。</p>
+<section id="theme"><h2>首屏别先闪一下黑</h2>
+<p>默认主题设成 <code>system</code> 还不够。等 React 挂载再读偏好，首屏已经按深色画出来了，然后当着用户的面切成浅色。</p>
+<p>现在主题脚本放在 head 里提前跑：读配置的 cookie 或 localStorage，解析 system，再把根节点的 dark class、主题属性和 <code>colorScheme</code> 设好。用户手动选过浅色或深色就继续尊重保存的选择；跟随系统是没明确偏好时的默认，不该每次刷新都替人重新决定。</p>
+<p>颜色统一要往变量上收。聊天区、侧边栏、对话框各写死一套，主页面看着正常，弹窗一开就露馅——尤其是 portal 出去的弹层，别指望它一直继承某个局部容器的样式。检查的时候把设置、菜单、文件预览都打开，边框和文字一起看。</p>
 </section>
-<section id="boot"><h2>动画两秒钟，退出得有兜底</h2>
-<p>开机动画按每次 document load 播放一次。刷新会重播，应用内切会话时，只要布局没有卸载，就不再来一遍。</p>
-<p>实现用了原生 <code>&lt;dialog&gt;</code>，hydration 后调用 <code>showModal()</code>。这里考虑的是键盘焦点：普通遮罩铺得再高，按 Tab 仍可能摸到后面的输入框。既然画面在播放启动动画，交互也应该待在前面。</p>
-<p>动画结束事件负责关闭，计时器再兜底。普通模式约两秒，系统要求减少动态效果时缩到约 600 毫秒，另外保留跳过和 Esc。CSS 动画被打断时，计时器还能把它收掉。开机动画可以有存在感，但别让人等不到输入框。</p>
+<section id="boot"><h2>开机动画怎么收场</h2>
+<p>动画每次 document load 播一次。刷新会重播；应用内切会话时，只要布局没卸载就不会再来一遍，这个行为是对的。</p>
+<p>实现用了原生 <code>&lt;dialog&gt;</code>，hydration 之后调 <code>showModal()</code>。选它主要是为了键盘焦点：普通遮罩铺得再高，按 Tab 还是可能摸到后面的输入框。画面既然在播启动动画，交互就该待在前面。</p>
+<p>关闭有两个来源：动画结束事件，和计时器兜底。普通模式两秒左右，系统要求减少动态效果时缩到 600 毫秒；中间留着跳过和 Esc。CSS 动画被打断时，计时器还能把它收掉。开场可以有存在感，但别让人等不到输入框。</p>
 </section>
-<section id="uploads"><h2>文件已经传完，就别再传了</h2>
-<p>上传附件和发送消息是两次操作。前者成功、后者失败时，直接重新跑整个 send，文件就可能又传一份。</p>
-<p><code>uploadChatFiles</code> 会保留成功上传的回执。重试时先对照当前 File 对象，已有回执的直接用，没有的再上传。于是 A、B 两个文件都上传成功、消息发送失败后，再点发送就只重试消息。保留 A 的回执后又加了 B，也只需要补传 B。</p>
-<p>这还不是断点续传。缺失文件是成批上传的，整个请求失败或回执数量不对时，并不能逐个恢复这个失败批次的进度。它也没有做内容哈希去重：刷新页面或重新选择文件之后，不能假定仍会命中旧回执。当前修的是已经拿到回执，却因为消息发送失败而白传一遍的问题。</p>
+<section id="uploads"><h2>文件传过了就别再传</h2>
+<p>上传附件和发消息是两次操作。前面成功、后面失败，如果直接重跑整个 send，文件就又传一份。</p>
+<p><code>uploadChatFiles</code> 现在保留成功上传的回执。重试时先对着当前 File 对象找，有回执的直接用，没有的再传。于是 A、B 都传成功、消息没发出去之后，再点发送只重试消息；留着 A 的回执又加了 B，也只补 B。</p>
+<p>这还不是断点续传。少文件是成批传的，整个请求失败或者回执数量对不上，不能逐个恢复这一批的进度。也没做内容哈希去重：刷新页面、重新选文件之后，不能假设还能命中旧回执。现在修的就是“明明传过了，因为消息失败又传一遍”这一个。</p>
 </section>
-<section id="preview"><h2>点的是 B，别给我显示 A</h2>
-<p>先打开 A 文件，马上切到 B。B 的请求先返回，A 后返回，如果两次响应都直接更新 state，最后屏幕里就会变回 A。这种问题在网络慢时特别容易让人看错材料。</p>
-<p>预览现在带一个递增的 <code>previewRequest</code> 版本。只有仍然对应当前版本的响应才能更新内容，关闭 dialog 也会递增版本，让晚到的响应失效。网络请求未必取消了，但它已经无权改掉当前选择。</p>
-<p id="overview">会话概览还有一些需要直接显示的东西：执行结束原因、目标状态、累计 Token、缓存读取，以及仍然活跃的子任务。文件列表区分 input、artifact 和 evidence。看结果时能分清这是上传的题目、生成的脚本，还是实际验证材料，会省掉不少来回翻聊天记录的时间。</p>
+<section id="preview"><h2>点 B 显示 A</h2>
+<p>先打开 A，马上切到 B。B 的请求先回来，A 后回来，两边都直接写 state 的话，屏幕上显示的还是 A。网慢的时候特别容易看错材料。</p>
+<p>预览现在带一个递增的 <code>previewRequest</code> 版本号，只有仍然对应当前版本的响应才能改内容；关对话框也递增，让晚到的响应作废。请求没被取消，但它已经没有权限改掉当前选择。</p>
+<p id="overview">会话概览补了几个直接显示的东西：结束原因、目标状态、累计 Token、缓存读取，还有仍在活跃的子任务。文件列表区分 input、artifact 和 evidence——看结果时能分清这是上传的题目、生成的脚本，还是实际验证材料，省掉不少翻聊天记录的时间。</p>
+<p>上传这块离断点续传还差得远，先这样。</p>
 </section><section id="sources"><h2>相关代码</h2><p>对应版本：<a href="https://github.com/Team-intN18-SoybeanSeclab/prtseek/tree/c888078cf58ef609946ab31aec7a1c87b9b9981c"><code>c888078</code></a>。</p><ul><li><a href="https://github.com/Team-intN18-SoybeanSeclab/prtseek/blob/c888078cf58ef609946ab31aec7a1c87b9b9981c/web/src/scripts/theme-boot.tsx"><code>web/src/scripts/theme-boot.tsx</code></a> — 首屏主题偏好解析</li><li><a href="https://github.com/Team-intN18-SoybeanSeclab/prtseek/blob/c888078cf58ef609946ab31aec7a1c87b9b9981c/web/src/lib/preferences/preferences-config.ts"><code>web/src/lib/preferences/preferences-config.ts</code></a> — 主题等偏好的默认值</li><li><a href="https://github.com/Team-intN18-SoybeanSeclab/prtseek/blob/c888078cf58ef609946ab31aec7a1c87b9b9981c/web/src/components/prts-boot.tsx"><code>web/src/components/prts-boot.tsx</code></a> — 启动动画、模态焦点与退出</li><li><a href="https://github.com/Team-intN18-SoybeanSeclab/prtseek/blob/c888078cf58ef609946ab31aec7a1c87b9b9981c/web/src/lib/chat-attachments.ts"><code>web/src/lib/chat-attachments.ts</code></a> — 附件上传回执复用</li><li><a href="https://github.com/Team-intN18-SoybeanSeclab/prtseek/blob/c888078cf58ef609946ab31aec7a1c87b9b9981c/web/src/components/conversation-overview.tsx"><code>web/src/components/conversation-overview.tsx</code></a> — 会话概览、文件预览与请求版本</li><li><a href="https://github.com/Team-intN18-SoybeanSeclab/prtseek/blob/c888078cf58ef609946ab31aec7a1c87b9b9981c/web/src/lib/ctf-status.ts"><code>web/src/lib/ctf-status.ts</code></a> — 执行及目标状态的前端表达</li></ul></section><section id="series"><h2>其他文章</h2><nav aria-label="系列文章导航"><p><a href="./">返回 prtseek 文章集</a></p><p>上一篇：<a rel="prev" href="evidence-and-experiments.html">同一个结果，别验证三遍</a></p><p>下一篇：<a rel="next" href="regression-and-evaluation.html">CI 绿了之后</a></p></nav></section>
 </article></div>
 </main>

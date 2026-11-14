@@ -5,24 +5,24 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
   <meta name="author" content="OracleNep" />
-  <meta name="description" content="记录做 prtseek 时遇到的具体问题：子任务怎么收尾，Token 怎么记，证据怎么留，还有前端那些用起来才会注意到的细节。" />
+  <meta name="description" content="做 prtseek 时写下的六篇笔记：子任务怎么收尾，Token 怎么记，证据怎么留，还有几个打开页面才发现的问题。" />
   <link rel="canonical" href="https://oraclenep.github.io/research/prtseek/" />
   <meta property="og:type" content="website" />
   <meta property="og:title" content="prtseek 开发文章集" />
-  <meta property="og:description" content="记录做 prtseek 时遇到的具体问题：子任务怎么收尾，Token 怎么记，证据怎么留，还有前端那些用起来才会注意到的细节。" />
+  <meta property="og:description" content="做 prtseek 时写下的六篇笔记：子任务怎么收尾，Token 怎么记，证据怎么留，还有几个打开页面才发现的问题。" />
   <meta property="og:url" content="https://oraclenep.github.io/research/prtseek/" />
   <meta property="og:site_name" content="OracleNep Research Notes" />
   
   <meta name="twitter:card" content="summary" />
   <meta name="twitter:title" content="prtseek 开发文章集" />
-  <meta name="twitter:description" content="记录做 prtseek 时遇到的具体问题：子任务怎么收尾，Token 怎么记，证据怎么留，还有前端那些用起来才会注意到的细节。" />
+  <meta name="twitter:description" content="做 prtseek 时写下的六篇笔记：子任务怎么收尾，Token 怎么记，证据怎么留，还有几个打开页面才发现的问题。" />
   <title>prtseek 开发文章集｜OracleNep</title>
   <script type="application/ld+json">
 {
   "@context": "https://schema.org",
   "@type": "CollectionPage",
   "name": "prtseek 开发文章集",
-  "description": "记录做 prtseek 时遇到的具体问题：子任务怎么收尾，Token 怎么记，证据怎么留，还有前端那些用起来才会注意到的细节。",
+  "description": "做 prtseek 时写下的六篇笔记：子任务怎么收尾，Token 怎么记，证据怎么留，还有几个打开页面才发现的问题。",
   "url": "https://oraclenep.github.io/research/prtseek/",
   "inLanguage": "zh-CN",
   "author": {
@@ -91,7 +91,7 @@
   <nav class="breadcrumb" aria-label="面包屑"><a href="../../">Home</a><span aria-hidden="true">/</span><a href="../">Research</a><span aria-hidden="true">/</span><span aria-current="page">prtseek</span></nav>
   <span class="eyebrow">prtseek / Development Notes</span>
   <h1>prtseek 开发文章集</h1>
-  <p class="subtitle">记录做 prtseek 时遇到的具体问题：子任务怎么收尾，Token 怎么记，证据怎么留，还有前端那些用起来才会注意到的细节。</p>
+  <p class="subtitle">做 prtseek 时写下的六篇笔记：子任务怎么收尾，Token 怎么记，证据怎么留，还有几个打开页面才发现的问题。</p>
   <div class="actions"><a class="button" href="workflow-architecture.html">从第一篇开始</a><a class="button" href="https://github.com/Team-intN18-SoybeanSeclab/prtseek">项目源码 ↗</a></div>
 </div></div></section><section class="section"><div class="inner grid">
 <article class="card">
@@ -101,17 +101,17 @@
 <p><a href="https://github.com/Team-intN18-SoybeanSeclab/prtseek/blob/c888078cf58ef609946ab31aec7a1c87b9b9981c/CHANGELOG.md">项目更新日志 →</a></p>
 </article>
 <article class="card"><div class="meta"><span class="tag">01</span><span class="tag">Architecture</span><span class="tag">CTF workflow</span><span class="tag">ARTEX</span></div>
-<h2><a href="workflow-architecture.html">把 prtseek 改成一个 CTF 工作台</a></h2><p>题目附件放哪，派出去的任务怎么收尾，找到的字符串到底算不算答案。这些事比多加几个角色更早需要解决。</p><a class="arrow" href="workflow-architecture.html">阅读全文 →</a></article>
+<h2><a href="workflow-architecture.html">把 prtseek 改成一个 CTF 工作台</a></h2><p>题目附件落在哪，派出去的任务怎么收尾，找到的字符串算不算答案。这三件事比多加几个角色挡路得多。</p><a class="arrow" href="workflow-architecture.html">阅读全文 →</a></article>
 <article class="card"><div class="meta"><span class="tag">02</span><span class="tag">Concurrency</span><span class="tag">Run budget</span><span class="tag">Lifecycle</span></div>
-<h2><a href="bounded-agent-collaboration.html">派出去的 Agent，最后要收回来</a></h2><p>异步派发很容易，麻烦的是有人先做完、有人还没停，以及父任务准备交付时后台仍在写文件。</p><a class="arrow" href="bounded-agent-collaboration.html">阅读全文 →</a></article>
+<h2><a href="bounded-agent-collaboration.html">派出去的 Agent，最后要收回来</a></h2><p>派发只要一瞬间，收结果、取消、关闭才是要写的那部分。哪一步没做完，父任务都可能提前收工。</p><a class="arrow" href="bounded-agent-collaboration.html">阅读全文 →</a></article>
 <article class="card"><div class="meta"><span class="tag">03</span><span class="tag">Context</span><span class="tag">HTTP observation</span><span class="tag">Metering</span></div>
-<h2><a href="context-observation-metering.html">上下文越跑越长，Token 还得算得清</a></h2><p>网页正文要留多少，流式 usage 怎么加，连接断了又该记多少。这几处处理不对，长会话就很难看明白。</p><a class="arrow" href="context-observation-metering.html">阅读全文 →</a></article>
+<h2><a href="context-observation-metering.html">上下文越跑越长，Token 还得算得清</a></h2><p>整页 HTML 塞进去，几轮就没地方了；用量照流上的数字直接加，又比账单多。两处都得给个明确的说法。</p><a class="arrow" href="context-observation-metering.html">阅读全文 →</a></article>
 <article class="card"><div class="meta"><span class="tag">04</span><span class="tag">Evidence</span><span class="tag">Experiments</span><span class="tag">Verification</span></div>
-<h2><a href="evidence-and-experiments.html">同一个结果，别验证三遍</a></h2><p>换了参数还是同一张页面，脚本失败却读到了旧文件。Agent 看起来一直在忙，证据却可能一条都没增加。</p><a class="arrow" href="evidence-and-experiments.html">阅读全文 →</a></article>
+<h2><a href="evidence-and-experiments.html">同一个结果，别验证三遍</a></h2><p>换了参数，拿回来还是同一张页面；脚本报错，读到的却是上次的文件。Agent 看着很忙，证据可能一条没多。</p><a class="arrow" href="evidence-and-experiments.html">阅读全文 →</a></article>
 <article class="card"><div class="meta"><span class="tag">05</span><span class="tag">Frontend</span><span class="tag">Theme</span><span class="tag">Session UX</span></div>
-<h2><a href="frontend-session-experience.html">开机动画、主题，以及几个会话里的小问题</a></h2><p>这轮前端调整从三个很直观的问题开始：动画没了，默认黑色，弹窗和侧栏的颜色也没对齐。</p><a class="arrow" href="frontend-session-experience.html">阅读全文 →</a></article>
+<h2><a href="frontend-session-experience.html">开机动画、主题，以及几个会话里的小问题</a></h2><p>这轮前端改动从三个很直观的毛病开始：动画没了，默认黑色，弹窗和侧栏颜色对不上。后面又补了两个用起来才发现的。</p><a class="arrow" href="frontend-session-experience.html">阅读全文 →</a></article>
 <article class="card"><div class="meta"><span class="tag">06</span><span class="tag">CI</span><span class="tag">Regression</span><span class="tag">Evaluation</span></div>
-<h2><a href="regression-and-evaluation.html">CI 绿了之后</a></h2><p>编译、回归、程序启动和模型做题是几件不同的事。读 prtseek 的测试结果，先看清究竟跑了什么。</p><a class="arrow" href="regression-and-evaluation.html">阅读全文 →</a></article>
+<h2><a href="regression-and-evaluation.html">CI 绿了之后</a></h2><p>go test ./... -run '^$' 这行是编译检查，不是测试。CI 绿、程序能启动、模型会做题，是四件不同的事。</p><a class="arrow" href="regression-and-evaluation.html">阅读全文 →</a></article>
 </div></section>
 </main>
 <footer class="footer"><div class="inner">
