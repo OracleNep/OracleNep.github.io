@@ -1,17 +1,14 @@
-# OracleNep Security Portfolio
+# OracleNep Security Research
 
-这是 OracleNep 的公开安全作品集，部署到 GitHub Pages。
+Personal website and technical research notebook, published with GitHub Pages.
 
-页面主要展示：
+- [Website](https://oraclenep.github.io/)
+- [Selected projects](https://oraclenep.github.io/#projects)
+- [Security research and disclosures](https://oraclenep.github.io/#vulns)
+- [Upstream contributions](https://oraclenep.github.io/#contributions)
+- [Research notes](https://oraclenep.github.io/research/)
+- [GitHub profile](https://github.com/OracleNep)
 
-- 漏洞平台主页
-- CVE / CNVD 代表编号
-- GitHub 公开项目
-- PHP 官方源码仓库 PR
-- SRC、CNVD 和授权测试经历的脱敏概述
+The site covers application security, Agent / MCP trust boundaries, security tooling, and coordinated vulnerability disclosure. Published advisories, private reporting, and upstream patch status are labeled separately.
 
-部署地址：
-
-```text
-https://oraclenep.github.io/
-```
+Static HTML, CSS, and JavaScript; deployed from the root of `main`.

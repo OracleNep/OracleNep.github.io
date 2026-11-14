@@ -1,12 +1,12 @@
 <!doctype html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="robots" content="noindex, noarchive" />
-  <meta name="description" content="OracleNep's technical notebook on cybersecurity, AI security, application security, and vulnerability governance." />
+  <meta name="description" content="OracleNep: application and AI agent security, coordinated vulnerability disclosure, security tooling, and open-source contributions." />
   <meta property="og:title" content="OracleNep | Security Research" />
-  <meta property="og:description" content="Notes on AI security, Agent boundaries, Java/Spring review workflows, vulnerability research, and security tooling." />
+  <meta property="og:description" content="Selected security projects, published GHSA research, Java / Spring code review, Agent / MCP boundaries, and upstream contributions." />
   <meta property="og:image" content="assets/hero-security-portfolio.png" />
   <title>OracleNep | Security Research</title>
   <style>
@@ -911,6 +911,22 @@
         box-shadow: 6px 6px 0 rgba(17, 19, 23, .12);
       }
     }
+
+    /* Portfolio records and responsive project layout. */
+    section[id], #links { scroll-margin-top: 108px; }
+    .project { min-width: 0; }
+    .project h3 a { color: inherit; }
+    .project p, .project li, .advisory-id { overflow-wrap: anywhere; }
+    .project-meta { display: flex; justify-content: space-between; gap: 12px; color: var(--muted); font-size: 12px; }
+    .project-meta span:last-child { flex-shrink: 0; color: var(--ink); font-weight: 800; }
+    .reference-records, .research-links { margin-top: 24px; }
+    @media (min-width: 921px) {
+      .selected-projects { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+      .selected-projects > article { grid-column: span 2; }
+      .selected-projects > article:nth-child(-n+2) { grid-column: span 3; }
+    }
+    @media (max-width: 920px) { section[id], #links { scroll-margin-top: 172px; } }
+    @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
   </style>
 </head>
 <body>
@@ -918,10 +934,10 @@
     <nav class="nav" aria-label="Primary navigation">
       <a class="brand" href="#top">OracleNep / Security Research</a>
       <div class="nav-links">
-        <a href="#research">Research</a>
-        <a href="#links">Links</a>
-        <a href="#vulns">Vulns</a>
         <a href="#projects">Projects</a>
+        <a href="#vulns">Disclosures</a>
+        <a href="#contributions">Contributions</a>
+        <a href="#research">Research</a>
       </div>
     </nav>
   </header>
@@ -931,199 +947,151 @@
       <canvas class="hero-particle-canvas" aria-hidden="true"></canvas>
       <div class="inner">
         <div class="hero-copy">
-          <span class="eyebrow">CYBERSECURITY / AI SECURITY</span>
+          <span class="eyebrow">ORACLENEP / APPLICATION &amp; AI SECURITY</span>
           <h1>AI SECURITY</h1>
-          <p class="hero-subtitle">
-            AI security, application security, and vulnerability governance.<br />Agent boundaries, Java/Spring review, and security automation.
-          </p>
+          <p class="hero-subtitle">I research application and AI agent security, and build tools for reproducible security work.<br />Java / Spring code review, Agent / MCP trust boundaries, and coordinated vulnerability disclosure.</p>
           <div class="actions">
-            <a class="button primary" href="research/">Research Notes</a>
-            <a class="button" href="#vulns">Vulnerability Index</a>
-            <a class="button" href="https://github.com/OracleNep" target="_blank" rel="noreferrer">GitHub</a>
+            <a class="button primary" href="#projects">Selected Projects</a>
+            <a class="button" href="#vulns">Security Research</a>
+            <a class="button" href="research/">Research Notes</a>
           </div>
         </div>
       </div>
     </section>
 
-    <section class="section alt" aria-label="Selected records">
+    <section class="section alt" aria-label="Areas of work">
       <div class="inner">
         <div class="metrics">
-          <div class="metric">
-            <strong>AI / Agent</strong>
-            <span>Tool permissions, MCP, prompt injection, and RAG</span>
-          </div>
-          <div class="metric">
-            <strong>Java / Spring</strong>
-            <span>White-box audit and secure coding workflows</span>
-          </div>
-          <div class="metric">
-            <strong>CVE / CNVD</strong>
-            <span>Public identifier index and disclosure notes</span>
-          </div>
-          <div class="metric">
-            <strong>Open Source</strong>
-            <span>Security tooling, experiments, and research notes</span>
-          </div>
+          <div class="metric"><strong>AppSec</strong><span>Code review, authorization, and root-cause analysis</span></div>
+          <div class="metric"><strong>AI / Agent</strong><span>Tool permissions, MCP, and execution boundaries</span></div>
+          <div class="metric"><strong>Disclosure</strong><span>GHSA, public research, and remediation review</span></div>
+          <div class="metric"><strong>Tooling</strong><span>Security automation and upstream contributions</span></div>
         </div>
       </div>
     </section>
 
-    <section class="section alt" id="links">
+    <section class="section" id="projects">
       <div class="inner">
         <div class="section-title">
-          <h2>Public Links</h2>
-          <p>Repositories, research notes, influential security projects, and upstream contributions that provide context for the work.</p>
+          <h2>Selected Projects</h2>
+          <p>Security tools and agent workflows, developed independently and with SoybeanSeclab. Repository stars as of November 14, 2026.</p>
         </div>
-        <div class="link-grid">
-          <a class="link-card" href="research/">
-            <span><strong>Research Notes</strong><span>Java security, SAST, SARIF, and Agent review workflows</span></span>
-            <span class="arrow">Open</span>
-          </a>
-          <a class="link-card" href="https://github.com/OracleNep" target="_blank" rel="noreferrer">
-            <span><strong>GitHub / OracleNep</strong><span>Public repositories, tools, experiments, and notes</span></span>
-            <span class="arrow">Open</span>
-          </a>
-          <a class="link-card" href="https://github.com/Netw0rkNoob/VulnClaw" target="_blank" rel="noreferrer">
-            <span><strong>VulnClaw</strong><span>AI Agent + MCP security workflow for authorized penetration testing</span></span>
-            <span class="arrow">Open</span>
-          </a>
-          <a class="link-card" href="https://github.com/Team-intN18-SoybeanSeclab/Phantom" target="_blank" rel="noreferrer">
-            <span><strong>Phantom</strong><span>Browser extension for SRC reconnaissance and frontend API mapping</span></span>
-            <span class="arrow">Open</span>
-          </a>
-          <a class="link-card" href="https://github.com/deepseek-ai/deepseek-harness/discussions/853" target="_blank" rel="noreferrer">
-            <span><strong>DeepSeek Harness Discussion</strong><span>Public security research disclosure for the dsh web UI control plane</span></span>
-            <span class="arrow">Open</span>
-          </a>
-          <a class="link-card" href="https://github.com/Team-intN18-SoybeanSeclab/JavaSecAtlas" target="_blank" rel="noreferrer">
-            <span><strong>JavaSecAtlas</strong><span>Java / Spring audit tooling developed with SoybeanSeclab</span></span>
-            <span class="arrow">Open</span>
-          </a>
-          <a class="link-card" href="https://github.com/php/php-src/pulls?q=22261+OR+22223" target="_blank" rel="noreferrer">
-            <span><strong>php-src PRs #22261 / #22223</strong><span>Upstream maintenance and input validation work</span></span>
-            <span class="arrow">Open</span>
-          </a>
+        <div class="project-grid selected-projects">
+          <article class="project">
+            <div class="project-meta"><span>Team project</span><span aria-label="692 GitHub stars">&#9733; 692</span></div>
+            <h3><a href="https://github.com/Team-intN18-SoybeanSeclab/Phantom" target="_blank" rel="noreferrer">Phantom &nearr;</a></h3>
+            <p>A browser extension for frontend asset discovery and API mapping during authorized security testing.</p>
+            <p>Recursive JavaScript scanning, configurable concurrency, batch API checks, custom rules, and structured exports.</p>
+            <div class="tag-row"><span class="tag">JavaScript</span><span class="tag">Browser extension</span><span class="tag">AppSec</span></div>
+            
+          </article>
+          <article class="project">
+            <div class="project-meta"><span>Personal project</span><span aria-label="65 GitHub stars">&#9733; 65</span></div>
+            <h3><a href="https://github.com/OracleNep/AgentFlowDesk" target="_blank" rel="noreferrer">AgentFlowDesk &nearr;</a></h3>
+            <p>A local Python CLI that organizes the work around AI coding agents, from task context to review.</p>
+            <p>Builds context packs and agent instruction files; records commands, logs, diffs, checks, and review reports. Current release: v0.1.0, CLI-first.</p>
+            <div class="tag-row"><span class="tag">Python</span><span class="tag">Coding agents</span><span class="tag">Local workflow</span></div>
+            
+          </article>
+          <article class="project">
+            <div class="project-meta"><span>Team project · based on ARTEX</span><span aria-label="53 GitHub stars">&#9733; 53</span></div>
+            <h3><a href="https://github.com/Team-intN18-SoybeanSeclab/prtseek" target="_blank" rel="noreferrer">prtseek &nearr;</a></h3>
+            <p>A four-role CTF agent system with asynchronous collaboration, shared budgets, and session artifacts.</p>
+            <p>Recent work improves evidence tracking, per-round records, interruption handling, HTTP observation, and experiment isolation.</p>
+            <div class="tag-row"><span class="tag">Go</span><span class="tag">Agent coordination</span><span class="tag">CTF</span></div>
+            <p><a href="https://github.com/Team-intN18-SoybeanSeclab/prtseek/blob/master/CHANGELOG.md" target="_blank" rel="noreferrer">Update history &rarr;</a></p>
+          </article>
+          <article class="project">
+            <div class="project-meta"><span>Team project</span><span aria-label="48 GitHub stars">&#9733; 48</span></div>
+            <h3><a href="https://github.com/Team-intN18-SoybeanSeclab/prtstrike" target="_blank" rel="noreferrer">prtstrike &nearr;</a></h3>
+            <p>A lightweight Go command-and-control framework for authorized security labs and exercises.</p>
+            <p>Combines a web console, peer-node coordination, task and result management, file workflows, and Docker deployment.</p>
+            <div class="tag-row"><span class="tag">Go</span><span class="tag">Distributed systems</span><span class="tag">Security labs</span></div>
+            
+          </article>
+          <article class="project">
+            <div class="project-meta"><span>Team project</span><span aria-label="2 GitHub stars">&#9733; 2</span></div>
+            <h3><a href="https://github.com/Team-intN18-SoybeanSeclab/JavaSecAtlas" target="_blank" rel="noreferrer">JavaSecAtlas &nearr;</a></h3>
+            <p>A Java / Spring audit workbench connecting route and permission context with source review.</p>
+            <p>v1.2.0 supports Semgrep / CodeQL SARIF import, heuristic checks, a local GUI, AI-assisted review, and JSON / Markdown / HTML / SARIF reports.</p>
+            <div class="tag-row"><span class="tag">Java / Spring</span><span class="tag">SARIF</span><span class="tag">Code review</span></div>
+            
+          </article>
         </div>
       </div>
     </section>
 
-    <section class="section" id="research">
+    <section class="section alt" id="vulns">
       <div class="inner">
         <div class="section-title">
-          <h2>Research Focus</h2>
-          <p>Research notes on practical security problems, repeatable verification, and the boundary between automation and human review.</p>
+          <h2>Security Research &amp; Disclosure</h2>
+          <p>Selected public findings and coordinated reporting. Advisory status checked November 14, 2026.</p>
         </div>
-        <article class="project">
-          <span class="label green">AI Security</span>
-          <h3>AI Security and Agent Boundaries</h3>
-          <p>Exploring tool permissions, MCP call boundaries, prompt injection, RAG data use, and human confirmation in AI-assisted security workflows.</p>
-          <div class="tag-row">
-            <span class="tag">Agent Security</span>
-            <span class="tag">MCP</span>
-            <span class="tag">Prompt Injection</span>
-            <span class="tag">RAG</span>
+        <div class="project-grid disclosure-grid">
+          <article class="project">
+            <span class="label green">Published advisory</span>
+            <h3>NocoDB</h3>
+            <p><a class="advisory-id" href="https://github.com/nocodb/nocodb/security/advisories/GHSA-hjgf-2f3h-4962" target="_blank" rel="noreferrer">GHSA-hjgf-2f3h-4962 &nearr;</a></p>
+            <p>Server-side request forgery via integration remote fetch. The official advisory credits <strong>OracleNep</strong> as the reporter.</p>
+            <div class="tag-row"><span class="tag">High · CVSS 8.5</span><span class="tag">Published Nov 2, 2026</span></div>
+            <p>The advisory documents internal-network access and integration-secret exposure, with remediation across releases 2026.08.0 and 2026.10.1.</p>
+          </article>
+          <article class="project">
+            <span class="label">Public research report</span>
+            <h3>DeepSeek Harness</h3>
+            <p>Research into authentication and trust boundaries in the <code>dsh web</code> agent control plane, tested on 0.1.0-rc.6.</p>
+            <p>The report distinguishes local-process access from remote exposure when the service is configured to listen beyond loopback, and proposes authentication and authorization improvements.</p>
+            <p><a href="https://github.com/deepseek-ai/deepseek-harness/discussions/853" target="_blank" rel="noreferrer">Read discussion #853 &nearr;</a></p>
+          </article>
+          <article class="project">
+            <span class="label">Private reporting</span>
+            <h3>Coordinated GHSA Submissions</h3>
+            <p>Submitted vulnerability reports through GitHub's private security advisory workflow for Flowise and Strapi.</p>
+            <ul><li><strong>Flowise:</strong> one advisory in draft.</li><li><strong>Strapi:</strong> three reports in triage.</li></ul>
+            <p>These reports are not published advisories. Technical details remain private during coordination with maintainers.</p>
+          </article>
+        </div>
+        <article class="project reference-records">
+          <h3>CVE / CNVD References</h3>
+          <p>Selected identifiers from individual and team vulnerability reporting.</p>
+          <div class="id-grid">
+            <a class="id-link" href="https://www.cve.org/CVERecord?id=CVE-2025-7181" target="_blank" rel="noreferrer">CVE-2025-7181</a>
+            <a class="id-link" href="https://www.cve.org/CVERecord?id=CVE-2025-7175" target="_blank" rel="noreferrer">CVE-2025-7175</a>
+            <span class="id-link">CNVD-2026-10837</span><span class="id-link">CNVD-2025-17734</span>
           </div>
-          <ul>
-            <li>Separating tool execution from final risk judgment.</li>
-            <li>Using AI output as review evidence rather than an automatic verdict.</li>
-            <li>Studying failure recovery, audit trails, and false-positive handling.</li>
-            <li>Connecting AI-assisted triage with conventional application security workflows.</li>
-          </ul>
-          <p><a href="research/javasecatlas-series.html">Read the series -&gt;</a></p>
         </article>
       </div>
     </section>
 
-    <section class="section" id="vulns">
+    <section class="section" id="contributions">
       <div class="inner">
-        <div class="section-title">
-          <h2>Vulnerability Index</h2>
-          <p>A small index of public identifiers and research areas. Details remain subject to platform and vendor disclosure rules.</p>
-        </div>
-        <div class="vuln-layout">
-          <article class="project">
-            <h3>CVE / CNVD References</h3>
-            <p>Topics include Web security, the Java ecosystem, code review, business logic, and authorized testing.</p>
-            <div class="id-grid">
-              <a class="id-link" href="https://www.cve.org/CVERecord?id=CVE-2025-7181" target="_blank" rel="noreferrer">CVE-2025-7181</a>
-              <a class="id-link" href="https://www.cve.org/CVERecord?id=CVE-2025-7175" target="_blank" rel="noreferrer">CVE-2025-7175</a>
-              <span class="id-link">CNVD-2026-10837</span>
-              <span class="id-link">CNVD-2025-17734</span>
-            </div>
-            <p>CNVD entries are plain text references because the platform requires a signed-in session for detail pages.</p>
-          </article>
-          <article class="project">
-            <h3>Vulnerability Governance</h3>
-            <ul>
-              <li>Reproducible steps, impact scope, risk assessment, remediation, and retest notes.</li>
-              <li>Version and trigger analysis grounded in advisories, source review, and observed behavior.</li>
-              <li>Public notes keep only necessary references and omit unpublished exploitation details.</li>
-            </ul>
-          </article>
+        <div class="section-title"><h2>Upstream Contributions</h2><p>Selected patches with public review and merge history.</p></div>
+        <div class="project-grid">
+          <article class="project"><span class="label green">Merged</span><h3>VulnClaw #75</h3><p>Added bounded recovery when the solve engine exhausts its open intents before completing the goal, with fallback exploration, CLI events, and regression coverage.</p><p><a href="https://github.com/Netw0rkNoob/VulnClaw/pull/75" target="_blank" rel="noreferrer">Review the patch &nearr;</a></p></article>
+          <article class="project"><span class="label green">Merged</span><h3>PHP #22261</h3><p>Documentation and test-comment maintenance for error conventions in <code>ext/intl</code>.</p><p><a href="https://github.com/php/php-src/pull/22261" target="_blank" rel="noreferrer">Review the patch &nearr;</a></p></article>
+          <article class="project"><span class="label">Open for review</span><h3>PHP #22223</h3><p>Aligns <code>request_parse_body()</code> handling of <code>max_input_vars</code> with INI behavior, with PHPT regression coverage and compatibility notes.</p><p><a href="https://github.com/php/php-src/pull/22223" target="_blank" rel="noreferrer">Review the patch &nearr;</a></p></article>
         </div>
       </div>
     </section>
 
-    <section class="section alt" id="projects">
+    <section class="section alt" id="research">
       <div class="inner">
-        <div class="section-title">
-          <h2>Projects and Contributions</h2>
-          <p>Selected projects with public repositories, releases, or upstream review history.</p>
+        <div class="section-title"><h2>Research &amp; Practice</h2><p>From source review and reproducible findings to remediation and retesting.</p></div>
+        <div class="vuln-layout">
+          <article class="project"><h3>Application Security</h3><p>I review Java / Spring applications by tracing request entry points, permission checks, data flow, and dangerous operations. My tooling work connects source context with Semgrep / CodeQL findings and SARIF reports.</p><p>My practical experience includes authorized vulnerability research, incident triage, host-security checks, impact assessment, and remediation follow-up.</p></article>
+          <article class="project"><h3>AI Agent Security</h3><p>I study where agents cross trust boundaries: tool execution, MCP permissions, local control planes, and approval flows. I also work on recovery behavior, evidence records, and human review in agent-assisted security workflows.</p><p>Research notes document prerequisites and verification limits alongside findings.</p></article>
         </div>
-        <div class="project-grid">
-          <article class="project">
-            <h3>JavaSecAtlas</h3>
-            <p>A Java / Spring audit workbench developed with SoybeanSeclab for rule prototyping, SARIF normalization, and report preparation.</p>
-            <div class="tag-row">
-              <span class="tag">Java / Spring</span>
-              <span class="tag">Audit workflow</span>
-              <span class="tag">SARIF / HTML</span>
-            </div>
-            <ul>
-              <li>Recognizes Maven / Gradle projects and extracts Spring routes and selected permission context.</li>
-              <li>Provides heuristic checks for SSRF, XXE, SpEL, path traversal, and file upload cases.</li>
-              <li>Connects repeatable findings with report generation and human review.</li>
-            </ul>
-          </article>
-          <article class="project">
-            <h3>VulnClaw</h3>
-            <p>An AI Agent security testing tool that combines MCP tools and Skill orchestration for authorized asset mapping, verification, and report drafting.</p>
-            <div class="tag-row">
-              <span class="tag">AI Agent</span>
-              <span class="tag">MCP</span>
-              <span class="tag">Authorized Testing</span>
-            </div>
-            <ul>
-              <li>Explores recovery behavior when an automated task reaches an exception or fallback path.</li>
-              <li>Emphasizes tool permissions, run records, false-positive review, and human confirmation.</li>
-              <li>Keeps AI output as supporting evidence rather than the final security decision.</li>
-            </ul>
-          </article>
-          <article class="project">
-            <h3>Phantom</h3>
-            <p>A SoybeanSeclab browser extension for early-stage frontend asset mapping and signal collection in authorized testing.</p>
-            <div class="tag-row">
-              <span class="tag">JavaScript</span>
-              <span class="tag">Browser Extension</span>
-              <span class="tag">SRC workflow</span>
-            </div>
-            <ul>
-              <li>Supports basic and recursive scanning, batch API checks, export, and custom regex rules.</li>
-              <li>Useful for frontend API mapping, JavaScript review, and scope control before manual testing.</li>
-              <li>Maintained as part of a broader security tooling workflow.</li>
-            </ul>
-          </article>
+        <div class="link-grid research-links" id="links">
+          <a class="link-card" href="research/java-jndi-lookup-boundary.html"><span><strong>JNDI Lookup Boundaries</strong><span>Java research note · Chinese</span></span><span class="arrow">Read</span></a>
+          <a class="link-card" href="research/java-spel-evaluation-context.html"><span><strong>SpEL Evaluation Contexts</strong><span>Java research note · Chinese</span></span><span class="arrow">Read</span></a>
+          <a class="link-card" href="research/javasecatlas-series.html"><span><strong>JavaSecAtlas Research Series</strong><span>Audit workflows and SARIF · Chinese</span></span><span class="arrow">Read</span></a>
+          <a class="link-card" href="research/"><span><strong>All Research Notes</strong><span>Technical articles and project analysis</span></span><span class="arrow">Open</span></a>
         </div>
       </div>
     </section>
   </main>
 
-  <footer class="footer">
-    <div class="inner">
-      <span>OracleNep / Security Research Notes</span>
-      <span><a href="https://github.com/OracleNep" target="_blank" rel="noreferrer">github.com/OracleNep</a></span>
-    </div>
-  </footer>
+  <footer class="footer"><div class="inner"><span>OracleNep / Security Research · Updated 2026-11-14</span><span><a href="https://github.com/OracleNep" target="_blank" rel="noreferrer">GitHub</a> · <a href="https://github.com/Team-intN18-SoybeanSeclab" target="_blank" rel="noreferrer">SoybeanSeclab</a></span></div></footer>
   <script>
     (() => {
       const canvas = document.querySelector(".hero-particle-canvas");

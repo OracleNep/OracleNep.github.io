@@ -1,30 +1,43 @@
 # OracleNep Security Research
 
-> Security research notes by OracleNep, focused on cybersecurity, AI security defense, Agent tool-chain boundaries, vulnerability governance, Java/Spring white-box audit, SARIF, Semgrep, CodeQL, and security tooling.
+> OracleNep researches application and AI agent security, builds security tools, and contributes to open-source projects. Public content uses the OracleNep alias.
 
 ## Main pages
 
 - Portfolio: https://oraclenep.github.io/
-- Research index: https://oraclenep.github.io/research/
-- SpEL EvaluationContext research: https://oraclenep.github.io/research/java-spel-evaluation-context.html
+- GitHub profile: https://github.com/OracleNep
+- Research notes, in Chinese: https://oraclenep.github.io/research/
+- Java JNDI lookup boundaries: https://oraclenep.github.io/research/java-jndi-lookup-boundary.html
+- SpEL evaluation contexts: https://oraclenep.github.io/research/java-spel-evaluation-context.html
 - JavaSecAtlas research series: https://oraclenep.github.io/research/javasecatlas-series.html
 
-## Current research topics
+## Selected projects
 
-- Spring SpEL expression execution boundary and EvaluationContext security model
-- StandardEvaluationContext vs SimpleEvaluationContext in Java white-box audit
-- Java expression injection audit sources and sinks
-- JavaSecAtlas V1.2 project review
-- Java / Spring white-box audit workflow
-- SARIF import and normalization
-- Semgrep / CodeQL finding orchestration
-- Spring route and permission-context correlation
-- LLM Agent assisted triage and report drafting
-- AI Agent tool permissions, MCP boundaries, Prompt Injection, RAG usage, and human review
-- Vulnerability governance, incident response, remediation, and retest workflow
+- Phantom (Team project): https://github.com/Team-intN18-SoybeanSeclab/Phantom
+- AgentFlowDesk (Personal project): https://github.com/OracleNep/AgentFlowDesk
+- prtseek (Team project · based on ARTEX): https://github.com/Team-intN18-SoybeanSeclab/prtseek
+- prtstrike (Team project): https://github.com/Team-intN18-SoybeanSeclab/prtstrike
+- JavaSecAtlas (Team project): https://github.com/Team-intN18-SoybeanSeclab/JavaSecAtlas
 
-## Repository links
+## Public research and contributions
 
-- OracleNep GitHub: https://github.com/OracleNep
-- JavaSecAtlas: https://github.com/Team-intN18-SoybeanSeclab/JavaSecAtlas
-- VulnClaw and authorized security tooling: https://github.com/OracleNep
+- NocoDB GHSA-hjgf-2f3h-4962: https://github.com/nocodb/nocodb/security/advisories/GHSA-hjgf-2f3h-4962
+  Published 2026-11-02. High severity, CVSS 8.5. OracleNep is credited as reporter. Follow the advisory for remediation details.
+- DeepSeek Harness public research report: https://github.com/deepseek-ai/deepseek-harness/discussions/853
+  Control-plane authentication and trust-boundary research on 0.1.0-rc.6. A public discussion, not a published GHSA.
+- VulnClaw solve-frontier recovery, merged: https://github.com/Netw0rkNoob/VulnClaw/pull/75
+- PHP ext/intl documentation and test-comment maintenance, merged: https://github.com/php/php-src/pull/22261
+- PHP request_parse_body / max_input_vars behavior, open for review: https://github.com/php/php-src/pull/22223
+
+## Disclosure status
+
+As of 2026-11-14, one private Flowise advisory is in draft and three Strapi reports are in triage. Their technical details are not published here. Do not describe these submissions as published advisories or assigned CVEs.
+
+## Current focus
+
+- Java / Spring source review, route and permission context, and root-cause analysis
+- Semgrep / CodeQL SARIF import, finding review, and report generation
+- Agent / MCP tool permissions, local control planes, and approval boundaries
+- Reproducible verification, remediation review, and retesting
+
+JavaSecAtlas is an audit-assistance workbench, not an automatic exploit-confirmation system. AgentFlowDesk v0.1.0 is a CLI; a web task board is not an implemented feature. Team projects and upstream contributions are identified separately on the portfolio.
