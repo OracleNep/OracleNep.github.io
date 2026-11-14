@@ -134,7 +134,7 @@ Object obj = ctx.lookup(name);</code></pre>
         <section id="factory">
           <h2>对象化发生在 NamingManager</h2>
           <p>名字解析完，如果拿到的是 <code>Reference</code>，JNDI 会去找工厂把它变成对象。入口是 <code>NamingManager.getObjectInstance()</code>，可用的工厂有三个来源：<code>Reference</code> 自己带的类名、里面的 URL 地址，以及环境属性 <code>Context.OBJECT_FACTORIES</code> 里注册的类。</p>
-          <pre><code>// 表达调用顺序,不是 JDK 源码逐行复制
+          <pre><code>// 表达调用顺序，不是 JDK 源码逐行复制
 Object getObjectInstance(Object refInfo, Name name, Context ctx, Hashtable env) {
     if (refInfo contains factoryClassName) {
         ObjectFactory f = loadFactory(factoryClassName, env);
