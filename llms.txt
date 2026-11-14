@@ -14,12 +14,12 @@
 ## prtseek development series (Chinese)
 
 - Collection: https://oraclenep.github.io/research/prtseek/
-- 01. 从聊天界面到可验收的 CTF 工作流: https://oraclenep.github.io/research/prtseek/workflow-architecture.html
-- 02. 多 Agent 协作：派发、等待、取消与共享预算: https://oraclenep.github.io/research/prtseek/bounded-agent-collaboration.html
-- 03. 上下文与用量：有界观察、逐轮计量和中断记录: https://oraclenep.github.io/research/prtseek/context-observation-metering.html
-- 04. 证据与实验：从重复尝试到可复核的结论: https://oraclenep.github.io/research/prtseek/evidence-and-experiments.html
-- 05. 前端会话体验：主题、启动动画与可信状态: https://oraclenep.github.io/research/prtseek/frontend-session-experience.html
-- 06. 测试与评测：CI 通过以后，还能证明什么: https://oraclenep.github.io/research/prtseek/regression-and-evaluation.html
+- 01. 把 prtseek 改成一个 CTF 工作台: https://oraclenep.github.io/research/prtseek/workflow-architecture.html
+- 02. 派出去的 Agent，最后要收回来: https://oraclenep.github.io/research/prtseek/bounded-agent-collaboration.html
+- 03. 上下文越跑越长，Token 还得算得清: https://oraclenep.github.io/research/prtseek/context-observation-metering.html
+- 04. 同一个结果，别验证三遍: https://oraclenep.github.io/research/prtseek/evidence-and-experiments.html
+- 05. 开机动画、主题，以及几个会话里的小问题: https://oraclenep.github.io/research/prtseek/frontend-session-experience.html
+- 06. CI 绿了之后: https://oraclenep.github.io/research/prtseek/regression-and-evaluation.html
 
 Six implementation notes based on prtseek commit c888078cf58ef609946ab31aec7a1c87b9b9981c. prtseek is derived from RuoJi6/ARTEX and Autumn-27/ARTEX under AGPL-3.0. Synthetic examples and deterministic tests are not evidence of real-model solve-rate improvements.
 

@@ -5,25 +5,25 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
   <meta name="author" content="OracleNep" />
-  <meta name="description" content="区分 prtseek 的编译检查、工作流回归、二进制与容器冒烟、合成题评测和真实模型能力，明确测试证据可以支持的结论。" />
+  <meta name="description" content="编译、回归、程序启动和模型做题是几件不同的事。读 prtseek 的测试结果，先看清究竟跑了什么。" />
   <link rel="canonical" href="https://oraclenep.github.io/research/prtseek/regression-and-evaluation.html" />
   <meta property="og:type" content="article" />
-  <meta property="og:title" content="测试与评测：CI 通过以后，还能证明什么｜prtseek 开发笔记" />
-  <meta property="og:description" content="区分 prtseek 的编译检查、工作流回归、二进制与容器冒烟、合成题评测和真实模型能力，明确测试证据可以支持的结论。" />
+  <meta property="og:title" content="CI 绿了之后｜prtseek 开发笔记" />
+  <meta property="og:description" content="编译、回归、程序启动和模型做题是几件不同的事。读 prtseek 的测试结果，先看清究竟跑了什么。" />
   <meta property="og:url" content="https://oraclenep.github.io/research/prtseek/regression-and-evaluation.html" />
   <meta property="og:site_name" content="OracleNep Research Notes" />
   <meta property="article:published_time" content="2026-11-14T00:00:00+08:00" />
   <meta property="article:modified_time" content="2026-11-14T00:00:00+08:00" />
   <meta name="twitter:card" content="summary" />
-  <meta name="twitter:title" content="测试与评测：CI 通过以后，还能证明什么｜prtseek 开发笔记" />
-  <meta name="twitter:description" content="区分 prtseek 的编译检查、工作流回归、二进制与容器冒烟、合成题评测和真实模型能力，明确测试证据可以支持的结论。" />
-  <title>测试与评测：CI 通过以后，还能证明什么｜prtseek 开发笔记｜OracleNep</title>
+  <meta name="twitter:title" content="CI 绿了之后｜prtseek 开发笔记" />
+  <meta name="twitter:description" content="编译、回归、程序启动和模型做题是几件不同的事。读 prtseek 的测试结果，先看清究竟跑了什么。" />
+  <title>CI 绿了之后｜prtseek 开发笔记｜OracleNep</title>
   <script type="application/ld+json">
 {
   "@context": "https://schema.org",
   "@type": "TechArticle",
-  "headline": "测试与评测：CI 通过以后，还能证明什么",
-  "description": "区分 prtseek 的编译检查、工作流回归、二进制与容器冒烟、合成题评测和真实模型能力，明确测试证据可以支持的结论。",
+  "headline": "CI 绿了之后",
+  "description": "编译、回归、程序启动和模型做题是几件不同的事。读 prtseek 的测试结果，先看清究竟跑了什么。",
   "url": "https://oraclenep.github.io/research/prtseek/regression-and-evaluation.html",
   "mainEntityOfPage": "https://oraclenep.github.io/research/prtseek/regression-and-evaluation.html",
   "datePublished": "2026-11-14",
@@ -73,61 +73,40 @@
 <section class="hero"><div class="inner"><div class="hero-copy">
   <nav class="breadcrumb" aria-label="面包屑"><a href="../../">Home</a><span aria-hidden="true">/</span><a href="../">Research</a><span aria-hidden="true">/</span><a href="./">prtseek</a><span aria-hidden="true">/</span><span aria-current="page">06</span></nav>
   <span class="eyebrow">prtseek / Development Notes / 06</span>
-  <h1>测试与评测：CI 通过以后，还能证明什么</h1>
-  <p class="subtitle">区分 prtseek 的编译检查、工作流回归、二进制与容器冒烟、合成题评测和真实模型能力，明确测试证据可以支持的结论。</p>
+  <h1>CI 绿了之后</h1>
+  <p class="subtitle">编译、回归、程序启动和模型做题是几件不同的事。读 prtseek 的测试结果，先看清究竟跑了什么。</p>
   <div class="actions"><a class="button" href="./">专题目录</a><a class="button" href="https://github.com/Team-intN18-SoybeanSeclab/prtseek">项目源码 ↗</a></div>
 </div></div></section><div class="inner layout">
-<aside class="toc" aria-label="文章目录"><details open><summary>目录</summary><div class="toc-content"><a href="#layers">01 / 稳定运行和更会解题，需要不同证据</a><a href="#ci">02 / 当前 CI 实际执行的范围</a><a href="#smoke">03 / 检查实际交付物，而不只看源码</a><a href="#fixtures">04 / 三类小题，分别检查三种行为</a><a href="#comparison">05 / 对照结果要同时看正确性和开销</a><a href="#claim">06 / 让每个结论对应一种验证</a><a href="#sources">源码与版本</a><a href="#series">系列阅读</a></div></details><p class="small">prtseek 开发文章集<br>第 6 / 6 篇</p></aside>
+<aside class="toc" aria-label="文章目录"><details open><summary>目录</summary><div class="toc-content"><a href="#ci">现在这套流水线查哪些地方</a><a href="#fixtures">三道小题，也包括一道做不出来的</a><a href="#comparison">多花的调用换来了什么</a><a href="#sources">相关代码</a><a href="#series">其他文章</a></div></details><p class="small">prtseek 开发文章集<br>第 6 / 6 篇</p></aside>
 <article>
 <div class="meta"><span class="tag">OracleNep</span><span class="tag">2026-11-14</span><span class="tag">CI</span><span class="tag">Regression</span><span class="tag">Evaluation</span></div>
-<section id="layers"><h2>01 / 稳定运行和更会解题，需要不同证据</h2>
-<p>修复一次流中断误判，可以通过确定性输入验证：喂给包装层一个没有结束原因的流，检查它是否返回不完整运行错误。判断多 Agent 是否比单 solver 更会解题，却不能靠同样的测试得到答案；那需要真实模型、可比较的题集和重复运行。</p>
-<p>prtseek 的验证应分层阅读。编译检查回答代码能否构建，回归测试回答已知路径是否符合约束，冒烟检查回答最终程序能否启动并提供功能入口，评测才进一步比较任务结果与资源消耗。跨过一层，就需要相应的新证据。</p>
+<div id="layers">
+<p>仓库里有一条命令，很容易只看前半截：</p>
+<pre><code>go test ./... -run '^$'</code></pre>
+<p><code>./...</code> 覆盖所有包，但 <code>-run '^$'</code> 不执行普通测试用例。它在这里承担的是编译检查。如果把这一行绿了写成“全量测试通过”，就把两件事混在一起了。</p>
+<p>整理 prtseek 的验证流程时，我想把这个区别说明白。CI 需要检查具体行为，评测结果也得能追到实际跑过的东西。</p>
+</div>
+<section id="ci"><h2>现在这套流水线查哪些地方</h2>
+<p>原生构建跑 Ubuntu、macOS 和 Windows。编译所有包之后，agent/server 按指定模式执行 CTF 工作流、capture、计量、HTTP 观察和研究记录等回归，再跑 db/config。前端安装依赖、执行测试，然后做静态构建。</p>
+<p>没有把历史全量测试直接塞进三个平台，是因为里面还包含平台相关的 Shell fixture 和后台任务时序用例。当前选择的范围写在 workflow 里，读结果时也只能按这个范围理解。</p>
+<p>之前还移除了不稳定的 unused dependency audit。检查器如果本身不可靠，就得处理检查器；去掉以后，它原来关注的依赖问题仍要在依赖变更时审查。构建、核心回归和冒烟这些检查继续保留。</p>
+<p id="smoke">交付物还要再往前走一步。Next.js 静态导出成功，Go 二进制里也可能没装对资源，所以有 embedui 路由测试和实际启动冒烟。容器则另外查 Compose 配置、构建、健康状态、替换和数据持久化。能 build 出来，和换一次容器后数据还在，得分别试。</p>
 </section>
-<section id="ci"><h2>02 / 当前 CI 实际执行的范围</h2>
-<div class="table-scroll" role="region" aria-label="当前 CI 验证范围" tabindex="0"><table><thead><tr><th>检查</th><th>当前工作流</th><th>能够支持的判断</th></tr></thead><tbody>
-<tr><td>后端编译</td><td><code>go test ./... -run '^$'</code></td><td>所有包及测试代码可编译，不代表执行全部测试</td></tr>
-<tr><td>后端回归</td><td>agent/server 指定模式；db/config 测试</td><td>所选 CTF、计量、HTTP、研究记录等行为得到检查</td></tr>
-<tr><td>前端</td><td><code>npm ci</code>、<code>npm test</code>、静态构建</td><td>依赖安装、指定测试与导出流程可完成</td></tr>
-<tr><td>原生交付</td><td>Ubuntu、macOS、Windows；embedui 路由及启动冒烟</td><td>构建后的程序可提供被检查的工作台入口</td></tr>
-<tr><td>容器交付</td><td>Compose 校验、构建、健康状态、替换与持久化冒烟</td><td>被覆盖的容器生命周期符合预期</td></tr>
-<tr><td>评测工具自检</td><td><code>eval-ctf.py --self-test</code></td><td>合成材料与评分规则符合脚本的确定性断言</td></tr>
-</tbody></table></div>
-<p>历史全量测试包含平台相关 Shell fixture 和后台任务时序用例，因此当前工作流选择了明确的回归范围。这里应如实写出选择，不能把“编译所有包”描述成“全部历史测试已在三个平台执行”。</p>
-<p>同样，检查器本身也需要可靠。移除不稳定的 unused dependency audit 后，仍需保留构建、核心回归与冒烟，并通过依赖变更审查补充判断。一次检查变绿只说明当前门禁通过，不自动证明被移除检查关注的问题已经消失。</p>
-</section>
-<section id="smoke"><h2>03 / 检查实际交付物，而不只看源码</h2>
-<p>前端能静态导出，不代表 Go 二进制已经嵌入正确资源；容器能构建，也不代表重建后数据还在。于是 embedui 路由检查和程序冒烟直接面向构建产物，容器测试进一步覆盖健康状态、替换与持久化。</p>
-<p>这类测试适合捕捉跨层故障：导出目录复制错误、平台启动脚本差异、路由缺失、持久化路径配置错误。它们不需要让模型真正解一道题，也不应依赖个人部署的历史会话才能执行。</p>
-<p>验证数据应在隔离目录中生成，报告只保留判定所需内容。复现某个私有会话的问题时，也要把可公开的故障条件整理成最小合成用例，避免把聊天记录、数据库或目标地址提交进仓库。</p>
-</section>
-<section id="fixtures"><h2>04 / 三类小题，分别检查三种行为</h2>
-<p><code>scripts/eval-ctf.py</code> 生成三类本地材料：字节 XOR、带诱饵候选的压缩包，以及明确缺少必要附件的任务。它们规模很小，目的在于检查读取、校验和诚实报告阻塞的基本流程。</p>
-<p>已知答案题要求输出中的 flag 集合恰好等于预期、outcome 为 verified，且证据集合非空。缺材料题要求 blocked 且不输出虚构 flag。脚本还记录 false_success，用来识别自称 verified 却未满足评分条件的运行。</p>
-<pre><code># 无凭据的材料与评分规则自检
-python scripts/eval-ctf.py --self-test
-
-# 只列出合成题、模式与运行规模，不调用模型
+<section id="fixtures"><h2>三道小题，也包括一道做不出来的</h2>
+<p><code>scripts/eval-ctf.py</code> 里现在有三类合成材料：字节 XOR、带诱饵候选的压缩包，以及缺少必要附件的任务。</p>
+<p>压缩包题不能见到 flag 形状的字符串就收工，要按校验文件找到唯一匹配项。缺附件那题则要求报告 blocked，不能编一个答案。这种用例很有必要，不然所有题都安排成“只要继续尝试就能成功”，测不出 Agent 会不会在材料不足时停下来。</p>
+<p>评分时，已知答案题要求输出里的 flag 集合恰好等于预期，outcome 为 verified，而且证据集合非空。缺材料题要求 blocked，回答里没有虚构 flag。另外单独记 <code>false_success</code>，统计自称验证成功却没满足判定的情况。</p>
+<p>脚本有两个容易混淆的入口：</p>
+<pre><code>python scripts/eval-ctf.py --self-test
 python scripts/eval-ctf.py --dry-run</code></pre>
-<p>self-test 验证的是生成器和评分规则；dry-run 展示配置。二者都不会给出真实模型解题表现。实际执行需要隔离的本地实例、选定模型配置和认证信息，并会产生模型调用成本。不能把 self-test 的 PASS 写成 Agent 已经完成了这些题。</p>
+<p>前者检查合成材料和评分规则，后者列出计划运行的题目、模式和规模。它们都不调用模型。真正跑 single solver 和 command 对照，需要隔离的本地实例、模型配置和认证信息，也会消耗实际调用额度。</p>
 </section>
-<section id="comparison"><h2>05 / 对照结果要同时看正确性和开销</h2>
-<p>实际评测可以分别运行 single solver 和 command 工作流，记录通过情况、错误报成功、模型调用、输入输出 Token、耗时、工具调用及完全重复的调用。轮询类操作不应因为次数多就被算成无效探索。</p>
-<p>当前重复调用指标偏向精确匹配，无法识别所有“参数不同、语义相同”的尝试；通过条件也只面向这几道合成题。即使某配置全部通过，也不能推出它在未知比赛题型上有同样成功率，更不能仅凭一次运行判断多 Agent 优于单 Agent。</p>
-<p>更有说服力的后续比较需要固定模型与参数、记录版本和预算、重复运行，并按题型展示失败类型。若多 Agent 用量显著增加却没有减少错误报成功，这个变化就不应只用平均耗时的改善来宣传。对材料不足的任务，准确报告 blocked 本身就是需要计入的正确行为。</p>
-</section>
-<section id="claim"><h2>06 / 让每个结论对应一种验证</h2>
-<p>这个系列基于固定源码快照分析机制，没有在撰写期间重新执行完整 prtseek 测试矩阵或真实模型对照。仓库 CHANGELOG 中的历史测试数量属于对应提交的验证记录，不应挪作本次文章发布的新结果。</p>
-<p>可以从代码与确定性测试讨论的，是共享预算如何预留、证据引用如何校验、缺少结束原因如何处理，以及最终交付物检查了哪些入口。至于稳定性提升幅度、费用下降比例和解题率变化，应由对应实验报告支持。</p>
-<p>后续版本继续补充文章时，值得记录触发问题、变更机制、验证方法和剩余限制。这样读者可以沿着提交与测试复查工程判断，而不是只看到一串“优化完成”的更新标题。</p>
-</section>
-
-<section id="sources"><h2>源码与版本</h2>
-<p>本文依据 prtseek 提交 <a href="https://github.com/Team-intN18-SoybeanSeclab/prtseek/tree/c888078cf58ef609946ab31aec7a1c87b9b9981c"><code>c888078</code></a> 撰写。以下链接固定到该快照，便于复核；后续版本的行为可能变化。</p>
-<ul><li><a href="https://github.com/Team-intN18-SoybeanSeclab/prtseek/blob/c888078cf58ef609946ab31aec7a1c87b9b9981c/.github/workflows/validate.yml"><code>.github/workflows/validate.yml</code></a> — 原生矩阵、测试筛选与容器门禁</li><li><a href="https://github.com/Team-intN18-SoybeanSeclab/prtseek/blob/c888078cf58ef609946ab31aec7a1c87b9b9981c/scripts/eval-ctf.py"><code>scripts/eval-ctf.py</code></a> — 合成题、评分、对照运行和统计字段</li><li><a href="https://github.com/Team-intN18-SoybeanSeclab/prtseek/blob/c888078cf58ef609946ab31aec7a1c87b9b9981c/scripts/smoke.py"><code>scripts/smoke.py</code></a> — 构建程序与启动器冒烟</li><li><a href="https://github.com/Team-intN18-SoybeanSeclab/prtseek/blob/c888078cf58ef609946ab31aec7a1c87b9b9981c/scripts/smoke-container.py"><code>scripts/smoke-container.py</code></a> — 容器健康、替换与持久化检查</li><li><a href="https://github.com/Team-intN18-SoybeanSeclab/prtseek/blob/c888078cf58ef609946ab31aec7a1c87b9b9981c/server/ctf_workflow_regression_test.go"><code>server/ctf_workflow_regression_test.go</code></a> — 确定性工作流回归</li><li><a href="https://github.com/Team-intN18-SoybeanSeclab/prtseek/blob/c888078cf58ef609946ab31aec7a1c87b9b9981c/CHANGELOG.md"><code>CHANGELOG.md</code></a> — 各次改动的历史验证记录</li></ul>
-<p>prtseek 基于 <a href="https://github.com/RuoJi6/ARTEX">RuoJi6/ARTEX</a> 二次开发，原始项目来自 <a href="https://github.com/Autumn-27/ARTEX">Autumn-27/ARTEX</a>，沿用 AGPL-3.0。本文描述源码机制与验证边界，不将合成测试等同于真实模型解题效果。</p>
-</section>
-<section id="series"><h2>系列阅读</h2><nav aria-label="系列文章导航"><p><a href="./">返回 prtseek 开发文章集</a> · 第 6 / 6 篇</p><p>上一篇：<a rel="prev" href="frontend-session-experience.html">前端会话体验：主题、启动动画与可信状态</a></p></nav></section>
+<section id="comparison"><h2>多花的调用换来了什么</h2>
+<p>实际运行会记录通过情况、false_success、模型调用数、输入输出 Token、耗时和工具调用。完全重复的调用也会统计，等待结果这类轮询则排除掉。</p>
+<p>我会先看错误报成功的情况，再看耗时和用量。如果多 Agent 快了一点，却在缺材料时更容易硬凑答案，这个结果不能只拿平均耗时出来说。反过来，多花了调用但获得了原来缺失的校验，也值得单独看。</p>
+<p>这三类小题只能帮忙查基本流程，题目太少，也太简单。比较模型能力还要固定模型、参数、版本和预算，重复跑不同类型的任务。当前的精确重复计数，也抓不住所有“换一种参数做同一件事”的情况。</p>
+<p id="claim">这里没有一份新的真实模型对照成绩。CHANGELOG 里的历史测试数属于当时那次验证，写文章时也没有重跑完整矩阵。后面如果要写“解题率提高了多少”，得先有对应题集和运行结果，不能从这几个 PASS 往外推。</p>
+</section><section id="sources"><h2>相关代码</h2><p>对应版本：<a href="https://github.com/Team-intN18-SoybeanSeclab/prtseek/tree/c888078cf58ef609946ab31aec7a1c87b9b9981c"><code>c888078</code></a>。</p><ul><li><a href="https://github.com/Team-intN18-SoybeanSeclab/prtseek/blob/c888078cf58ef609946ab31aec7a1c87b9b9981c/.github/workflows/validate.yml"><code>.github/workflows/validate.yml</code></a> — 原生矩阵、测试筛选与容器门禁</li><li><a href="https://github.com/Team-intN18-SoybeanSeclab/prtseek/blob/c888078cf58ef609946ab31aec7a1c87b9b9981c/scripts/eval-ctf.py"><code>scripts/eval-ctf.py</code></a> — 合成题、评分、对照运行和统计字段</li><li><a href="https://github.com/Team-intN18-SoybeanSeclab/prtseek/blob/c888078cf58ef609946ab31aec7a1c87b9b9981c/scripts/smoke.py"><code>scripts/smoke.py</code></a> — 构建程序与启动器冒烟</li><li><a href="https://github.com/Team-intN18-SoybeanSeclab/prtseek/blob/c888078cf58ef609946ab31aec7a1c87b9b9981c/scripts/smoke-container.py"><code>scripts/smoke-container.py</code></a> — 容器健康、替换与持久化检查</li><li><a href="https://github.com/Team-intN18-SoybeanSeclab/prtseek/blob/c888078cf58ef609946ab31aec7a1c87b9b9981c/server/ctf_workflow_regression_test.go"><code>server/ctf_workflow_regression_test.go</code></a> — 确定性工作流回归</li><li><a href="https://github.com/Team-intN18-SoybeanSeclab/prtseek/blob/c888078cf58ef609946ab31aec7a1c87b9b9981c/CHANGELOG.md"><code>CHANGELOG.md</code></a> — 各次改动的历史验证记录</li></ul></section><section id="series"><h2>其他文章</h2><nav aria-label="系列文章导航"><p><a href="./">返回 prtseek 文章集</a></p><p>上一篇：<a rel="prev" href="frontend-session-experience.html">开机动画、主题，以及几个会话里的小问题</a></p></nav></section>
 </article></div>
 </main>
 <footer class="footer"><div class="inner">

@@ -5,25 +5,25 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
   <meta name="author" content="OracleNep" />
-  <meta name="description" content="拆解 prtseek 的异步子任务、结果收取、并发上限、原子调用预算与关闭顺序，避免并行协作留下后台任务和重复计量。" />
+  <meta name="description" content="异步派发很容易，麻烦的是有人先做完、有人还没停，以及父任务准备交付时后台仍在写文件。" />
   <link rel="canonical" href="https://oraclenep.github.io/research/prtseek/bounded-agent-collaboration.html" />
   <meta property="og:type" content="article" />
-  <meta property="og:title" content="多 Agent 协作：派发、等待、取消与共享预算｜prtseek 开发笔记" />
-  <meta property="og:description" content="拆解 prtseek 的异步子任务、结果收取、并发上限、原子调用预算与关闭顺序，避免并行协作留下后台任务和重复计量。" />
+  <meta property="og:title" content="派出去的 Agent，最后要收回来｜prtseek 开发笔记" />
+  <meta property="og:description" content="异步派发很容易，麻烦的是有人先做完、有人还没停，以及父任务准备交付时后台仍在写文件。" />
   <meta property="og:url" content="https://oraclenep.github.io/research/prtseek/bounded-agent-collaboration.html" />
   <meta property="og:site_name" content="OracleNep Research Notes" />
   <meta property="article:published_time" content="2026-11-14T00:00:00+08:00" />
   <meta property="article:modified_time" content="2026-11-14T00:00:00+08:00" />
   <meta name="twitter:card" content="summary" />
-  <meta name="twitter:title" content="多 Agent 协作：派发、等待、取消与共享预算｜prtseek 开发笔记" />
-  <meta name="twitter:description" content="拆解 prtseek 的异步子任务、结果收取、并发上限、原子调用预算与关闭顺序，避免并行协作留下后台任务和重复计量。" />
-  <title>多 Agent 协作：派发、等待、取消与共享预算｜prtseek 开发笔记｜OracleNep</title>
+  <meta name="twitter:title" content="派出去的 Agent，最后要收回来｜prtseek 开发笔记" />
+  <meta name="twitter:description" content="异步派发很容易，麻烦的是有人先做完、有人还没停，以及父任务准备交付时后台仍在写文件。" />
+  <title>派出去的 Agent，最后要收回来｜prtseek 开发笔记｜OracleNep</title>
   <script type="application/ld+json">
 {
   "@context": "https://schema.org",
   "@type": "TechArticle",
-  "headline": "多 Agent 协作：派发、等待、取消与共享预算",
-  "description": "拆解 prtseek 的异步子任务、结果收取、并发上限、原子调用预算与关闭顺序，避免并行协作留下后台任务和重复计量。",
+  "headline": "派出去的 Agent，最后要收回来",
+  "description": "异步派发很容易，麻烦的是有人先做完、有人还没停，以及父任务准备交付时后台仍在写文件。",
   "url": "https://oraclenep.github.io/research/prtseek/bounded-agent-collaboration.html",
   "mainEntityOfPage": "https://oraclenep.github.io/research/prtseek/bounded-agent-collaboration.html",
   "datePublished": "2026-11-14",
@@ -71,61 +71,39 @@
 <section class="hero"><div class="inner"><div class="hero-copy">
   <nav class="breadcrumb" aria-label="面包屑"><a href="../../">Home</a><span aria-hidden="true">/</span><a href="../">Research</a><span aria-hidden="true">/</span><a href="./">prtseek</a><span aria-hidden="true">/</span><span aria-current="page">02</span></nav>
   <span class="eyebrow">prtseek / Development Notes / 02</span>
-  <h1>多 Agent 协作：派发、等待、取消与共享预算</h1>
-  <p class="subtitle">拆解 prtseek 的异步子任务、结果收取、并发上限、原子调用预算与关闭顺序，避免并行协作留下后台任务和重复计量。</p>
+  <h1>派出去的 Agent，最后要收回来</h1>
+  <p class="subtitle">异步派发很容易，麻烦的是有人先做完、有人还没停，以及父任务准备交付时后台仍在写文件。</p>
   <div class="actions"><a class="button" href="./">专题目录</a><a class="button" href="https://github.com/Team-intN18-SoybeanSeclab/prtseek">项目源码 ↗</a></div>
 </div></div></section><div class="inner layout">
-<aside class="toc" aria-label="文章目录"><details open><summary>目录</summary><div class="toc-content"><a href="#async">01 / 派发完成，只代表任务已启动</a><a href="#limits">02 / 上限约束整棵任务树</a><a href="#budget">03 / 共享预算，独立归账</a><a href="#delivery">04 / 完成状态还需要被父任务收取</a><a href="#shutdown">05 / 关闭顺序保护下一轮会话</a><a href="#tradeoff">06 / 并行收益来自互补信息</a><a href="#sources">源码与版本</a><a href="#series">系列阅读</a></div></details><p class="small">prtseek 开发文章集<br>第 2 / 6 篇</p></aside>
+<aside class="toc" aria-label="文章目录"><details open><summary>目录</summary><div class="toc-content"><a href="#delivery">子任务结束了，父任务未必知道</a><a href="#shutdown">取消之后还要等一下</a><a href="#budget">预算不能按人头各发一份</a><a href="#tradeoff">有时一个 solver 就够了</a><a href="#sources">相关代码</a><a href="#series">其他文章</a></div></details><p class="small">prtseek 开发文章集<br>第 2 / 6 篇</p></aside>
 <article>
 <div class="meta"><span class="tag">OracleNep</span><span class="tag">2026-11-14</span><span class="tag">Concurrency</span><span class="tag">Run budget</span><span class="tag">Lifecycle</span></div>
-<section id="async"><h2>01 / 派发完成，只代表任务已启动</h2>
-<p>同步派发很容易让父 Agent 卡在最慢的子任务上。prtseek 的 <code>delegate_agents</code> 改为启动子任务后立即返回会话编号，父 Agent 可以继续检查材料，再通过 <code>wait_agents</code> 收取结果。这使协作从一串嵌套调用变成需要显式管理的任务集合。</p>
-<p>异步带来的第一个陷阱，是把派发回执当成任务结果。另一个陷阱是等待所有路线完成才做判断：某个 solver 已经给出足够强的证据，其余路线仍可能继续消耗调用。当前等待逻辑在有新的终态结果时即可返回，并告诉父任务是否还有 pending 工作，让父任务有机会调整下一步。</p>
-<p>等待超时也不代表子任务失败。<code>wait_agents</code> 的单次等待窗口是 1–30 秒，默认 20 秒；窗口结束可以返回仍在运行的任务。任务自身的截止时间、整个工作流的取消与一次轮询超时需要分别处理。</p>
+<div id="async">
+<p>多 Agent 里最显眼的功能是同时启动几个 solver。写到后面会发现，需要反复处理的反而是收尾。</p>
+<p>设想 A、B 两条路线一起跑：A 已经给出了可用结果，B 还在继续尝试。父 Agent 能不能先交付？如果不需要 B 了，按下取消之后是不是就能开始下一轮？这些问题不处理，页面上看起来已经结束，后台却可能还在请求模型、写会话记录。</p>
+<p>prtseek 的 <code>delegate_agents</code> 启动后立即返回子会话编号，之后用 <code>wait_agents</code> 收结果。这样父任务不用堵在派发调用里，但也多了一份责任：记住自己派出了什么，以及哪些结果还没有拿回来。</p>
+</div>
+<section id="delivery"><h2>子任务结束了，父任务未必知道</h2>
+<p>这里有一个不太起眼的字段：<code>delivered</code>。它记录父任务有没有收取结果。子任务进入终态，只能说明结果已经产生；父 Agent 的上下文里可能还没有这份结果。</p>
+<p><code>wait_agents</code> 看到新的终态结果就可以返回，同时给出是否还有 pending 任务。它不用等所有路线都跑完。一次等待默认 20 秒，允许设成 1–30 秒；等到超时仍然可以返回“还有任务在跑”，这个超时不负责判定子任务失败。</p>
+<p>父任务准备结束时，<code>completionCheck</code> 会再看一遍直属子任务。仍在运行的要处理，已经结束但没收取的也要处理。这样能挡住一种很别扭的交付：子任务明明找到了结果，父任务却因为没拿到它，还在按旧判断写最终回答。</p>
 </section>
-<section id="limits"><h2>02 / 上限约束整棵任务树</h2>
-<div class="table-scroll" role="region" aria-label="当前实现的协作上限" tabindex="0"><table><thead><tr><th>约束</th><th>当前值</th><th>主要控制的问题</th></tr></thead><tbody>
-<tr><td>单次批量派发 solver</td><td>1–6 个</td><td>限制一次请求扩张规模</td></tr>
-<tr><td>同时活跃的子任务</td><td>8 个</td><td>限制并发资源占用</td></tr>
-<tr><td>本轮创建的子任务总量</td><td>24 个</td><td>防止不断替换任务绕过并发限制</td></tr>
-<tr><td>派发深度上限</td><td>4</td><td>限制递归协作层次</td></tr>
-<tr><td>本轮共享模型调用预算</td><td>200 次</td><td>限制整轮逻辑模型请求</td></tr>
-</tbody></table></div>
-<p>这些数字是本文源码快照里的默认实现值，不是评测得到的最优参数。尤其是单次派发，实现接受 1–6 个任务；旧说明中出现过 2–6 的文字，阅读时应以当前工具校验为准。允许一个任务，可以避免为了满足“多 Agent”形式而人为制造重复路线。</p>
-<p>并发数、任务总量和深度必须同时约束。只限制活跃数，仍可反复创建新任务；只限制深度，浅层也能扩张出大量分支。计数检查与更新在工作流锁内完成，启动失败时回退预留计数，避免失败派发永久占住名额。</p>
+<section id="shutdown"><h2>取消之后还要等一下</h2>
+<p>回到 A、B 的例子。收取 A 以后，如果 B 已经没有继续跑的必要，就调用 <code>cancel_agent</code>，然后再 wait 一次，把 B 的最终状态收回来。取消请求返回时，工具可能正在退出，不能把“已经通知停止”当成“已经停止”。</p>
+<p>取消范围限于本轮直属子任务及其后代。整轮关闭时，代码先把工作流标记为 closed，挡住新派发，再取消 context，最后等 <code>WaitGroup</code>。这几步的顺序不能随便换：用户下一句话进来之前，上一轮的 transcript writer 得先收干净。</p>
+<p>还有一处容易把状态记错。子任务正常返回后，清理代码自己也会发取消信号。如果直接看清理后的 context，就可能把正常完成记成 cancelled。当前实现会区分运行期间的取消和收尾时的取消，并在释放 busy 标记之前等待后代退出。</p>
+<p>这一套仍然依赖工具愿意响应取消。新接进来的外部程序如果完全不理会 context，就得另外解决进程终止，光等 goroutine 不会让它自己消失。</p>
 </section>
-<section id="budget"><h2>03 / 共享预算，独立归账</h2>
-<p>父子任务通过 context 继承同一个 <code>RunBudget</code> 指针。调用 provider 前，预算用原子 CAS 预留一次额度，避免多个并发执行者都看见“还剩一次”并同时越过上限。下面是机制示意，不是源码原文：</p>
-<pre><code>repeat:
-    used = atomic_load(shared.used)
-    if used &gt;= limit: return budget_exhausted
-    if compare_and_swap(shared.used, used, used + 1):
-        break
-invoke_provider()</code></pre>
-<p>预算约束的是逻辑模型请求，包括压缩与继续生成时触发的请求；底层网络重试还有独立限制。它既不等同于 Token 上限，也不等同于 HTTP 请求总数。把这三个口径混在一个“调用次数”里，会让调试成本和费用解释都变得困难。</p>
-<p>共享总量不意味着共享每轮计量器。每个 Chat turn 安装独立的 <code>ModelObserver</code>，将自己的用量记到自己的轮次；父子树的汇总由上层完成。这样既能限制整轮开销，又能看到资源实际花在哪个子任务，避免子任务用量同时进入父、子账本后再被重复相加。</p>
+<section id="budget"><h2>预算不能按人头各发一份</h2>
+<p>父任务允许 200 次调用，子任务再各允许 200 次，派发几层以后，总开销就和最初的限制没什么关系了。现在父子通过 context 共用一个 <code>RunBudget</code>，调用 provider 之前先预留额度。</p>
+<p>预留用原子 CAS。假如只剩一次，两个 solver 同时过来，只有一个能拿到它。这里数的是逻辑模型请求，压缩上下文和 continuation 也算；provider 内部的网络重试另有限制。它控制不了每次请求有多长，因此不能拿调用预算代替 Token 预算。</p>
+<p id="limits">任务数量也有几道限制：单次派发 1–6 个 solver，同时活跃的子任务最多 8 个，本轮累计最多 24 个，派发深度上限 4。并发数管住眼前的资源，总量则挡住“结束一个再创建一个”不断往下跑。这些是当前代码里的设定值，还没有理由把它们说成最优配置。</p>
+<p>共享额度和记账还得分开。每个 Chat turn 用自己的 <code>ModelObserver</code> 记录用量，之后再汇总父子任务。否则子任务消耗先计入父任务、又在汇总时加一次，数字会越算越大。</p>
 </section>
-<section id="delivery"><h2>04 / 完成状态还需要被父任务收取</h2>
-<p>子任务结束后，结果并不会天然进入父 Agent 的上下文。运行时保留 <code>delivered</code> 标记，区分“已经产生结果”和“父任务已经收取结果”。<code>completionCheck</code> 会检查直属子任务是否仍在运行，或存在尚未收取的终态结果；若有，就要求先等待、取消并收取，再结束交付。</p>
-<p>例如 A、B 两条路线同时运行，A 找到候选并校验成功，B 正在重复读取同一份材料。父任务可以收取 A，判断 B 已无必要，再请求取消 B，最后等待 B 的终态。这最后一步提供了可确认的关闭边界，不能用“取消请求已发送”替代。</p>
-<p><code>cancel_agent</code> 的范围限定为本轮直属子任务及其后代，不能随意停止另一棵任务树。子任务之间的证据也要带会话归属，避免把一个真实编号放进错误任务后仍被当成有效引用。</p>
-</section>
-<section id="shutdown"><h2>05 / 关闭顺序保护下一轮会话</h2>
-<p>用户可能在上一轮结束后马上追问。如果旧子任务还在写 transcript，而新一轮已经开始使用同一会话资源，就会出现跨轮写入或状态错配。关闭工作流因此采用明确顺序：先标记 closed 阻止继续派发，再取消运行上下文，最后通过 <code>WaitGroup.Wait()</code> 等待子任务退出。</p>
-<p>子任务自身结束时也会取消并等待直属后代，再释放自己的 busy 标记。运行状态判断则读取继承的运行上下文和取消原因，避免把清理阶段主动发出的取消误记成用户取消，覆盖原本正常完成的结果。</p>
-<p>这依赖工具执行链尊重取消和超时。关闭逻辑本身不能强迫任意不响应 context 的外部程序立即结束；如果未来增加新的工具适配器，需要同时验证它的终止行为。生命周期设计的价值在于把这一要求放到明确位置，而不是假定所有 goroutine 都会自行退出。</p>
-</section>
-<section id="tradeoff"><h2>06 / 并行收益来自互补信息</h2>
-<p>比较单 solver 与 command 工作流时，至少应同时观察目标完成、错误报成功、总用量、耗时和重复调用。单纯看到墙钟时间变短，还不足以说明更划算；如果重复读取和汇总成本上升，短任务甚至可能更适合串行。</p>
-<p>下一步值得做的是按任务类型比较路线互补性，而不是直接增加并发上限。当前实现首先保证派发可追踪、预算有上限、结果会被收取、取消有结束边界。是否提高真实模型的解题表现，需要独立评测回答。</p>
-</section>
-
-<section id="sources"><h2>源码与版本</h2>
-<p>本文依据 prtseek 提交 <a href="https://github.com/Team-intN18-SoybeanSeclab/prtseek/tree/c888078cf58ef609946ab31aec7a1c87b9b9981c"><code>c888078</code></a> 撰写。以下链接固定到该快照，便于复核；后续版本的行为可能变化。</p>
-<ul><li><a href="https://github.com/Team-intN18-SoybeanSeclab/prtseek/blob/c888078cf58ef609946ab31aec7a1c87b9b9981c/server/ctf_execution.go"><code>server/ctf_execution.go</code></a> — 协作工具、计数限制、结果收取和关闭顺序</li><li><a href="https://github.com/Team-intN18-SoybeanSeclab/prtseek/blob/c888078cf58ef609946ab31aec7a1c87b9b9981c/agent/run_budget.go"><code>agent/run_budget.go</code></a> — 共享调用预算与原子预留</li><li><a href="https://github.com/Team-intN18-SoybeanSeclab/prtseek/blob/c888078cf58ef609946ab31aec7a1c87b9b9981c/agent/model_meter.go"><code>agent/model_meter.go</code></a> — 每个 Chat turn 的独立观察器</li><li><a href="https://github.com/Team-intN18-SoybeanSeclab/prtseek/blob/c888078cf58ef609946ab31aec7a1c87b9b9981c/server/ctf_workflow_regression_test.go"><code>server/ctf_workflow_regression_test.go</code></a> — 工作流回归场景</li></ul>
-<p>prtseek 基于 <a href="https://github.com/RuoJi6/ARTEX">RuoJi6/ARTEX</a> 二次开发，原始项目来自 <a href="https://github.com/Autumn-27/ARTEX">Autumn-27/ARTEX</a>，沿用 AGPL-3.0。本文描述源码机制与验证边界，不将合成测试等同于真实模型解题效果。</p>
-</section>
-<section id="series"><h2>系列阅读</h2><nav aria-label="系列文章导航"><p><a href="./">返回 prtseek 开发文章集</a> · 第 2 / 6 篇</p><p>上一篇：<a rel="prev" href="workflow-architecture.html">从聊天界面到可验收的 CTF 工作流</a></p><p>下一篇：<a rel="next" href="context-observation-metering.html">上下文与用量：有界观察、逐轮计量和中断记录</a></p></nav></section>
+<section id="tradeoff"><h2>有时一个 solver 就够了</h2>
+<p>允许单次只派一个 solver，是为了不给简单题硬凑第二条路线。两个人都去读同一个文件、试同一种解法，最后还得多花一轮合并结果，这种并行未必划算。</p>
+<p>我更想看到的对照是：多花的调用，究竟换来了哪条原本没有的证据。耗时可以一起看，错误报成功的次数也要看。现在先把任务能停下来、结果能收回来这两件事做实，继续加并发之前，再用具体题目判断值不值。</p>
+</section><section id="sources"><h2>相关代码</h2><p>对应版本：<a href="https://github.com/Team-intN18-SoybeanSeclab/prtseek/tree/c888078cf58ef609946ab31aec7a1c87b9b9981c"><code>c888078</code></a>。</p><ul><li><a href="https://github.com/Team-intN18-SoybeanSeclab/prtseek/blob/c888078cf58ef609946ab31aec7a1c87b9b9981c/server/ctf_execution.go"><code>server/ctf_execution.go</code></a> — 协作工具、计数限制、结果收取和关闭顺序</li><li><a href="https://github.com/Team-intN18-SoybeanSeclab/prtseek/blob/c888078cf58ef609946ab31aec7a1c87b9b9981c/agent/run_budget.go"><code>agent/run_budget.go</code></a> — 共享调用预算与原子预留</li><li><a href="https://github.com/Team-intN18-SoybeanSeclab/prtseek/blob/c888078cf58ef609946ab31aec7a1c87b9b9981c/agent/model_meter.go"><code>agent/model_meter.go</code></a> — 每个 Chat turn 的独立观察器</li><li><a href="https://github.com/Team-intN18-SoybeanSeclab/prtseek/blob/c888078cf58ef609946ab31aec7a1c87b9b9981c/server/ctf_workflow_regression_test.go"><code>server/ctf_workflow_regression_test.go</code></a> — 工作流回归场景</li></ul></section><section id="series"><h2>其他文章</h2><nav aria-label="系列文章导航"><p><a href="./">返回 prtseek 文章集</a></p><p>上一篇：<a rel="prev" href="workflow-architecture.html">把 prtseek 改成一个 CTF 工作台</a></p><p>下一篇：<a rel="next" href="context-observation-metering.html">上下文越跑越长，Token 还得算得清</a></p></nav></section>
 </article></div>
 </main>
 <footer class="footer"><div class="inner">
