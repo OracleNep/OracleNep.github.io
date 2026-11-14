@@ -105,7 +105,7 @@
           <nav class="breadcrumb" aria-label="面包屑"><a href="../">Home</a><span aria-hidden="true">/</span><span aria-current="page">Research</span></nav>
           <span class="eyebrow">Research Notes</span>
           <h1>安全研究文章</h1>
-          <p class="subtitle">这里整理 Java 安全、代码审计和安全工具开发笔记。prtseek 专题记录 CTF Agent 工作流的工程取舍；JavaSecAtlas、JNDI 与 SpEL 文章关注审计上下文、执行边界和复核方法。</p>
+          <p class="subtitle">Java 安全、代码审计和安全工具开发的笔记。prtseek 那组是 CTF Agent 的工程记录，另外几篇是 Java 审计里的老问题：JNDI、SpEL，以及一直想做的 JavaSecAtlas。</p>
         </div>
       </div>
     </section>
@@ -120,7 +120,7 @@
         </article>
         <article class="card">
           <h2><a href="java-jndi-lookup-boundary.html">JNDI 注入的执行边界：从 InitialContext.lookup 到 NamingManager 的白盒审计</a></h2>
-          <p>一篇 Java 安全深度研究文章：不堆 payload，从 InitialContext.lookup、URL Context、NamingManager、Reference/ObjectFactory 与 Log4Shell 之后的审计边界出发，整理 JNDI 注入的威胁模型、代码分析、检测规则与工程化修复方法。</p>
+          <p>JDK 收紧远程类加载之后，JNDI 还剩哪些风险。从 lookup 的名字解析讲到 NamingManager 的对象化，再回到审计顺序、规则和修复的三个层次。</p>
           <div class="tag-row">
             <span class="tag">Java Security</span>
             <span class="tag">JNDI Injection</span>
@@ -132,7 +132,7 @@
         </article>
         <article class="card">
           <h2><a href="java-spel-evaluation-context.html">SpEL 表达式执行边界：从 EvaluationContext 到白盒审计</a></h2>
-          <p>一篇 Java 安全研究笔记：不堆 payload，从 Spring SpEL 的 EvaluationContext、StandardEvaluationContext、SimpleEvaluationContext、Type Reference 与 Method Resolver 出发，整理表达式注入的白盒审计思路与安全边界。</p>
+          <p>表达式可控只是第一步。SpEL 的真实风险取决于 EvaluationContext 给了多少能力，以及这份能力落在谁的权限边界里。</p>
           <div class="tag-row">
             <span class="tag">Java Security</span>
             <span class="tag">Spring SpEL</span>
@@ -144,7 +144,7 @@
         </article>
         <article class="card">
           <h2><a href="javasecatlas-series.html">JavaSecAtlas 研究文章集</a></h2>
-          <p>围绕 JavaSecAtlas V1.2 的项目复盘：为什么不继续造一个低配 SAST，为什么要支持 Semgrep / CodeQL SARIF 导入，以及后续如何做 Spring 路由关联和 Agent 复核。</p>
+          <p>V1.2 之后的四篇笔记：为什么不继续加扫描规则，为什么接 Semgrep / CodeQL 的 SARIF，以及路由关联和 Agent 复核各自该做到哪一步。</p>
           <div class="tag-row">
             <span class="tag">Java Security</span>
             <span class="tag">Code Audit</span>

@@ -5,17 +5,17 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
   <meta name="author" content="OracleNep" />
-  <meta name="description" content="JavaSecAtlas V1.2 研究文章集：复盘 Java / Spring 白盒审计工作台、Semgrep 与 CodeQL SARIF 导入、finding 关联和 LLM Agent 复核的设计取舍。" />
+  <meta name="description" content="JavaSecAtlas V1.2 的四篇项目笔记：为什么不再加扫描规则，为什么接 Semgrep / CodeQL 的 SARIF，以及 finding 关联 Spring 路由和 Agent 复核各自该做到哪一步。" />
   <meta name="keywords" content="JavaSecAtlas, Java 安全, Java 代码审计, Spring 安全, SARIF, Semgrep, CodeQL, SAST, LLM Agent, 安全工具开发" />
   <link rel="canonical" href="https://oraclenep.github.io/research/javasecatlas-series.html" />
   <meta property="og:type" content="article" />
   <meta property="og:title" content="JavaSecAtlas 研究文章集｜从低配 SAST 到 Java 审计工作台" />
-  <meta property="og:description" content="围绕 JavaSecAtlas V1.2 的项目复盘：为什么不继续造低配 SAST，为什么接入 Semgrep / CodeQL SARIF，以及后续如何做 Spring 路由关联和 Agent 复核。" />
+  <meta property="og:description" content="V1.2 之后的四篇项目笔记：不做低配 SAST，接 SARIF，把 finding 挂到路由上，以及让 Agent 只干它擅长的部分。" />
   <meta property="og:url" content="https://oraclenep.github.io/research/javasecatlas-series.html" />
   <meta property="og:site_name" content="OracleNep Research Notes" />
   <meta property="article:author" content="OracleNep" />
   <meta property="article:published_time" content="2026-06-10T00:00:00+08:00" />
-  <meta property="article:modified_time" content="2026-06-10T00:00:00+08:00" />
+  <meta property="article:modified_time" content="2026-11-14T00:00:00+08:00" />
   <meta property="article:tag" content="JavaSecAtlas" />
   <meta property="article:tag" content="Java Security" />
   <meta property="article:tag" content="SARIF" />
@@ -23,18 +23,18 @@
   <meta property="article:tag" content="CodeQL" />
   <meta name="twitter:card" content="summary" />
   <meta name="twitter:title" content="JavaSecAtlas 研究文章集｜OracleNep" />
-  <meta name="twitter:description" content="JavaSecAtlas V1.2、SARIF 导入、Semgrep / CodeQL 编排、Spring 路由关联和 LLM Agent 复核。" />
+  <meta name="twitter:description" content="JavaSecAtlas V1.2、SARIF 导入、Spring 路由关联和 Agent 复核的取舍。" />
   <title>JavaSecAtlas 研究文章集｜从低配 SAST 到 Java 审计工作台</title>
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
     "@type": "Article",
     "headline": "JavaSecAtlas 研究文章集：从低配 SAST 到 Java 审计工作台",
-    "description": "JavaSecAtlas V1.2 研究文章集：复盘 Java / Spring 白盒审计工作台、Semgrep 与 CodeQL SARIF 导入、finding 关联和 LLM Agent 复核的设计取舍。",
+    "description": "JavaSecAtlas V1.2 的四篇项目笔记:为什么不再加扫描规则,为什么接 Semgrep / CodeQL 的 SARIF,以及 finding 关联 Spring 路由和 Agent 复核各自该做到哪一步。",
     "url": "https://oraclenep.github.io/research/javasecatlas-series.html",
     "mainEntityOfPage": "https://oraclenep.github.io/research/javasecatlas-series.html",
     "datePublished": "2026-06-10T00:00:00+08:00",
-    "dateModified": "2026-06-10T00:00:00+08:00",
+    "dateModified": "2026-11-14T00:00:00+08:00",
     "inLanguage": "zh-CN",
     "author": {
       "@type": "Person",
@@ -78,7 +78,7 @@
           <nav class="breadcrumb" aria-label="面包屑"><a href="../">Home</a><span aria-hidden="true">/</span><a href="./">Research</a><span aria-hidden="true">/</span><span>Article</span></nav>
           <span class="eyebrow">Research Notes / JavaSecAtlas Series</span>
           <h1>JavaSecAtlas 研究文章集</h1>
-          <p class="subtitle">这里放的是我围绕 JavaSecAtlas 做的一组项目复盘：为什么不继续造一个低配 SAST，为什么要接 SARIF，后面又该怎么把 finding 关联到 Spring 路由、权限上下文和 Agent 复核流程里。</p>
+          <p class="subtitle">四篇项目笔记。第一篇讲 V1.2 为什么不继续加扫描规则，后面三篇分别是 SARIF 导入、把 finding 挂到 Spring 路由上，以及 Agent 在复核里该做和不该做的事。</p>
           <div class="actions">
             <a class="button primary" href="https://github.com/Team-intN18-SoybeanSeclab/JavaSecAtlas" target="_blank" rel="noreferrer">JavaSecAtlas 仓库</a>
             <a class="button" href="../index.html">返回作品集</a>
@@ -91,63 +91,62 @@
         <details open>
           <summary>文章目录</summary>
           <div class="toc-content">
-        
-        <a href="#article-1">01. V1.2：我没有继续造一个低配 SAST</a>
-        <a href="#article-2">02. SARIF 导入：把外部扫描结果接进来</a>
-        <a href="#article-3">03. 下一步：把 finding 绑到 Spring 路由上</a>
-        <a href="#article-4">04. Agent 复核：让 AI 干适合它干的活</a>
-        <p class="small">这组文章偏项目复盘，不展示未授权目标、未公开漏洞细节或可直接复用的攻击载荷。</p>
-                </div>
+            <a href="#article-1">01. V1.2：我没有继续造一个低配 SAST</a>
+            <a href="#article-2">02. SARIF 导入：把外部扫描结果接进来</a>
+            <a href="#article-3">03. 下一步：把 finding 绑到 Spring 路由上</a>
+            <a href="#article-4">04. Agent 复核：让 AI 干适合它干的活</a>
+            <p class="small">偏项目复盘，不涉及未授权目标、未公开漏洞细节或可直接复用的攻击载荷。</p>
+          </div>
         </details>
       </aside>
       <section class="article-list">
         <article class="article" id="article-1">
           <div class="meta"><span class="tag">JavaSecAtlas</span><span class="tag">V1.2</span><span class="tag">SAST 编排</span><span class="tag">项目复盘</span></div>
           <h2>01. JavaSecAtlas V1.2：我没有继续造一个低配 SAST</h2>
-          <p class="lead">JavaSecAtlas 一开始的想法很简单：做一个面向 Java / Spring 项目的白盒审计辅助工具，把项目识别、路由提取、权限注解提取、启发式规则扫描和报告生成这些事情串起来。</p>
-          <p>但做到 V1.2 的时候，我重新想了一下这个项目到底应该往哪走。如果继续沿着“自己写更多扫描规则”的方向堆下去，最后大概率会变成一个低配版 SAST。这就很尴尬了。</p>
-          <p>因为安全圈已经有很多成熟工具了。Semgrep 规则好写，适合快速做模式匹配和工程化落地；CodeQL 更适合做深度数据流、调用链和变体分析；Fortify 这类商业 SAST 更偏企业级治理、规则库和合规流程。我一个个人 / 团队实验项目，没必要也不现实去碰瓷这些东西。</p>
-          <blockquote>V1.2 这版，我没有继续试图“打败” Semgrep 或 CodeQL，而是换了一个方向：JavaSecAtlas 不替代成熟 SAST，而是把它们的结果接进来，作为 Java / Spring 审计工作流的一部分。</blockquote>
-          <h3>为什么这个转向比较重要</h3>
-          <p>扫描器输出的是 finding，但代码审计最后需要的是可以复核、可以解释、可以写进报告的线索。两者之间差了一段很实际的工作：</p>
-          <ul><li>这个点属于哪个 Controller？</li><li>对应哪个路由？</li><li>有没有权限注解？</li><li>参数是不是用户可控？</li><li>这个 finding 是真实风险还是误报？</li><li>修复建议怎么写才不空？</li></ul>
-          <p>JavaSecAtlas 后续要补的就是这段中间层。它不是“再造一个扫描器”，而是想把扫描结果放进 Java 项目的上下文里，再往审计线索、人工复核和报告交付方向推进。</p>
-          <h3>V1.2 做了什么</h3>
+          <p>最初的定位很具体：给 Java / Spring 项目做一个白盒审计辅助工具，把项目识别、路由提取、权限注解提取、启发式规则扫描和报告生成串起来。</p>
+          <p>做到 V1.2 的时候卡住了。继续沿着“自己写更多规则”往下堆，最后大概率会变成一个低配版 SAST。这就很尴尬——安全圈并不缺工具。</p>
+          <p>Semgrep 规则好写，适合快速做模式匹配和工程化落地；CodeQL 适合做数据流、调用链和变体分析；Fortify 那类商业产品更偏企业治理、规则库和合规流程。一个个人项目，既没有规则库的积累，也没有专门的人去维护规则质量，硬碰这些方向没什么胜算。</p>
+          <p>所以 V1.2 换了个问题：JavaSecAtlas 不跟成熟 SAST 比扫描能力，把它们的结果接进来，当成 Java / Spring 审计流程里的一段。</p>
+          <h3>中间缺的那一段</h3>
+          <p>扫描器输出的是 finding，审计最后要的是能复核、能解释、能写进报告的线索。两头之间隔着一层很实在的工作：</p>
+          <ul><li>这个点属于哪个 Controller？</li><li>对应哪个路由？</li><li>有没有权限注解？</li><li>参数是不是用户可控？</li><li>它是真实风险还是误报？</li><li>修复建议怎么写才不空？</li></ul>
+          <p>这些问题扫描器不回答，报告模板也回答不了。JavaSecAtlas 想补的就是这一层：把扫描结果放回 Java 项目的上下文里，再往审计线索、人工复核和报告交付推。</p>
+          <h3>V1.2 实际做了什么</h3>
           <pre><code>python -m javasecatlas scan \
   -t examples/spring-vuln-demo \
   -o reports \
   -f all \
   --import-sarif semgrep.sarif \
   --import-sarif codeql.sarif</code></pre>
-          <p>这个流程里，JavaSecAtlas 会先执行自己的扫描逻辑，然后导入外部 SARIF findings，最后统一进入 JSON、Markdown、HTML、SARIF 报告输出流程。</p>
-          <h3>我想保留的边界感</h3>
-          <p>我不会说 JavaSecAtlas 比 Semgrep、CodeQL、Fortify 更强。这种说法既不准确，也很容易被真正做过 SAST 的人一眼看穿。更合理的说法是：Semgrep / CodeQL 负责发现候选 finding；JavaSecAtlas 负责导入、归一化、上下文整理和报告组织；后续 Agent 只做辅助复核和表达整理，不负责凭空判断漏洞。</p>
+          <p>跑起来是这个顺序：先执行自己的扫描逻辑，再导入外部 SARIF，最后统一出 JSON、Markdown、HTML、SARIF 四种报告。</p>
+          <h3>别把定位说大</h3>
+          <p>我不会说 JavaSecAtlas 比 Semgrep、CodeQL、Fortify 强。这种话既不准，也容易被真正做过 SAST 的人一眼看穿。能说清楚的是分工：Semgrep / CodeQL 负责发现候选 finding，JavaSecAtlas 负责导入、归一化、补上下文、组织报告，Agent 只做辅助复核和表达整理。谁是裁判这件事，不因为多了个 Agent 就变了。</p>
         </article>
         <article class="article" id="article-2">
           <div class="meta"><span class="tag">SARIF</span><span class="tag">Semgrep</span><span class="tag">CodeQL</span><span class="tag">Finding Normalize</span></div>
           <h2>02. SARIF 导入：把外部扫描结果接进来</h2>
-          <p class="lead">SARIF 可以理解成静态分析结果的通用交换格式。对 JavaSecAtlas 来说，支持 SARIF 的意义不是“蹭格式”，而是让它能接住 Semgrep、CodeQL 等工具已经发现的结果。</p>
-          <p>V1.2 里新增了一个导入模块，核心函数是：</p>
+          <p>SARIF 是静态分析结果的通用交换格式。对 JavaSecAtlas 来说，支持它的实际好处很直接：能接住 Semgrep、CodeQL 已经跑出来的结果，不必要求用户只用自家的规则。</p>
+          <p>V1.2 新增的导入模块只有一个核心函数：</p>
           <pre><code>load_sarif_findings(path: Path) -&gt; list[Finding]</code></pre>
-          <p>这个函数做的事情不复杂：读取 SARIF 文件，把外部工具的 result 转成 JavaSecAtlas 自己的 <code>Finding</code> 对象。这样后面的报告、过滤、Agent 复核就可以用同一套数据结构处理。</p>
+          <p>做的事不复杂：读 SARIF，把外面的 <code>result</code> 转成自己的 <code>Finding</code>。转完之后，报告、过滤、Agent 复核就能用同一套结构处理，不用为每个工具写一遍分支。</p>
           <h3>字段怎么映射</h3>
           <div class="table-scroll" role="region" aria-label="文章表格，可横向滚动" tabindex="0"><table><thead><tr><th>SARIF 字段</th><th>JavaSecAtlas 字段</th><th>说明</th></tr></thead><tbody><tr><td><code>ruleId</code></td><td><code>rule_id</code></td><td>加上外部来源前缀，例如 <code>external.semgrep...</code></td></tr><tr><td><code>message.text</code></td><td><code>message</code></td><td>保留工具原始描述，方便回看</td></tr><tr><td><code>artifactLocation.uri</code></td><td><code>file</code></td><td>记录命中文件路径</td></tr><tr><td><code>region.startLine</code></td><td><code>line</code></td><td>记录起始行</td></tr><tr><td><code>region.startColumn</code></td><td><code>column</code></td><td>记录起始列</td></tr><tr><td><code>result.level</code></td><td><code>severity</code></td><td>做基础严重等级映射</td></tr><tr><td><code>rule.properties.tags</code></td><td><code>tags</code></td><td>保留 CWE、语言、规则类别等信息</td></tr></tbody></table></div>
-          <h3>一个实际例子</h3>
+          <h3>导进来长什么样</h3>
           <pre><code>rule_id: external.semgrep.java.lang.security.audit.crypto.use-of-md5.use-of-md5
 severity: medium
 file: src/main/java/demo/WeakCrypto.java
 line: 12
 column: 20
 tags: external-sarif, tool:semgrep, CWE-328</code></pre>
-          <p>这一步解决的是“外部扫描结果进不来”的问题。以前 JavaSecAtlas 只能处理自己的规则结果，现在可以接收 Semgrep / CodeQL 输出，再统一进入报告流程。</p>
-          <div class="note">我的理解是：先把数据接进来，再谈关联、去重、优先级排序和复核。顺序反了，项目很容易变成空架子。</div>
+          <p>这一步解决的问题很窄：以前只能处理自己的规则结果，现在外部结果也进得来。关联、去重、排序、复核，都排在它后面。</p>
+          <p>顺序反了很容易出问题。我见过不少工具先做“智能优先级排序”，数据源却只有一家扫描器的输出，排出来的东西没人信。先让数据进来，再谈怎么排。</p>
         </article>
         <article class="article" id="article-3">
           <div class="meta"><span class="tag">Spring</span><span class="tag">Route Binding</span><span class="tag">Permission Context</span><span class="tag">Audit Leads</span></div>
           <h2>03. 下一步：把 finding 绑到 Spring 路由上</h2>
-          <p class="lead">如果只是把 Semgrep / CodeQL 的结果导进来，JavaSecAtlas 还只是一个结果聚合器。真正和普通 SARIF 查看器拉开差距的地方，是把 finding 放回 Java / Spring 项目的业务入口里。</p>
-          <p>真实审计里，我看到一个 sink 并不会马上下结论。更常见的流程是继续追入口：这个代码点是不是被 Controller 调到了？对应的 URL 是什么？有没有权限注解？参数能不能从 HTTP 请求一路传到危险函数？</p>
-          <h3>我希望后续生成什么样的线索</h3>
+          <p>只做导入的话，JavaSecAtlas 跟一个 SARIF 查看器没多大区别。真正想拉开差距的地方，是把 finding 放回 Java / Spring 项目的入口上。</p>
+          <p>真实审计里，看到一个 sink 不会马上下结论。下一步通常是往上追：这个代码点被哪个 Controller 调到了？URL 是什么？有没有权限注解？参数能不能从请求一路传到危险函数？这些问题答完，才知道要不要继续。</p>
+          <h3>希望生成的线索长什么样</h3>
           <pre><code>风险类型：路径穿越候选点
 入口路由：POST /api/file/read
 Controller：FileController#readFile
@@ -155,14 +154,14 @@ Controller：FileController#readFile
 可控参数：filename
 命中来源：JavaSecAtlas heuristic + Semgrep SARIF
 复核建议：检查 filename 是否进入 Path.resolve / File 构造逻辑，确认是否有目录白名单、路径归一化和越权读取限制</code></pre>
-          <h3>技术上怎么做</h3>
-          <ol><li>提取 Spring Controller、方法、路由和权限注解；</li><li>记录每个方法的大致文件路径和行号范围；</li><li>把 finding 的文件和行号落到对应方法附近；</li><li>把路由、HTTP 方法、权限注解补回 finding；</li><li>在报告里按“入口接口”而不是单纯按“规则 ID”组织结果。</li></ol>
-          <p>这个方案不完美，但足够作为第一版 correlation。先把 60 分的上下文补起来，再慢慢考虑更复杂的跨函数调用链和数据流。</p>
+          <h3>实现上的五步</h3>
+          <ol><li>提取 Spring Controller、方法、路由和权限注解；</li><li>记录每个方法的大致文件路径和行号范围；</li><li>把 finding 的文件和行号落到对应方法附近；</li><li>把路由、HTTP 方法、权限注解补回 finding；</li><li>报告按“入口接口”组织，而不是按规则 ID 排。</li></ol>
+          <p>这套东西不完美。行号落在方法附近靠的是范围匹配，嵌套类、内部类、多模块同名文件都会出偏差。但作为第一版 correlation 够用——先把 60 分的上下文补上，再谈跨函数调用链和数据流。</p>
         </article>
         <article class="article" id="article-4">
           <div class="meta"><span class="tag">LLM Agent</span><span class="tag">Triage</span><span class="tag">False Positive</span><span class="tag">Report Draft</span></div>
           <h2>04. Agent 复核：让 AI 干适合它干的活</h2>
-          <p class="lead">我不太认同“把整份代码丢给大模型，让它自动审计”的说法。这个方向听起来很爽，但实际很容易变成幻觉生成器。AI 可以参与审计，但最好别让它当唯一裁判。</p>
+          <p>“把整份代码丢给大模型，让它自动审计”这种说法我不太认同。听起来很爽，实际很容易变成幻觉生成器——尤其在没有上下文的时候，它给出的结论往往比人更自信。</p>
           <pre><code>规则扫描 / SARIF 导入
         ↓
 路由、权限、依赖、代码片段上下文整理
@@ -172,12 +171,12 @@ Agent 辅助判断：可控参数、利用条件、误报可能、修复建议
 人工复核
         ↓
 报告输出</code></pre>
-          <h3>Agent 可以做什么</h3>
-          <ul><li>根据命中点和上下文，帮忙总结为什么这里可能有风险；</li><li>把扫描器的英文描述翻译成更像审计报告的话；</li><li>提示需要人工确认的条件，比如“参数是否可控”“是否存在白名单”；</li><li>给出修复建议草稿；</li><li>把多个工具的 findings 合并成一段更清楚的复核说明。</li></ul>
-          <h3>Agent 不应该做什么</h3>
-          <ul><li>不应该凭空说“这里一定能 RCE”；</li><li>不应该在没有上下文的情况下生成攻击链；</li><li>不应该替代人工做最终漏洞确认；</li><li>不应该接触未脱敏的敏感业务代码、凭据或真实资产信息。</li></ul>
-          <p>我不想把 JavaSecAtlas 写成“AI 自动挖洞神器”。更实际的定位是：成熟工具负责发现候选点，JavaSecAtlas 负责把候选点整理成人能看的审计线索，Agent 负责辅助解释和报告草稿，最后还是人工确认。</p>
-          <div class="note">如果后续要继续迭代，我会优先做 finding correlation，而不是先堆更多 AI 功能。上下文没有整理好，Agent 接得越深，越容易说胡话。</div>
+          <h3>它可以做</h3>
+          <ul><li>根据命中点和上下文，解释这里为什么可能有风险；</li><li>把扫描器的英文描述改写成审计报告里的说法；</li><li>列出需要人工确认的条件，比如“参数是否可控”“有没有白名单”；</li><li>写修复建议草稿；</li><li>把几个工具的 findings 合并成一段能读的复核说明。</li></ul>
+          <h3>它不该做</h3>
+          <ul><li>不该凭空说“这里一定能 RCE”；</li><li>不该在没有上下文的情况下编攻击链；</li><li>不该替代人工做最终确认；</li><li>不该接触未脱敏的业务代码、凭据或真实资产信息。</li></ul>
+          <p>我不想把 JavaSecAtlas 写成“AI 自动挖洞神器”。更实际的定位是：成熟工具发现候选点，JavaSecAtlas 把候选点整理成人能看的线索，Agent 负责解释和草稿，最后一步还是人。</p>
+          <p>如果继续迭代，我会先做 finding correlation，而不是先堆 AI 功能。上下文没整理干净的时候，Agent 接得越深，说胡话的概率越高——这一点和 prtseek 那边踩过的坑是一样的。</p>
         </article>
       </section>
     </div>
