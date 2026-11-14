@@ -174,7 +174,7 @@ addMethodResolver
 addPropertyAccessor</code></pre>
           <p>来源分几类：HTTP 参数、Header、Cookie、JSON 字段；后台配置项、规则配置、动态表单、低代码平台的计算字段；数据库里低权限可编辑的表达式模板；消息队列和任务参数；第三方回调里带的模板变量。</p>
           <p>后台配置这一类特别容易低估。很多系统把“管理员可配”当安全边界，可后台账号是分级的，低权限运营、租户管理员、自动化系统账号都能写配置。能写一段表达式和能填一个下拉框，权限要求差得远。</p>
-          <p>分完堆再叠上下文，高风险组合大概这么几种：</p>
+          <p>分完堆再把上下文叠上去，高风险组合大概这么几种：</p>
           <div class="table-scroll" role="region" aria-label="文章表格，可横向滚动" tabindex="0"><table>
             <thead><tr><th>组合</th><th>判断</th><th>原因</th></tr></thead>
             <tbody>
