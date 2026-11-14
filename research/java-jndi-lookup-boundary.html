@@ -58,55 +58,17 @@
     ]
   }
   </script>
-  <style>
-    :root { --ink:#17202f; --muted:#5c6879; --line:#d8dee8; --paper:#f7f9fc; --surface:#fff; --teal:#087f8c; --cyan:#48d6c4; --shadow:0 18px 46px rgba(23,32,47,.10); }
-    * { box-sizing:border-box; }
-    html { scroll-behavior:smooth; }
-    body { margin:0; color:var(--ink); background:var(--paper); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",Arial,sans-serif; line-height:1.78; }
-    a { color:var(--teal); text-decoration:none; } a:hover { text-decoration:underline; }
-    code, pre { font-family:"Cascadia Mono",Consolas,Menlo,Monaco,monospace; }
-    .topbar { position:sticky; top:0; z-index:20; border-bottom:1px solid rgba(216,222,232,.92); background:rgba(247,249,252,.93); backdrop-filter:blur(12px); }
-    .nav { width:min(1120px,calc(100% - 48px)); min-height:62px; margin:0 auto; display:flex; align-items:center; justify-content:space-between; gap:24px; }
-    .brand { color:var(--ink); font-weight:850; white-space:nowrap; }
-    .nav-links { display:flex; align-items:center; gap:18px; font-size:14px; flex-wrap:wrap; }
-    .nav-links a { color:#334155; }
-    .hero { color:#fff; background:radial-gradient(circle at 20% 10%,rgba(72,214,196,.18),transparent 32%),linear-gradient(115deg,#08111f 0%,#172033 58%,#0f3a43 100%); }
-    .inner { width:min(1120px,calc(100% - 48px)); margin:0 auto; }
-    .hero-copy { max-width:900px; padding:86px 0 78px; }
-    .eyebrow { display:inline-flex; align-items:center; min-height:28px; padding:2px 10px; border:1px solid rgba(255,255,255,.30); border-radius:4px; color:#b8f2e6; background:rgba(255,255,255,.08); font-size:13px; font-weight:800; }
-    h1,h2,h3 { margin:0; line-height:1.25; } h1 { margin-top:18px; font-size:46px; } h2 { font-size:28px; margin-top:34px; } h3 { font-size:20px; margin-top:24px; }
-    .subtitle { max-width:840px; margin:18px 0 0; color:rgba(255,255,255,.86); font-size:18px; }
-    .actions { display:flex; flex-wrap:wrap; gap:12px; margin-top:28px; }
-    .button { display:inline-flex; align-items:center; justify-content:center; min-height:42px; padding:9px 14px; border:1px solid rgba(255,255,255,.32); border-radius:6px; color:#fff; background:rgba(255,255,255,.12); font-weight:800; }
-    .button.primary { border-color:var(--cyan); color:#062d33; background:var(--cyan); } .button:hover { text-decoration:none; filter:brightness(1.04); }
-    .layout { display:grid; grid-template-columns:280px 1fr; gap:24px; padding:42px 0 74px; }
-    .toc { position:sticky; top:84px; align-self:start; padding:18px; border:1px solid var(--line); border-radius:8px; background:var(--surface); box-shadow:var(--shadow); }
-    .toc strong { display:block; margin-bottom:10px; } .toc a { display:block; padding:7px 0; color:#334155; font-size:14px; } .toc .small { margin-top:12px; color:var(--muted); font-size:13px; }
-    article { padding:30px; border:1px solid var(--line); border-radius:8px; background:var(--surface); box-shadow:var(--shadow); }
-    article p { margin:12px 0 0; color:#334155; } article ul, article ol { margin:12px 0 0; padding-left:22px; color:#334155; } li + li { margin-top:6px; }
-    .lead { margin-top:14px; color:var(--muted); font-size:16px; }
-    .meta { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:14px; }
-    .tag { min-height:26px; display:inline-flex; align-items:center; padding:2px 8px; border:1px solid var(--line); border-radius:4px; color:#425064; background:#f7f9fc; font-size:12px; font-weight:750; }
-    blockquote { margin:18px 0; padding:14px 18px; border-left:4px solid var(--teal); background:#eef8f7; color:#24424a; }
-    pre { margin:16px 0 0; padding:16px; overflow-x:auto; border:1px solid #dbe5ee; border-radius:8px; color:#dbeafe; background:#111827; font-size:13px; line-height:1.65; }
-    code { padding:1px 5px; border-radius:4px; background:#edf2f7; color:#17324d; font-size:.94em; } pre code { padding:0; background:transparent; color:inherit; }
-    table { width:100%; margin-top:16px; border-collapse:collapse; font-size:14px; } th,td { padding:10px 12px; border:1px solid var(--line); text-align:left; vertical-align:top; } th { background:#eef2f6; }
-    .note { margin-top:18px; padding:14px 16px; border:1px solid #cbd5e1; border-radius:8px; background:#f8fafc; color:#475569; }
-    .footer { padding:34px 0; color:#cbd5e1; background:#152033; font-size:14px; } .footer .inner { display:flex; justify-content:space-between; gap:20px; } .footer a { color:#78e4d4; }
-    @media (max-width:920px){ .nav{min-height:auto;padding:14px 0;align-items:start;flex-direction:column;gap:10px;} h1{font-size:38px;} .layout{grid-template-columns:1fr;} .toc{position:static;} .footer .inner{flex-direction:column;} }
-    @media (max-width:560px){ .inner,.nav{width:min(100% - 32px,1120px);} h1{font-size:31px;} .hero-copy{padding:58px 0 64px;} article{padding:20px;} }
-  </style>
+  <link rel="stylesheet" href="../assets/site.css?v=20261114-research" />
 </head>
-<body>
+<body class="research-page research-article">
   <header class="topbar">
     <nav class="nav" aria-label="主导航">
-      <a class="brand" href="../index.html">OracleNep</a>
+      <a class="brand" href="../">OracleNep / Security Research</a>
       <div class="nav-links">
-        <a href="./">Research</a>
-        <a href="#model">执行模型</a>
-        <a href="#audit">审计方法</a>
-        <a href="#rules">规则设计</a>
-        <a href="#fix">修复边界</a>
+        <a href="../#projects">Projects</a>
+        <a href="../#vulns">Disclosures</a>
+        <a href="../#contributions">Contributions</a>
+        <a href="./" aria-current="page">Research</a>
       </div>
     </nav>
   </header>
@@ -115,6 +77,7 @@
     <section class="hero">
       <div class="inner">
         <div class="hero-copy">
+          <nav class="breadcrumb" aria-label="面包屑"><a href="../">Home</a><span aria-hidden="true">/</span><a href="./">Research</a><span aria-hidden="true">/</span><span>Article</span></nav>
           <span class="eyebrow">Java Security / JNDI Injection / Code Audit</span>
           <h1>JNDI 注入的执行边界：从 InitialContext.lookup 到 NamingManager 的白盒审计</h1>
           <p class="subtitle">这篇不从 payload 出发，而是把 JNDI 当成一个“命名解析 + 对象工厂 + URL Context”的执行模型来拆。重点回答：什么样的 lookup 真正危险、JDK 收紧之后还剩哪些风险、白盒审计应该如何降噪和定级。</p>
@@ -129,7 +92,10 @@
 
     <div class="inner layout">
       <aside class="toc" aria-label="文章目录">
-        <strong>目录</strong>
+        <details open>
+          <summary>目录</summary>
+          <div class="toc-content">
+        
         <a href="#intro">0. 研究问题与边界</a>
         <a href="#model">1. JNDI 的执行模型</a>
         <a href="#history">2. 从远程 class 到本地工厂</a>
@@ -140,6 +106,8 @@
         <a href="#fix">7. 修复与工程化防护</a>
         <a href="#refs">8. 参考资料</a>
         <p class="small">文章仅用于授权代码审计、安全研究和防御建设；不提供可直接用于攻击真实目标的利用链、恶意服务端或武器化载荷。</p>
+                </div>
+        </details>
       </aside>
 
       <article>
@@ -174,14 +142,14 @@
           <pre><code>Context ctx = new InitialContext();
 Object object = ctx.lookup(name);</code></pre>
           <p>在白盒审计里，这两行代码可以拆成三个问题：</p>
-          <table>
+          <div class="table-scroll" role="region" aria-label="文章表格，可横向滚动" tabindex="0"><table>
             <thead><tr><th>阶段</th><th>安全问题</th><th>审计关注点</th></tr></thead>
             <tbody>
               <tr><td>名称构造</td><td><code>name</code> 是否可控</td><td>HTTP 参数、Header、JSON、数据库配置、消息队列、任务配置是否进入 lookup</td></tr>
               <tr><td>上下文选择</td><td>是否触发 URL Context</td><td>名称是否以可解析 scheme 开头，是否绕过业务前缀拼接和黑名单</td></tr>
               <tr><td>对象解析</td><td>返回对象如何生成</td><td>是否涉及 <code>Reference</code>、<code>ObjectFactory</code>、本地 classpath 工厂或远程目录返回对象</td></tr>
             </tbody>
-          </table>
+          </table></div>
 
           <h3>1.2 InitialContext.lookup 不是普通 Map 查询</h3>
           <p>从 API 语义看，<code>InitialContext.lookup(String)</code> 是“检索命名对象”。这和 <code>Map.get(key)</code> 的直觉不同：JNDI 名称会进入 provider 解析流程，且某些名称形式会被当作 URL 处理。Oracle 的 <code>InitialContext</code> 文档明确把 <code>lookup(String name)</code> 定义为检索指定名称绑定的对象，这意味着调用者拿到的是 provider 解析后的对象，而不是静态字符串映射。</p>
@@ -217,7 +185,7 @@ Object getObjectInstance(Object refInfo, Name name, Context ctx, Hashtable env) 
           <h2>2. 从远程 class 到本地工厂：JNDI 风险的历史演进</h2>
           <p>早期 JNDI 风险经常和“远程 codebase 加载类”绑定在一起。JDK 后续逐步收紧了相关默认行为，例如 Oracle JDK 8u121 的 release notes 明确提到，RMI Registry 与 COS Naming service provider 通过 JNDI object factory 进行远程 class loading 默认被禁用，需要显式设置 <code>com.sun.jndi.rmi.object.trustURLCodebase</code> 或 <code>com.sun.jndi.cosnaming.object.trustURLCodebase</code> 才能启用。</p>
           <p>但从审计角度看，JNDI 风险并没有因为默认远程加载收紧而消失，而是从“远程拉 class”转向了更依赖运行时上下文的组合风险：</p>
-          <table>
+          <div class="table-scroll" role="region" aria-label="文章表格，可横向滚动" tabindex="0"><table>
             <thead><tr><th>阶段</th><th>典型风险</th><th>审计重点</th></tr></thead>
             <tbody>
               <tr><td>远程 codebase 阶段</td><td>目录服务返回远程类位置，客户端加载并实例化</td><td>JDK 版本、trustURLCodebase、SecurityManager 历史配置</td></tr>
@@ -225,7 +193,7 @@ Object getObjectInstance(Object refInfo, Name name, Context ctx, Hashtable env) 
               <tr><td>出口与探测阶段</td><td>lookup 导致 LDAP/RMI/DNS 等外连</td><td>SSRF、内网探测、DNS log、认证信息泄露、超时 DoS</td></tr>
               <tr><td>业务对象阶段</td><td>返回对象被强转、反射调用或进入配置流程</td><td>返回对象后续使用链、类型校验、异常处理和日志泄露</td></tr>
             </tbody>
-          </table>
+          </table></div>
           <p>所以，“JDK 已升级”只能作为降低风险的证据之一。真正的修复是阻断低权限用户控制 JNDI 名称结构，并把动态 lookup 限定在可信命名空间里。</p>
         </section>
 
@@ -254,7 +222,7 @@ Object getObjectInstance(Object refInfo, Name name, Context ctx, Hashtable env) 
           <p>这段代码的漏洞点不在于 <code>InitialContext</code> 本身，而在于 <code>configuredName</code> 的权限边界被误判了。很多系统把“后台可配置”当成可信输入，但多租户后台、运营后台、插件配置、Webhook 配置都可能被低权限用户控制。</p>
 
           <h3>4.1 风险不是二元判断，而是能力矩阵</h3>
-          <table>
+          <div class="table-scroll" role="region" aria-label="文章表格，可横向滚动" tabindex="0"><table>
             <thead><tr><th>审计问题</th><th>低风险答案</th><th>高风险答案</th></tr></thead>
             <tbody>
               <tr><td>用户能控制什么</td><td>只能选择枚举 ID</td><td>能写完整 JNDI 名称或 URL</td></tr>
@@ -263,7 +231,7 @@ Object getObjectInstance(Object refInfo, Name name, Context ctx, Hashtable env) 
               <tr><td>返回对象</td><td>只允许固定接口类型，失败即拒绝</td><td>返回对象进入反射、表达式、Bean 注册或脚本执行</td></tr>
               <tr><td>依赖环境</td><td>依赖裁剪，无危险 ObjectFactory</td><td>classpath 有可被 Reference 触达的工厂类</td></tr>
             </tbody>
-          </table>
+          </table></div>
 
           <h3>4.2 常见的伪修复</h3>
           <pre><code>// 不推荐：看似限制了 ldap，但没有建立可信命名空间
@@ -337,7 +305,7 @@ DataSourceLookup / JndiDataSourceLookup</code></pre>
           <p>其中 <code>search</code> 类 API 不一定等价于对象工厂实例化，但仍然可能造成 LDAP 注入、信息泄露、认证绕过或目录探测。审计时要区分“JNDI 名称注入”和“LDAP filter 注入”，不要混成一个结论。</p>
 
           <h3>5.3 影响定级的上下文</h3>
-          <table>
+          <div class="table-scroll" role="region" aria-label="文章表格，可横向滚动" tabindex="0"><table>
             <thead><tr><th>上下文证据</th><th>风险影响</th></tr></thead>
             <tbody>
               <tr><td>JDK 版本较新且默认禁用远程 codebase</td><td>降低远程加载类的可能性，但不排除本地工厂、SSRF 和信息泄露</td></tr>
@@ -346,7 +314,7 @@ DataSourceLookup / JndiDataSourceLookup</code></pre>
               <tr><td>返回对象被用于反射、脚本、表达式或 Bean 注册</td><td>上调风险，因为对象化结果进入更强执行上下文</td></tr>
               <tr><td>异常信息完整回显给用户</td><td>可能形成探测 oracle，帮助枚举 provider、内部地址和依赖版本</td></tr>
             </tbody>
-          </table>
+          </table></div>
         </section>
 
         <section id="rules">
@@ -451,9 +419,10 @@ String jndiName = resourceMap.get(userSelectedId);</code></pre>
 
   <footer class="footer">
     <div class="inner">
-      <span>OracleNep Research Notes</span>
-      <span><a href="./">返回研究文章</a></span>
+      <span>OracleNep / Security Research Notes</span>
+      <span><a href="./">文章目录</a> · <a href="../">返回首页</a> · <a href="https://github.com/OracleNep" target="_blank" rel="noreferrer">GitHub</a></span>
     </div>
   </footer>
+  <script src="../assets/research.js?v=20261114-research" defer></script>
 </body>
 </html>

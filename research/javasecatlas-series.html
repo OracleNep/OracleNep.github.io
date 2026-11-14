@@ -57,194 +57,17 @@
     ]
   }
   </script>
-  <style>
-    :root {
-      --ink: #17202f;
-      --muted: #5c6879;
-      --line: #d8dee8;
-      --paper: #f7f9fc;
-      --surface: #ffffff;
-      --teal: #087f8c;
-      --cyan: #48d6c4;
-      --green: #126b4e;
-      --amber: #9b6508;
-      --shadow: 0 18px 46px rgba(23, 32, 47, .10);
-    }
-    * { box-sizing: border-box; }
-    html { scroll-behavior: smooth; }
-    body { margin: 0; color: var(--ink); background: var(--paper); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", Arial, sans-serif; line-height: 1.78; }
-    a { color: var(--teal); text-decoration: none; }
-    a:hover { text-decoration: underline; }
-    code, pre { font-family: "Cascadia Mono", Consolas, Menlo, Monaco, monospace; }
-    .topbar { position: sticky; top: 0; z-index: 20; border-bottom: 1px solid rgba(216, 222, 232, .92); background: rgba(247, 249, 252, .93); backdrop-filter: blur(12px); }
-    .nav { width: min(1120px, calc(100% - 48px)); min-height: 62px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 24px; }
-    .brand { color: var(--ink); font-weight: 850; white-space: nowrap; }
-    .nav-links { display: flex; align-items: center; gap: 18px; font-size: 14px; }
-    .nav-links a { color: #334155; }
-    .hero { color: #fff; background: radial-gradient(circle at 20% 10%, rgba(72, 214, 196, .18), transparent 32%), linear-gradient(115deg, #08111f 0%, #172033 58%, #0f3a43 100%); }
-    .inner { width: min(1120px, calc(100% - 48px)); margin: 0 auto; }
-    .hero-copy { max-width: 850px; padding: 86px 0 78px; }
-    .eyebrow { display: inline-flex; align-items: center; min-height: 28px; padding: 2px 10px; border: 1px solid rgba(255, 255, 255, .30); border-radius: 4px; color: #b8f2e6; background: rgba(255, 255, 255, .08); font-size: 13px; font-weight: 800; }
-    h1, h2, h3 { margin: 0; line-height: 1.25; }
-    h1 { margin-top: 18px; font-size: 48px; }
-    .subtitle { max-width: 780px; margin: 18px 0 0; color: rgba(255, 255, 255, .86); font-size: 18px; }
-    .actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 28px; }
-    .button { display: inline-flex; align-items: center; justify-content: center; min-height: 42px; padding: 9px 14px; border: 1px solid rgba(255, 255, 255, .32); border-radius: 6px; color: #fff; background: rgba(255, 255, 255, .12); font-weight: 800; }
-    .button.primary { border-color: var(--cyan); color: #062d33; background: var(--cyan); }
-    .button:hover { text-decoration: none; filter: brightness(1.04); }
-    .layout { display: grid; grid-template-columns: 280px 1fr; gap: 24px; padding: 42px 0 74px; }
-    .toc { position: sticky; top: 84px; align-self: start; padding: 18px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); box-shadow: var(--shadow); }
-    .toc strong { display: block; margin-bottom: 10px; }
-    .toc a { display: block; padding: 7px 0; color: #334155; font-size: 14px; }
-    .toc .small { margin-top: 12px; color: var(--muted); font-size: 13px; }
-    .article-list { display: grid; gap: 22px; }
-    .article { padding: 28px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); box-shadow: var(--shadow); }
-    .meta { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
-    .tag { min-height: 26px; display: inline-flex; align-items: center; padding: 2px 8px; border: 1px solid var(--line); border-radius: 4px; color: #425064; background: #f7f9fc; font-size: 12px; font-weight: 750; }
-    .article h2 { font-size: 28px; }
-    .article h3 { margin-top: 24px; font-size: 20px; }
-    .article p { margin: 12px 0 0; color: #334155; }
-    .article ul, .article ol { margin: 12px 0 0; padding-left: 22px; color: #334155; }
-    .article li + li { margin-top: 6px; }
-    .lead { margin-top: 14px; color: var(--muted); font-size: 16px; }
-    blockquote { margin: 18px 0; padding: 14px 18px; border-left: 4px solid var(--teal); background: #eef8f7; color: #24424a; }
-    pre { margin: 16px 0 0; padding: 16px; overflow-x: auto; border: 1px solid #dbe5ee; border-radius: 8px; color: #dbeafe; background: #111827; font-size: 13px; line-height: 1.65; }
-    code { padding: 1px 5px; border-radius: 4px; background: #edf2f7; color: #17324d; font-size: .94em; }
-    pre code { padding: 0; background: transparent; color: inherit; }
-    table { width: 100%; margin-top: 16px; border-collapse: collapse; font-size: 14px; }
-    th, td { padding: 10px 12px; border: 1px solid var(--line); text-align: left; vertical-align: top; }
-    th { background: #eef2f6; }
-    .note { margin-top: 18px; padding: 14px 16px; border: 1px solid #cbd5e1; border-radius: 8px; background: #f8fafc; color: #475569; }
-    .footer { padding: 34px 0; color: #cbd5e1; background: #152033; font-size: 14px; }
-    .footer .inner { display: flex; justify-content: space-between; gap: 20px; }
-    .footer a { color: #78e4d4; }
-
-    /* Match the portfolio homepage: graphite surfaces, grid texture, and orange signal accents. */
-    :root {
-      --ink: #111317;
-      --muted: #5f6570;
-      --line: #1f232b;
-      --paper: #e7e9ed;
-      --surface: #f7f7f2;
-      --surface-hard: #ffffff;
-      --dark: #080b10;
-      --dark-2: #121720;
-      --teal: #d8662e;
-      --cyan: #ffb36a;
-      --green: #c95d26;
-      --amber: #ef8b2c;
-      --red: #e36a2d;
-      --shadow: 10px 10px 0 rgba(17, 19, 23, .12);
-    }
-
-    body {
-      color: var(--ink);
-      background-color: var(--paper);
-      background-image:
-        linear-gradient(rgba(17, 19, 23, .045) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(17, 19, 23, .045) 1px, transparent 1px),
-        linear-gradient(135deg, rgba(227, 106, 45, .08), transparent 30%);
-      background-size: 38px 38px, 38px 38px, 100% 100%;
-      font-family: "Inter", "Barlow", "DIN Alternate", "Segoe UI", "PingFang SC", "Microsoft YaHei", Arial, sans-serif;
-      letter-spacing: .005em;
-    }
-
-    a { color: var(--teal); text-underline-offset: 4px; }
-    .topbar {
-      border-bottom: 1px solid rgba(255, 255, 255, .10);
-      background: rgba(8, 11, 16, .94);
-      box-shadow: 0 1px 0 rgba(227, 106, 45, .55);
-    }
-    .brand {
-      color: #f3f5f7;
-      letter-spacing: .22em;
-      text-transform: uppercase;
-    }
-    .brand::before {
-      content: "";
-      display: inline-block;
-      width: 9px;
-      height: 22px;
-      margin-right: 12px;
-      vertical-align: -5px;
-      background: var(--red);
-      clip-path: polygon(0 0, 100% 0, 100% 78%, 60% 100%, 0 100%);
-    }
-    .nav-links { gap: 8px; font-size: 12px; font-weight: 850; letter-spacing: .12em; text-transform: uppercase; }
-    .nav-links a { color: #cfd5dd; border: 1px solid transparent; }
-    .nav-links a:hover { color: #fff; text-decoration: none; border-color: rgba(255, 255, 255, .20); background: rgba(255, 255, 255, .07); }
-    .hero {
-      position: relative;
-      overflow: hidden;
-      background:
-        radial-gradient(circle at 82% 28%, rgba(227, 106, 45, .30), transparent 28%),
-        linear-gradient(104deg, #07090d 0%, #0d1118 45%, rgba(25, 20, 17, .90) 100%);
-    }
-    .hero::after {
-      content: "";
-      position: absolute;
-      inset: 0;
-      pointer-events: none;
-      background:
-        linear-gradient(90deg, rgba(255, 255, 255, .055) 1px, transparent 1px),
-        linear-gradient(rgba(255, 255, 255, .045) 1px, transparent 1px),
-        repeating-linear-gradient(115deg, transparent 0 28px, rgba(227, 106, 45, .16) 29px 31px, transparent 32px 72px);
-      background-size: 56px 56px, 56px 56px, auto;
-      mask-image: linear-gradient(90deg, rgba(0, 0, 0, .72), rgba(0, 0, 0, .34));
-    }
-    .hero-copy { position: relative; z-index: 1; }
-    .eyebrow { color: #ffc08a; border-color: rgba(227, 106, 45, .58); background: rgba(227, 106, 45, .13); }
-    .button { border-radius: 0; }
-    .button.primary { border-color: var(--red); color: #24130b; background: var(--red); }
-    .layout { position: relative; z-index: 1; }
-    .toc, .article {
-      border-radius: 0;
-      border-color: var(--line);
-      background: var(--surface-hard);
-      box-shadow: var(--shadow);
-    }
-    .toc { position: sticky; }
-    .toc::before, .article::before {
-      content: "";
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 5px;
-      height: 100%;
-      background: var(--red);
-    }
-    .toc { overflow: hidden; }
-    .article { position: relative; overflow: hidden; }
-    .toc a { color: #4f5661; }
-    .tag { border-radius: 0; color: #4d5561; background: #f7f7f2; font-weight: 850; letter-spacing: .06em; text-transform: uppercase; }
-    .article h2, .article h3 { color: var(--ink); }
-    .article p, .article ul, .article ol { color: #535a65; }
-    blockquote { border-left-color: var(--red); background: #fff1e8; color: #5b3523; }
-    pre { border-color: #3a2b24; box-shadow: 6px 6px 0 rgba(227, 106, 45, .14); }
-    th { background: #f1e7df; }
-    .note { border-color: #d8a27e; background: #fff7f1; color: #654432; }
-    .footer { background: #080b10; }
-    .footer a { color: #ffb36a; }
-
-    @media (max-width: 560px) {
-      .nav-links { gap: 4px; font-size: 11px; letter-spacing: .08em; }
-      .nav-links a { padding: 0 9px; }
-      .article { box-shadow: 6px 6px 0 rgba(17, 19, 23, .12); }
-    }
-    @media (max-width: 920px) { .nav { min-height: auto; padding: 14px 0; align-items: start; flex-direction: column; gap: 10px; } .nav-links { flex-wrap: wrap; gap: 12px; } h1 { font-size: 38px; } .layout { grid-template-columns: 1fr; } .toc { position: static; } .footer .inner { flex-direction: column; } }
-    @media (max-width: 560px) { .inner, .nav { width: min(100% - 32px, 1120px); } h1 { font-size: 31px; } .hero-copy { padding: 58px 0 64px; } .article { padding: 20px; } }
-  </style>
+  <link rel="stylesheet" href="../assets/site.css?v=20261114-research" />
 </head>
-<body>
+<body class="research-page research-article">
   <header class="topbar">
     <nav class="nav" aria-label="主导航">
-      <a class="brand" href="../index.html">OracleNep</a>
+      <a class="brand" href="../">OracleNep / Security Research</a>
       <div class="nav-links">
-        <a href="./">Research</a>
-        <a href="#article-1">V1.2 复盘</a>
-        <a href="#article-2">SARIF 编排</a>
-        <a href="#article-3">路由关联</a>
-        <a href="#article-4">Agent 复核</a>
+        <a href="../#projects">Projects</a>
+        <a href="../#vulns">Disclosures</a>
+        <a href="../#contributions">Contributions</a>
+        <a href="./" aria-current="page">Research</a>
       </div>
     </nav>
   </header>
@@ -252,6 +75,7 @@
     <section class="hero">
       <div class="inner">
         <div class="hero-copy">
+          <nav class="breadcrumb" aria-label="面包屑"><a href="../">Home</a><span aria-hidden="true">/</span><a href="./">Research</a><span aria-hidden="true">/</span><span>Article</span></nav>
           <span class="eyebrow">Research Notes / JavaSecAtlas Series</span>
           <h1>JavaSecAtlas 研究文章集</h1>
           <p class="subtitle">这里放的是我围绕 JavaSecAtlas 做的一组项目复盘：为什么不继续造一个低配 SAST，为什么要接 SARIF，后面又该怎么把 finding 关联到 Spring 路由、权限上下文和 Agent 复核流程里。</p>
@@ -264,12 +88,17 @@
     </section>
     <div class="inner layout">
       <aside class="toc" aria-label="文章目录">
-        <strong>文章目录</strong>
+        <details open>
+          <summary>文章目录</summary>
+          <div class="toc-content">
+        
         <a href="#article-1">01. V1.2：我没有继续造一个低配 SAST</a>
         <a href="#article-2">02. SARIF 导入：把外部扫描结果接进来</a>
         <a href="#article-3">03. 下一步：把 finding 绑到 Spring 路由上</a>
         <a href="#article-4">04. Agent 复核：让 AI 干适合它干的活</a>
         <p class="small">这组文章偏项目复盘，不展示未授权目标、未公开漏洞细节或可直接复用的攻击载荷。</p>
+                </div>
+        </details>
       </aside>
       <section class="article-list">
         <article class="article" id="article-1">
@@ -302,7 +131,7 @@
           <pre><code>load_sarif_findings(path: Path) -&gt; list[Finding]</code></pre>
           <p>这个函数做的事情不复杂：读取 SARIF 文件，把外部工具的 result 转成 JavaSecAtlas 自己的 <code>Finding</code> 对象。这样后面的报告、过滤、Agent 复核就可以用同一套数据结构处理。</p>
           <h3>字段怎么映射</h3>
-          <table><thead><tr><th>SARIF 字段</th><th>JavaSecAtlas 字段</th><th>说明</th></tr></thead><tbody><tr><td><code>ruleId</code></td><td><code>rule_id</code></td><td>加上外部来源前缀，例如 <code>external.semgrep...</code></td></tr><tr><td><code>message.text</code></td><td><code>message</code></td><td>保留工具原始描述，方便回看</td></tr><tr><td><code>artifactLocation.uri</code></td><td><code>file</code></td><td>记录命中文件路径</td></tr><tr><td><code>region.startLine</code></td><td><code>line</code></td><td>记录起始行</td></tr><tr><td><code>region.startColumn</code></td><td><code>column</code></td><td>记录起始列</td></tr><tr><td><code>result.level</code></td><td><code>severity</code></td><td>做基础严重等级映射</td></tr><tr><td><code>rule.properties.tags</code></td><td><code>tags</code></td><td>保留 CWE、语言、规则类别等信息</td></tr></tbody></table>
+          <div class="table-scroll" role="region" aria-label="文章表格，可横向滚动" tabindex="0"><table><thead><tr><th>SARIF 字段</th><th>JavaSecAtlas 字段</th><th>说明</th></tr></thead><tbody><tr><td><code>ruleId</code></td><td><code>rule_id</code></td><td>加上外部来源前缀，例如 <code>external.semgrep...</code></td></tr><tr><td><code>message.text</code></td><td><code>message</code></td><td>保留工具原始描述，方便回看</td></tr><tr><td><code>artifactLocation.uri</code></td><td><code>file</code></td><td>记录命中文件路径</td></tr><tr><td><code>region.startLine</code></td><td><code>line</code></td><td>记录起始行</td></tr><tr><td><code>region.startColumn</code></td><td><code>column</code></td><td>记录起始列</td></tr><tr><td><code>result.level</code></td><td><code>severity</code></td><td>做基础严重等级映射</td></tr><tr><td><code>rule.properties.tags</code></td><td><code>tags</code></td><td>保留 CWE、语言、规则类别等信息</td></tr></tbody></table></div>
           <h3>一个实际例子</h3>
           <pre><code>rule_id: external.semgrep.java.lang.security.audit.crypto.use-of-md5.use-of-md5
 severity: medium
@@ -353,6 +182,12 @@ Agent 辅助判断：可控参数、利用条件、误报可能、修复建议
       </section>
     </div>
   </main>
-  <footer class="footer"><div class="inner"><span>OracleNep Research Notes</span><span><a href="../index.html">返回安全作品集</a></span></div></footer>
+  <footer class="footer">
+    <div class="inner">
+      <span>OracleNep / Security Research Notes</span>
+      <span><a href="./">文章目录</a> · <a href="../">返回首页</a> · <a href="https://github.com/OracleNep" target="_blank" rel="noreferrer">GitHub</a></span>
+    </div>
+  </footer>
+  <script src="../assets/research.js?v=20261114-research" defer></script>
 </body>
 </html>

@@ -32,44 +32,17 @@
     ]
   }
   </script>
-  <style>
-    :root { --ink:#17202f; --muted:#5c6879; --line:#d8dee8; --paper:#f7f9fc; --surface:#ffffff; --teal:#087f8c; --cyan:#48d6c4; --shadow:0 18px 46px rgba(23,32,47,.10); }
-    * { box-sizing:border-box; }
-    body { margin:0; color:var(--ink); background:var(--paper); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",Arial,sans-serif; line-height:1.75; }
-    a { color:var(--teal); text-decoration:none; } a:hover { text-decoration:underline; }
-    .topbar { position:sticky; top:0; z-index:20; border-bottom:1px solid rgba(216,222,232,.92); background:rgba(247,249,252,.93); backdrop-filter:blur(12px); }
-    .nav,.inner { width:min(1060px,calc(100% - 48px)); margin:0 auto; }
-    .nav { min-height:62px; display:flex; align-items:center; justify-content:space-between; gap:20px; }
-    .brand { color:var(--ink); font-weight:850; }
-    .nav-links { display:flex; gap:16px; font-size:14px; flex-wrap:wrap; }
-    .nav-links a { color:#334155; }
-    .hero { color:#fff; background:radial-gradient(circle at 18% 12%,rgba(72,214,196,.18),transparent 32%),linear-gradient(115deg,#08111f 0%,#172033 58%,#0f3a43 100%); }
-    .hero-copy { max-width:760px; padding:78px 0 72px; }
-    .eyebrow { display:inline-flex; min-height:28px; align-items:center; padding:2px 10px; border:1px solid rgba(255,255,255,.30); border-radius:4px; color:#b8f2e6; background:rgba(255,255,255,.08); font-size:13px; font-weight:800; }
-    h1,h2,h3 { margin:0; line-height:1.25; } h1 { margin-top:18px; font-size:48px; }
-    .subtitle { margin:18px 0 0; color:rgba(255,255,255,.86); font-size:18px; }
-    .section { padding:54px 0 78px; }
-    .grid { display:grid; grid-template-columns:1fr; gap:18px; }
-    .card { padding:24px; border:1px solid var(--line); border-radius:8px; background:var(--surface); box-shadow:var(--shadow); }
-    .card p { margin:10px 0 0; color:var(--muted); }
-    .tag-row { display:flex; flex-wrap:wrap; gap:8px; margin-top:14px; }
-    .tag { min-height:28px; display:inline-flex; align-items:center; padding:2px 9px; border:1px solid var(--line); border-radius:4px; color:#425064; background:#f7f9fc; font-size:13px; font-weight:700; }
-    .arrow { display:inline-block; margin-top:14px; font-weight:850; }
-    .footer { padding:34px 0; color:#cbd5e1; background:#152033; font-size:14px; }
-    .footer .inner { display:flex; justify-content:space-between; gap:20px; }
-    .footer a { color:#78e4d4; }
-    @media (max-width:720px){ .nav{align-items:start;flex-direction:column;padding:14px 0;} .nav-links{flex-wrap:wrap;} h1{font-size:34px;} .hero-copy{padding:58px 0 60px;} .footer .inner{flex-direction:column;} }
-  </style>
+  <link rel="stylesheet" href="../assets/site.css?v=20261114-research" />
 </head>
-<body>
+<body class="research-page research-index">
   <header class="topbar">
     <nav class="nav" aria-label="主导航">
-      <a class="brand" href="../index.html">OracleNep</a>
+      <a class="brand" href="../">OracleNep / Security Research</a>
       <div class="nav-links">
-        <a href="../index.html">作品集</a>
-        <a href="java-jndi-lookup-boundary.html">JNDI 审计</a>
-        <a href="javasecatlas-series.html">JavaSecAtlas 系列</a>
-        <a href="java-spel-evaluation-context.html">SpEL 审计</a>
+        <a href="../#projects">Projects</a>
+        <a href="../#vulns">Disclosures</a>
+        <a href="../#contributions">Contributions</a>
+        <a href="./" aria-current="page">Research</a>
       </div>
     </nav>
   </header>
@@ -78,6 +51,7 @@
     <section class="hero">
       <div class="inner">
         <div class="hero-copy">
+          <nav class="breadcrumb" aria-label="面包屑"><a href="../">Home</a><span aria-hidden="true">/</span><span aria-current="page">Research</span></nav>
           <span class="eyebrow">Research Notes</span>
           <h1>安全研究文章</h1>
           <p class="subtitle">这里整理 Java 安全、代码审计、安全工具开发和项目复盘类文章。先从 JavaSecAtlas、JNDI 注入边界和 Spring SpEL 审计开始，后面会继续补 Java 代码审计、CTF WP 和漏洞复现。</p>
@@ -129,8 +103,8 @@
 
   <footer class="footer">
     <div class="inner">
-      <span>OracleNep Research Notes</span>
-      <span><a href="../index.html">返回安全作品集</a></span>
+      <span>OracleNep / Security Research Notes</span>
+      <span><a href="./">文章目录</a> · <a href="../">返回首页</a> · <a href="https://github.com/OracleNep" target="_blank" rel="noreferrer">GitHub</a></span>
     </div>
   </footer>
 </body>
